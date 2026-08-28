@@ -1,0 +1,152 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Rabbit design system — dark, cinematic, Netflix/IMDb-inspired. */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-glass: var(--glass);
+  --color-rabbit-red: var(--rabbit-red);
+  --color-rabbit-purple: var(--rabbit-purple);
+  --color-rabbit-gold: var(--rabbit-gold);
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.9rem;
+
+  /* Rabbit dark palette (default) */
+  --background: oklch(0.13 0.01 260);
+  --foreground: oklch(0.97 0.005 250);
+
+  --surface: oklch(0.17 0.012 265);
+  --surface-elevated: oklch(0.21 0.015 265);
+  --glass: oklch(0.22 0.02 270 / 0.55);
+
+  --card: oklch(0.18 0.012 265);
+  --card-foreground: oklch(0.97 0.005 250);
+
+  --popover: oklch(0.16 0.012 265);
+  --popover-foreground: oklch(0.97 0.005 250);
+
+  --primary: oklch(0.62 0.235 20);           /* Rabbit red */
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.55 0.22 300);         /* Rabbit purple */
+  --secondary-foreground: oklch(0.99 0 0);
+
+  --muted: oklch(0.24 0.015 265);
+  --muted-foreground: oklch(0.72 0.02 265);
+
+  --accent: oklch(0.28 0.03 300);
+  --accent-foreground: oklch(0.99 0 0);
+
+  --destructive: oklch(0.62 0.25 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.28 0.015 265 / 0.6);
+  --input: oklch(0.24 0.015 265);
+  --ring: oklch(0.62 0.235 20 / 0.6);
+
+  --rabbit-red: oklch(0.62 0.235 20);
+  --rabbit-purple: oklch(0.55 0.22 300);
+  --rabbit-gold: oklch(0.82 0.16 85);
+
+  --sidebar: oklch(0.15 0.012 265);
+  --sidebar-foreground: oklch(0.97 0.005 250);
+  --sidebar-primary: oklch(0.62 0.235 20);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.24 0.015 265);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(0.28 0.015 265 / 0.6);
+  --sidebar-ring: oklch(0.62 0.235 20 / 0.6);
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--rabbit-red) 45%, transparent);
+    color: white;
+  }
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--surface-elevated) 65%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in oklab, white 8%, transparent);
+}
+
+@utility gradient-rabbit {
+  background-image: linear-gradient(
+    135deg,
+    var(--rabbit-red) 0%,
+    var(--rabbit-purple) 100%
+  );
+}
+
+@utility text-gradient-rabbit {
+  background-image: linear-gradient(
+    135deg,
+    var(--rabbit-red) 0%,
+    var(--rabbit-purple) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-cinema {
+  box-shadow:
+    0 20px 60px -20px color-mix(in oklab, var(--rabbit-red) 25%, transparent),
+    0 8px 30px -10px color-mix(in oklab, black 60%, transparent);
+}
+
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
