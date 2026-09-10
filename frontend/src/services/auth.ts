@@ -1,36 +1,15 @@
-import { api } from "@/api/client";
-import { endpoints } from "@/api/endpoints";
-import type {
-  AuthResponse,
-  LoginPayload,
-  RegisterPayload,
-  User,
-} from "@/types/user";
+import { api, setApiToken } from '@/lib/api';
+import type { AuthResponse, User } from '@/types/user';
 
 export const authService = {
-  login: async (payload: LoginPayload): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>(endpoints.auth.login, payload);
-    return data;
+  async login(email: string, password: string) {
+    const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
+    setApiToken(data.access_token); return data;
   },
-  register: async (payload: RegisterPayload): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>(
-      endpoints.auth.register,
-      payload,
-    );
-    return data;
+  async register(email: string, password: string, full_name?: string) {
+    const { data } = await api.post<AuthResponse>('/auth/register', { email, password, full_name });
+    setApiToken(data.access_token); return data;
   },
-  logout: async (): Promise<void> => {
-    await api.post(endpoints.auth.logout);
-  },
-  googleUrl: () => {
-    const base =
-      (typeof import.meta !== "undefined" &&
-        import.meta.env?.VITE_API_BASE_URL) ||
-      "/api";
-    return `${base}${endpoints.auth.google}`;
-  },
-  me: async (): Promise<User> => {
-    const { data } = await api.get<User>(endpoints.auth.me);
-    return data;
-  },
+  async me() { const { data } = await api.get<User>('/auth/me'); return data; },
+  logout() { setApiToken(null); },
 };

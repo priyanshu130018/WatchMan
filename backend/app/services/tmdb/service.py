@@ -11,21 +11,34 @@ class TMDBService:
 
     async def _request(self, endpoint: str, params=None):
         params = params or {}
-        params["api_key"] = self.api_key
+        params["api_key"] = self.api_key.strip() if self.api_key else ""
 
-        async with httpx.AsyncClient(timeout=20) as client:
-            response = await client.get(
-                f"{self.BASE_URL}/{endpoint}",
-                params=params,
-            )
+        endpoints_to_try = [
+            f"{self.BASE_URL}/{endpoint}",
+            f"https://api.tmdb.org/3/{endpoint}",
+        ]
 
-        if response.status_code != 200:
+        last_error = None
+        for url in endpoints_to_try:
+            try:
+                async with httpx.AsyncClient(timeout=20) as client:
+                    response = await client.get(url, params=params)
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=response.text,
+                    )
+                return response.json()
+            except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+                last_error = e
+                continue
+
+        if last_error:
             raise HTTPException(
-                status_code=response.status_code,
-                detail=response.text,
+                status_code=503,
+                detail=f"TMDB connection error: {last_error}"
             )
 
-        return response.json()
 
     async def trending_movies(self):
         return await self._request("trending/movie/week")
@@ -49,11 +62,21 @@ class TMDBService:
         )
 
     async def recommendations(self, movie_id: int):
-        return await self._get(
-            f"/movie/{movie_id}/recommendations"
+        return await self._request(
+            f"movie/{movie_id}/recommendations"
         )
 
     async def similar_movies(self, movie_id: int):
-        return await self._get(
-            f"/movie/{movie_id}/similar"
+        return await self._request(
+            f"movie/{movie_id}/similar"
         )
+
+    async def movie_credits(self, movie_id: int):
+        return await self._request(
+            f"movie/{movie_id}/credits"
+        )
+
+    async def movie_keywords(self, movie_id: int):
+        return await self._request(
+            f"movie/{movie_id}/keywords"
+        )

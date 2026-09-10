@@ -1,77 +1,55 @@
-export interface Genre {
+export type Movie = {
   id: number;
-  name: string;
-}
-
-export interface StreamingPlatform {
-  id: number | string;
-  name: string;
-  logo_url?: string;
-}
-
-export interface CastMember {
-  id: number;
-  name: string;
-  character?: string;
-  profile_url?: string;
-}
-
-export interface Movie {
-  id: number | string;
+  tmdb_id?: number;
   title: string;
   original_title?: string;
-  tagline?: string;
   overview?: string;
+  tagline?: string;
   poster_url?: string;
   backdrop_url?: string;
+  poster_path?: string;
+  backdrop_path?: string;
   release_date?: string;
-  release_year?: number;
-  runtime?: number;
-  genres?: Genre[];
-  languages?: string[];
-  country?: string;
-  director?: string;
-  writer?: string;
-  cast?: CastMember[];
-  streaming_platforms?: StreamingPlatform[];
+  vote_average?: number;
   imdb_rating?: number;
   tmdb_rating?: number;
-  rabbit_match?: number;
+  popularity?: number;
+  runtime?: number;
+  genres?: Array<{ id?: number; name: string }>;
+  cast?: Array<{ id: number; name: string; character?: string; profile_path?: string; profile_url?: string }>;
+  crew?: Array<{ id: number; name: string; job?: string }>;
   trailer_url?: string;
   is_favorite?: boolean;
+  reason?: string;
+};
+
+export type RecommendationMovie = Movie & {
+  recommendation_score: number;
+  content_score: number;
+  collaborative_score: number;
+  popularity_score: number;
+  reason: string;
+};
+
+export function imageUrl(path?: string, size = 'w500') {
+  if (!path) return undefined;
+  if (path.startsWith('http')) return path;
+  return `https://image.tmdb.org/t/p/${size}${path}`;
 }
 
-export interface MovieSection {
-  key: string;
-  title: string;
-  movies: Movie[];
-}
-
-export interface HomeResponse {
-  featured?: Movie[];
-  recommendations?: Movie[];
-  trending?: Movie[];
-  latest?: Movie[];
-  netflix?: Movie[];
-  prime?: Movie[];
-  disney?: Movie[];
-  hotstar?: Movie[];
-  top_rated?: Movie[];
-}
-
-export interface Paginated<T> {
-  results: T[];
-  page: number;
-  total_pages: number;
-  total_results: number;
-}
-
-export interface SearchFilters {
-  q?: string;
-  genre?: string;
-  language?: string;
-  platform?: string;
-  year?: string;
-  sort?: "popularity" | "latest" | "imdb" | "rabbit";
-  page?: number;
+export function normalizeMovie(raw: any): Movie {
+  const genres = Array.isArray(raw?.genres) ? raw.genres : Array.isArray(raw?.genre_ids) ? raw.genre_ids.map((id: number) => ({ id, name: `Genre ${id}` })) : [];
+  const cast = Array.isArray(raw?.cast) ? raw.cast : [];
+  const crew = Array.isArray(raw?.crew) ? raw.crew : [];
+  return {
+    ...raw,
+    id: Number(raw?.id ?? raw?.tmdb_id),
+    tmdb_id: raw?.tmdb_id ?? raw?.id,
+    poster_url: raw?.poster_url ?? imageUrl(raw?.poster_path, 'w500'),
+    backdrop_url: raw?.backdrop_url ?? imageUrl(raw?.backdrop_path, 'w1280'),
+    tmdb_rating: raw?.tmdb_rating ?? raw?.vote_average,
+    genres,
+    cast: cast.map((c: any) => ({ ...c, profile_url: c.profile_url ?? imageUrl(c.profile_path, 'w185') })),
+    crew,
+  };
 }

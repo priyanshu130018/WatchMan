@@ -1,5 +1,5 @@
 {
-  "name": "rabbit_client",
+  "name": "watchman-frontend",
   "private": true,
   "sideEffects": false,
   "type": "module",

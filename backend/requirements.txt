@@ -9,9 +9,10 @@ python-dotenv
 redis
 celery
 httpx
-python-jose
-passlib
+python-jose[cryptography]
+passlib[bcrypt]
 bcrypt
+pwdlib[argon2]
 authlib
 itsdangerous
 python-multipart
@@ -26,3 +27,5 @@ lightgbm
 implicit
 numpy
 pandas
+cryptography
+email-validator

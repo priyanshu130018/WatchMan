@@ -1,0 +1,113 @@
+﻿# Environment Variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Backend Python
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/*.so
+backend/.Python
+backend/build/
+backend/develop-eggs/
+backend/dist/
+backend/downloads/
+backend/eggs/
+backend/.eggs/
+backend/lib/
+backend/lib64/
+backend/parts/
+backend/sdist/
+backend/var/
+backend/wheels/
+backend/pip-wheel-metadata/
+backend/share/python-wheels/
+backend/*.egg-info/
+backend/.installed.cfg
+backend/*.egg
+backend/MANIFEST
+
+# Virtual environments
+backend/venv/
+backend/.venv/
+backend/env/
+backend/ENV/
+backend/env.bak/
+backend/venv.bak/
+
+# pytest
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/coverage.xml
+backend/.mypy_cache/
+backend/.dmypy.json
+backend/dmypy.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# Frontend Node modules and builds
+frontend/node_modules/
+frontend/.npm/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+frontend/.cache/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Misc
+.tanstack/
+.lovable/
+*.bak
+.DS_Store
+dist
+dist-ssr
+*.local
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Coverage reports
+coverage/
+.coverage
+htmlcov/
+
+# Docker volumes
+pgdata/
+redis-data/
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp

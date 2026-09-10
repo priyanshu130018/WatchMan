@@ -1,11 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
 engine = create_engine(
     settings.DATABASE_URL,
-    echo=True
+    poolclass=NullPool,
+    pool_pre_ping=True,
+    echo=False
 )
 
 SessionLocal = sessionmaker(
@@ -20,4 +23,4 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()
+        db.close()
