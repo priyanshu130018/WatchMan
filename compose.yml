@@ -1,0 +1,139 @@
+# =============================================================================
+# WatchMan — single Compose file (containers on your machine -> CLOUD services)
+# =============================================================================
+# Runs the whole app as containers pointed at your managed third-party services:
+#   * Database   : Supabase PostgreSQL (+pgvector)  -> DATABASE_URL   (backend/.env)
+#   * Redis      : Upstash Redis (TLS, rediss://)   -> REDIS_URL/CELERY_* (backend/.env)
+#   * Auth       : Supabase Auth                     -> AUTH_PROVIDER=supabase
+#   * Embeddings : HuggingFace Inference API         -> HF_API_URL/HF_API_TOKEN
+#
+# There are deliberately NO postgres/redis containers — cloud only. The backend
+# fail-fast config (APP_ENV=production) rejects any localhost/Docker DB/Redis URL.
+#
+# Runtime env comes from the two per-app files:
+#   backend  <- backend/.env   (via env_file:)
+#   frontend <- frontend/.env  (via --env-file for the VITE_* build args)
+#
+# This file is named compose.yml, so Docker finds it automatically (no -f needed):
+#   docker compose --env-file frontend/.env build
+#   docker compose --env-file frontend/.env run --rm backend alembic upgrade head
+#   docker compose --env-file frontend/.env up -d
+#   docker compose logs -f backend
+#   docker compose down
+#
+# Reach it at:  backend http://localhost:8000  |  frontend http://localhost:3000
+
+services:
+  # FastAPI backend -> Supabase Postgres + Upstash Redis
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: watchman_backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; exit(0 if urlopen('http://localhost:8000/health', timeout=3).status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    restart: unless-stopped
+
+  # Celery worker -> Upstash Redis broker/backend
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: watchman_celery_worker
+    command: celery -A app.core.celery.celery_app worker --loglevel=info
+    env_file:
+      - ./backend/.env
+    # Override the image's HTTP healthcheck (meant for the API on :8000) with a
+    # Celery-native liveness ping. Two deliberate choices:
+    #   * No `-d celery@$HOSTNAME` destination. That form depends on $HOSTNAME
+    #     being exported into /bin/sh AND matching the worker's node name exactly;
+    #     when it doesn't, the probe targets a non-existent mailbox and Docker
+    #     logs "No nodes replied within time constraint" even though the worker is
+    #     fine. A plain `inspect ping` (the command that verifiably returns pong)
+    #     broadcasts to whatever worker is on the broker — correct here, one node.
+    #   * Explicit `--timeout 10`. Celery's inspect reply wait defaults to just
+    #     1.0s, which is too short for the round-trip through the Upstash broker
+    #     over TLS — the real cause of the intermittent false "unhealthy".
+    # Docker timeout/start_period are raised to cover the celery CLI cold-start
+    # (import + TLS broker connect) plus the up-to-10s reply wait.
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.core.celery.celery_app inspect ping --timeout 10"]
+      interval: 30s
+      timeout: 20s
+      start_period: 45s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Celery beat scheduler -> Upstash Redis broker/backend
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: watchman_celery_beat
+    command: celery -A app.core.celery.celery_app beat --loglevel=info
+    env_file:
+      - ./backend/.env
+    # Beat has no broker mailbox to ping and exposes no HTTP endpoint, so we just
+    # verify the scheduler process is alive by scanning /proc for a 'beat'
+    # command line (pure Python — no procps/pgrep needed in the slim image).
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import glob,sys; sys.exit(0 if any(b'beat' in open(f,'rb').read() for f in glob.glob('/proc/[0-9]*/cmdline')) else 1)\""]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend (Nitro SSR). VITE_* are baked at BUILD time from frontend/.env,
+  # supplied here via --env-file frontend/.env interpolation.
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api}
+        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-supabase}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+    container_name: watchman_frontend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      BACKEND_INTERNAL_URL: http://backend:8000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Dev-only test runner. Gated behind the `test` profile so it NEVER starts
+  # with `docker compose up` and does not touch the four long-running services.
+  # Builds the Dockerfile `tests` stage (pytest + tests/ on top of runtime deps);
+  # the production images stay lean. The suite is hermetic — tests/conftest.py
+  # supplies APP_ENV=test defaults and mocks the network — so no env_file, no
+  # cloud creds, and no dependency on Supabase/Redis are needed to run it.
+  backend_tests:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: tests
+    image: watchman_backend_tests
+    container_name: watchman_backend_tests
+    profiles: ["test"]
+    command: ["python", "-m", "pytest", "-q"]
+    restart: "no"

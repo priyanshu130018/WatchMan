@@ -11,13 +11,24 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OttRouteImport } from './routes/ott'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RecommendationRouteImport } from './routes/recommendation'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as TrendingRouteImport } from './routes/trending'
+import { Route as MovieIndexRouteImport } from './routes/movie.index'
 import { Route as MovieIdRouteImport } from './routes/movie.$id'
+import { Route as RecommendationIdRouteImport } from './routes/recommendation.$id'
+import { Route as TrendingIdRouteImport } from './routes/trending.$id'
+import { Route as WebSeriesIndexRouteImport } from './routes/web-series.index'
+import { Route as WebSeriesIdRouteImport } from './routes/web-series.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
 const FavoritesRoute = FavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -44,6 +60,26 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OttRoute = OttRouteImport.update({
+  id: '/ott',
+  path: '/ott',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecommendationRoute = RecommendationRouteImport.update({
+  id: '/recommendation',
+  path: '/recommendation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -59,92 +95,197 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrendingRoute = TrendingRouteImport.update({
+  id: '/trending',
+  path: '/trending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovieIndexRoute = MovieIndexRouteImport.update({
+  id: '/movie/',
+  path: '/movie/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MovieIdRoute = MovieIdRouteImport.update({
   id: '/movie/$id',
   path: '/movie/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecommendationIdRoute = RecommendationIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RecommendationRoute,
+} as any)
+const TrendingIdRoute = TrendingIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TrendingRoute,
+} as any)
+const WebSeriesIndexRoute = WebSeriesIndexRouteImport.update({
+  id: '/web-series/',
+  path: '/web-series/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebSeriesIdRoute = WebSeriesIdRouteImport.update({
+  id: '/web-series/$id',
+  path: '/web-series/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/favorites': typeof FavoritesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/ott': typeof OttRoute
   '/profile': typeof ProfileRoute
+  '/recommendation': typeof RecommendationRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/trending': typeof TrendingRouteWithChildren
   '/movie/$id': typeof MovieIdRoute
+  '/recommendation/$id': typeof RecommendationIdRoute
+  '/trending/$id': typeof TrendingIdRoute
+  '/web-series/$id': typeof WebSeriesIdRoute
+  '/movie/': typeof MovieIndexRoute
+  '/web-series/': typeof WebSeriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/favorites': typeof FavoritesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/ott': typeof OttRoute
   '/profile': typeof ProfileRoute
+  '/recommendation': typeof RecommendationRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/trending': typeof TrendingRouteWithChildren
   '/movie/$id': typeof MovieIdRoute
+  '/recommendation/$id': typeof RecommendationIdRoute
+  '/trending/$id': typeof TrendingIdRoute
+  '/web-series/$id': typeof WebSeriesIdRoute
+  '/movie': typeof MovieIndexRoute
+  '/web-series': typeof WebSeriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/favorites': typeof FavoritesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/ott': typeof OttRoute
   '/profile': typeof ProfileRoute
+  '/recommendation': typeof RecommendationRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/trending': typeof TrendingRouteWithChildren
   '/movie/$id': typeof MovieIdRoute
+  '/recommendation/$id': typeof RecommendationIdRoute
+  '/trending/$id': typeof TrendingIdRoute
+  '/web-series/$id': typeof WebSeriesIdRoute
+  '/movie/': typeof MovieIndexRoute
+  '/web-series/': typeof WebSeriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/favorites'
+    | '/forgot-password'
     | '/history'
     | '/login'
+    | '/ott'
     | '/profile'
+    | '/recommendation'
+    | '/reset-password'
+    | '/saved'
     | '/search'
     | '/settings'
     | '/signup'
+    | '/trending'
     | '/movie/$id'
+    | '/recommendation/$id'
+    | '/trending/$id'
+    | '/web-series/$id'
+    | '/movie/'
+    | '/web-series/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/favorites'
+    | '/forgot-password'
     | '/history'
     | '/login'
+    | '/ott'
     | '/profile'
+    | '/recommendation'
+    | '/reset-password'
+    | '/saved'
     | '/search'
     | '/settings'
     | '/signup'
+    | '/trending'
     | '/movie/$id'
+    | '/recommendation/$id'
+    | '/trending/$id'
+    | '/web-series/$id'
+    | '/movie'
+    | '/web-series'
   id:
     | '__root__'
     | '/'
     | '/favorites'
+    | '/forgot-password'
     | '/history'
     | '/login'
+    | '/ott'
     | '/profile'
+    | '/recommendation'
+    | '/reset-password'
+    | '/saved'
     | '/search'
     | '/settings'
     | '/signup'
+    | '/trending'
     | '/movie/$id'
+    | '/recommendation/$id'
+    | '/trending/$id'
+    | '/web-series/$id'
+    | '/movie/'
+    | '/web-series/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FavoritesRoute: typeof FavoritesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
+  OttRoute: typeof OttRoute
   ProfileRoute: typeof ProfileRoute
+  RecommendationRoute: typeof RecommendationRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  TrendingRoute: typeof TrendingRouteWithChildren
   MovieIdRoute: typeof MovieIdRoute
+  WebSeriesIdRoute: typeof WebSeriesIdRoute
+  MovieIndexRoute: typeof MovieIndexRoute
+  WebSeriesIndexRoute: typeof WebSeriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -163,6 +304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
@@ -177,11 +325,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ott': {
+      id: '/ott'
+      path: '/ott'
+      fullPath: '/ott'
+      preLoaderRoute: typeof OttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recommendation': {
+      id: '/recommendation'
+      path: '/recommendation'
+      fullPath: '/recommendation'
+      preLoaderRoute: typeof RecommendationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -205,6 +381,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trending': {
+      id: '/trending'
+      path: '/trending'
+      fullPath: '/trending'
+      preLoaderRoute: typeof TrendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movie/': {
+      id: '/movie/'
+      path: '/movie'
+      fullPath: '/movie/'
+      preLoaderRoute: typeof MovieIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/movie/$id': {
       id: '/movie/$id'
       path: '/movie/$id'
@@ -212,19 +402,80 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovieIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recommendation/$id': {
+      id: '/recommendation/$id'
+      path: '/$id'
+      fullPath: '/recommendation/$id'
+      preLoaderRoute: typeof RecommendationIdRouteImport
+      parentRoute: typeof RecommendationRoute
+    }
+    '/trending/$id': {
+      id: '/trending/$id'
+      path: '/$id'
+      fullPath: '/trending/$id'
+      preLoaderRoute: typeof TrendingIdRouteImport
+      parentRoute: typeof TrendingRoute
+    }
+    '/web-series/': {
+      id: '/web-series/'
+      path: '/web-series'
+      fullPath: '/web-series/'
+      preLoaderRoute: typeof WebSeriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/web-series/$id': {
+      id: '/web-series/$id'
+      path: '/web-series/$id'
+      fullPath: '/web-series/$id'
+      preLoaderRoute: typeof WebSeriesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface RecommendationRouteChildren {
+  RecommendationIdRoute: typeof RecommendationIdRoute
+}
+
+const RecommendationRouteChildren: RecommendationRouteChildren = {
+  RecommendationIdRoute: RecommendationIdRoute,
+}
+
+const RecommendationRouteWithChildren = RecommendationRoute._addFileChildren(
+  RecommendationRouteChildren,
+)
+
+interface TrendingRouteChildren {
+  TrendingIdRoute: typeof TrendingIdRoute
+}
+
+const TrendingRouteChildren: TrendingRouteChildren = {
+  TrendingIdRoute: TrendingIdRoute,
+}
+
+const TrendingRouteWithChildren = TrendingRoute._addFileChildren(
+  TrendingRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FavoritesRoute: FavoritesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
+  OttRoute: OttRoute,
   ProfileRoute: ProfileRoute,
+  RecommendationRoute: RecommendationRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  TrendingRoute: TrendingRouteWithChildren,
   MovieIdRoute: MovieIdRoute,
+  WebSeriesIdRoute: WebSeriesIdRoute,
+  MovieIndexRoute: MovieIndexRoute,
+  WebSeriesIndexRoute: WebSeriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

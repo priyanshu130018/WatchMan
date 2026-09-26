@@ -1,0 +1,9 @@
+# Development / test-only dependencies.
+#
+# These are intentionally NOT in requirements.txt so the production runtime
+# image stays lean and free of test tooling. They are installed only in the
+# Dockerfile `tests` build stage (and can be used the same way in CI).
+-r requirements.txt
+
+pytest==8.3.4
+pytest-asyncio==0.24.0

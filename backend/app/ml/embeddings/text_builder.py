@@ -3,8 +3,8 @@ from typing import Any
 
 
 def _extract_names(items: Any, max_items: int = 20) -> list[str]:
-    """Safely extracts 'name' strings from a list of dicts or strings."""
-    if not items or not isinstance(items, (list, tuple)):
+    """Safely extracts 'name' strings from a list of dicts, ORM models, or strings."""
+    if not items or not isinstance(items, (list, tuple, set)):
         return []
     
     names = []
@@ -13,6 +13,12 @@ def _extract_names(items: Any, max_items: int = 20) -> list[str]:
             name = item.get("name")
             if name and isinstance(name, str) and name.strip():
                 names.append(name.strip())
+        elif hasattr(item, "genre") and hasattr(item.genre, "name") and item.genre.name:
+            names.append(item.genre.name.strip())
+        elif hasattr(item, "person") and hasattr(item.person, "name") and item.person.name:
+            names.append(item.person.name.strip())
+        elif hasattr(item, "name") and isinstance(item.name, str) and item.name.strip():
+            names.append(item.name.strip())
         elif isinstance(item, str) and item.strip():
             names.append(item.strip())
         if len(names) >= max_items:
@@ -21,8 +27,8 @@ def _extract_names(items: Any, max_items: int = 20) -> list[str]:
 
 
 def _extract_directors(crew_items: Any, max_directors: int = 3) -> list[str]:
-    """Safely extracts director names from crew list."""
-    if not crew_items or not isinstance(crew_items, (list, tuple)):
+    """Safely extracts director names from crew list or ORM relationship."""
+    if not crew_items or not isinstance(crew_items, (list, tuple, set)):
         return []
     
     directors = []
@@ -31,6 +37,11 @@ def _extract_directors(crew_items: Any, max_directors: int = 3) -> list[str]:
             job = member.get("job")
             name = member.get("name")
             if job == "Director" and name and isinstance(name, str) and name.strip():
+                if name.strip() not in directors:
+                    directors.append(name.strip())
+        elif hasattr(member, "job") and member.job == "Director":
+            name = getattr(member.person, "name", None) if hasattr(member, "person") else getattr(member, "name", None)
+            if name and isinstance(name, str) and name.strip():
                 if name.strip() not in directors:
                     directors.append(name.strip())
         if len(directors) >= max_directors:
@@ -50,9 +61,9 @@ def _extract_year(release_date: Any) -> str | None:
 
 def build_movie_embedding_text(movie: Any) -> str:
     """
-    Builds a clean, deterministic textual representation of a movie for embedding generation.
+    Builds a clean, deterministic textual representation of a movie or content item for embedding generation.
     
-    Accepts either an ORM Movie object or a dict.
+    Accepts either an ORM Content/Movie object or a dict.
     Gracefully handles NULLs, empty arrays, and missing attributes.
     """
     def get_val(attr: str) -> Any:

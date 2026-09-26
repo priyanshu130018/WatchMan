@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    preset: "node-server",
+    routeRules: {
+      "/api/**": { proxy: process.env.BACKEND_INTERNAL_URL || "http://backend:8000/api/**" },
+    },
+  } as any,
 });

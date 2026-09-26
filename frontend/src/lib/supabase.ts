@@ -1,6 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const rawUrl = import.meta.env.VITE_SUPABASE_URL;
+const rawKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-export const supabase = url && key ? createClient(url, key) : null;
+const url = typeof rawUrl === "string" ? rawUrl.trim() : "";
+const key = typeof rawKey === "string" ? rawKey.trim() : "";
+
+// Supabase client is initialized only when valid non-empty public configuration is provided
+export const supabase: SupabaseClient | null = url && key ? createClient(url, key) : null;

@@ -2,7 +2,25 @@
 .env
 .env.local
 .env.*.local
-!.env.example
+# Any environment file with real secrets (production.env, staging.env, etc.)
+*.env
+# Only the two per-app templates are tracked. There is intentionally NO root/
+# common env template — configuration lives solely in frontend/.env and
+# backend/.env (see frontend/.env.example and backend/.env.example).
+!backend/.env.example
+!frontend/.env.example
+
+# TLS private keys / certificates must never be committed. The nginx/certs
+# material is local/self-signed and should be generated per-environment (and a
+# real CA cert used in production). If a key was already committed, rotate it
+# and untrack with `git rm --cached nginx/certs/server.key nginx/certs/server.crt`.
+*.key
+*.crt
+*.pem
+nginx/certs/
+
+# root pytest cache
+.pytest_cache/
 
 # Backend Python
 backend/__pycache__/
@@ -28,6 +46,7 @@ backend/*.egg-info/
 backend/.installed.cfg
 backend/*.egg
 backend/MANIFEST
+notebook/data/
 
 # Virtual environments
 backend/venv/

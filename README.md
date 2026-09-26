@@ -25,10 +25,13 @@ A full-stack movie discovery and recommendation application built with React/Typ
 
 ### Backend
 - FastAPI - Python web framework
-- PostgreSQL with pgvector - Database and vector search
-- SQLAlchemy - ORM
+- PostgreSQL with pgvector - Database and vector similarity search
+- Supabase - Managed Postgres / project services
+- SQLAlchemy + Alembic - ORM and migrations
+- Redis - Caching of frequent TMDB/recommendation responses
+- Celery (worker + beat) - Background recommendation & catalog jobs
 - JWT - Authentication
-- Sentence Transformers - ML embeddings
+- HuggingFace Inference API - Remote sentence-transformer embeddings (`sentence-transformers/all-MiniLM-L6-v2`, 384-dim). Embeddings are generated via API call rather than a local torch model, keeping the image small.
 
 ## Quick Start with Docker
 
@@ -130,9 +133,26 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 SECRET_KEY=your-secret-key
 TMDB_API_KEY=your-tmdb-key
+TMDB_BASE_URL=https://api.themoviedb.org/3
+OMDB_API_KEY=your-omdb-key
+OMDB_BASE_URL=https://www.omdbapi.com/
 REDIS_URL=redis://localhost:6379/0
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/1
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+VECTOR_DIMENSION=384
+ENABLE_PGVECTOR=true
 ML_ADMIN_EMAILS=admin@example.com
+# HuggingFace Inference API (remote embeddings) - create a free token at
+# https://huggingface.co/settings/tokens
+HF_API_URL=https://api-inference.huggingface.co/pipeline/feature-extraction
+HF_API_TOKEN=your-hf-token
 ```
+
+All backend settings are loaded from `.env` via `app/core/config.py` with **no default values** — a missing required variable raises a `ConfigurationError` at startup (fail-fast). See `.env.example` for the full list.
 
 The frontend refreshes catalog and personalized queries every 30 seconds while open. Favoriting or rating a title immediately invalidates the personalized query, so the next recommendation fetch reflects the new signal.
 

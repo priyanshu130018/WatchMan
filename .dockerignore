@@ -4,18 +4,23 @@
 .dockerignore
 .env
 .env.*
+*.env
 !.env.example
 
 # Node
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-error.log*
 .npm/
 .cache/
+.output/
+.wrangler/
+dist/
 
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 .Python
 .venv/
 venv/
@@ -24,23 +29,18 @@ env/
 .mypy_cache/
 *.egg-info/
 build/
-dist/
 
-# IDE
+# IDE & OS
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Logs
-*.log
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Development only
+# Documentation & Extras
 README.md
+FIXES_REPORT.md
 .lovable/
 .tanstack/
 coverage/

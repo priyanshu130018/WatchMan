@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.database.models.user import User
 from app.core.config import settings
+from app.core.exceptions import (
+    AuthorizationException,
+    MovieNotFoundException,
+    RecommendationException,
+)
 from app.core.security import get_current_user
 from app.ml.embeddings.service import MovieEmbeddingService, MODEL_NAME, EXPECTED_DIMENSION
 
@@ -19,7 +24,7 @@ class BatchEmbedRequest(BaseModel):
 def require_ml_admin(current_user: User = Depends(get_current_user)) -> User:
     """Restrict expensive embedding jobs to configured operators."""
     if current_user.email.lower() not in settings.ml_admin_emails:
-        raise HTTPException(status_code=403, detail="ML operator access is required")
+        raise AuthorizationException("ML operator access is required.")
     return current_user
 
 
@@ -39,7 +44,7 @@ def batch_generate_movie_embeddings(
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to execute batch embedding")
+        raise RecommendationException(f"Failed to execute batch embedding: {e}") from e
 
 
 @router.post("/movies/{movie_id}")
@@ -60,8 +65,6 @@ def generate_movie_embedding(
             "updated_at": embedding_record.updated_at.isoformat() if embedding_record.updated_at else None
         }
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise MovieNotFoundException(str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to generate embedding")
-
-
+        raise RecommendationException(f"Failed to generate embedding: {e}") from e

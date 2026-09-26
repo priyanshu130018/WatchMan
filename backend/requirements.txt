@@ -9,6 +9,7 @@ python-dotenv
 redis
 celery
 httpx
+supabase
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt
@@ -21,11 +22,16 @@ structlog
 loguru
 tenacity
 pgvector
-sentence-transformers
-torch
-lightgbm
-implicit
 numpy
 pandas
 cryptography
 email-validator
+# LLM framework (kept for upcoming LLM/generation features)
+langchain
+langchain-text-splitters
+tqdm
+
+# NOTE: Local embedding stack removed — embeddings are now served via the
+# HuggingFace Inference API (see app/ml/embeddings/sentence_encoder.py).
+# Removed to shrink the image (~10.4GB -> ~1-1.5GB):
+#   torch, sentence-transformers, chromadb, lightgbm, implicit, pypdf, google-genai

@@ -1,2 +1,12 @@
-.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
 .env
+.env.*
+!.env.example
+data/chroma/
+data/documents/
+node_modules/
+dist/

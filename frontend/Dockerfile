@@ -1,39 +1,53 @@
 # Multi-stage build for frontend
-FROM node:20-alpine as builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY frontend/package*.json ./
+# Copy package manifests
+COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (including devDependencies required for build)
+RUN npm install
 
-# Copy source code
-COPY frontend/ .
+# Copy application source
+COPY . .
 
-# Build the application
+# Build arguments for public client configuration (embedded at build time).
+# NOTE: .env is excluded by .dockerignore, so Vite does NOT pick these up from a
+# file inside the build context — they MUST be passed as build args or the
+# bundle falls back to defaults (e.g. auth provider -> 'local').
+ARG VITE_API_BASE_URL=/api
+ARG VITE_AUTH_PROVIDER=local
+ARG VITE_SUPABASE_URL=""
+ARG VITE_SUPABASE_PUBLISHABLE_KEY=""
+
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_AUTH_PROVIDER=$VITE_AUTH_PROVIDER
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
+
+# Build the Nitro SSR application
 RUN npm run build
 
-# Production stage - serve with nginx
-FROM nginx:alpine
+# Final production runtime stage
+FROM node:22-alpine
 
-# Copy nginx config
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-# Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
-# Create non-root user
-RUN addgroup -g 1000 app && adduser -D -u 1000 -G app app && \
-    chown -R app:app /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
+# Copy compiled output from builder
+COPY --from=builder /app/.output ./.output
 
-USER app
+# Use non-root node user (UID 1000 built into node:alpine)
+USER node
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/', (res) => { if (res.statusCode >= 200 && res.statusCode < 400) process.exit(0); else process.exit(1); }).on('error', () => process.exit(1));"
 
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", ".output/server/index.mjs"]
