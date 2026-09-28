@@ -29,6 +29,8 @@ jobs:
       REFRESH_TOKEN_EXPIRE_DAYS: "7"
       TMDB_API_KEY: "ci_test_tmdb_api_key_000000000000"
       TMDB_BASE_URL: "https://api.themoviedb.org/3"
+      OMDB_API_KEY: "ci_test_omdb_api_key"
+      OMDB_BASE_URL: "https://www.omdbapi.com/"
       REDIS_URL: "redis://localhost:6379/0"
       CELERY_BROKER_URL: "redis://localhost:6379/1"
       CELERY_RESULT_BACKEND: "redis://localhost:6379/2"
@@ -40,7 +42,14 @@ jobs:
       EMBEDDING_MODEL: "all-MiniLM-L6-v2"
       VECTOR_DIMENSION: "384"
       ML_ADMIN_EMAILS: "admin@watchman.local"
+      HF_API_URL: "https://api-inference.huggingface.co/pipeline/feature-extraction"
+      HF_API_TOKEN: "ci_test_hf_token"
       FRONTEND_URL: "http://localhost:3000"
+      INITIAL_POPULAR_MOVIE_EMBED_LIMIT: "500"
+      INITIAL_POPULAR_TV_EMBED_LIMIT: "500"
+      ENABLE_INTERACTION_EMBEDDING: "true"
+      ENABLE_SEARCH_EMBEDDING: "false"
+      SEARCH_EMBED_THRESHOLD: "3"
 
     steps:
       - name: Checkout Code
