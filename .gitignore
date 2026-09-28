@@ -50,12 +50,19 @@ backend/MANIFEST
 notebook/data/
 
 # Virtual environments
+.venv/
+venv/
+env/
 backend/venv/
 backend/.venv/
 backend/env/
 backend/ENV/
 backend/env.bak/
 backend/venv.bak/
+
+# Checkpoint and partition cache files
+.ingest_checkpoint.json
+.planned_partitions_cache.json
 
 # pytest
 backend/.pytest_cache/
