@@ -35,3 +35,4 @@ tqdm
 # HuggingFace Inference API (see app/ml/embeddings/sentence_encoder.py).
 # Removed to shrink the image (~10.4GB -> ~1-1.5GB):
 #   torch, sentence-transformers, chromadb, lightgbm, implicit, pypdf, google-genai
+huggingface-hub

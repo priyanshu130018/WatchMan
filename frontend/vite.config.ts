@@ -13,9 +13,9 @@ export default defineConfig({
     server: { entry: "server" },
   },
   nitro: {
-    preset: "node-server",
-    routeRules: {
-      "/api/**": { proxy: process.env.BACKEND_INTERNAL_URL || "http://backend:8000/api/**" },
-    },
+    preset: process.env.NITRO_PRESET || (process.env.VERCEL ? "vercel" : "node-server"),
+    routeRules: process.env.BACKEND_INTERNAL_URL
+      ? { "/api/**": { proxy: `${process.env.BACKEND_INTERNAL_URL}/**` } }
+      : {},
   } as any,
 });

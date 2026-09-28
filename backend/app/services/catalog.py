@@ -24,6 +24,7 @@ from app.schemas.content import (
 )
 from app.services.tmdb.service import TMDBService
 from app.services.omdb.service import OMDBService
+from app.services.watchman_service import WatchmanService
 
 logger = logging.getLogger(__name__)
 
@@ -231,6 +232,7 @@ class ContentCatalogService:
                 if cg.genre:
                     genres_dto.append(GenreDTO(id=cg.genre.tmdb_id, name=cg.genre.name))
 
+        score, label = WatchmanService.compute_card_score(item)
         return ContentSummaryDTO(
             id=item.id,
             tmdb_id=item.tmdb_id,
@@ -248,6 +250,8 @@ class ContentCatalogService:
             number_of_seasons=item.number_of_seasons,
             number_of_episodes=item.number_of_episodes,
             genres=genres_dto,
+            watchman_score=score,
+            watchman_label=label,
         )
 
     @classmethod
@@ -305,6 +309,7 @@ class ContentCatalogService:
             for v in (item.videos or [])
         ]
 
+        score, label = WatchmanService.compute_card_score(item)
         return ContentDetailResponse(
             id=item.id,
             tmdb_id=item.tmdb_id,
@@ -332,6 +337,8 @@ class ContentCatalogService:
             crew=crew_dto,
             external_ids=external_dto,
             videos=videos_dto,
+            watchman_score=score,
+            watchman_label=label,
         )
 
     @staticmethod

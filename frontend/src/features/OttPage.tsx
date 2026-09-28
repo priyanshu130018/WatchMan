@@ -339,8 +339,8 @@ export function OttPage({ searchParams, onUpdateFilters }: OttPageProps) {
                   {selectedProvider ? selectedProvider.provider_name : "Available titles"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Movies and series available on{" "}
-                  {selectedProvider?.provider_name ?? "this service"} in {regionName}
+                  Movies and series available on {selectedProvider?.provider_name ?? "this service"}{" "}
+                  in {regionName}
                 </p>
               </div>
             </div>

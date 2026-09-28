@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Search,
   User,
@@ -12,6 +12,7 @@ import {
   MonitorPlay,
   Sparkles,
   ChevronDown,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { authService } from "@/services/auth";
@@ -19,7 +20,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SavedDrawer } from "@/components/SavedDrawer";
 import {
   Sheet,
   SheetContent,
@@ -38,7 +38,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DesktopThemeToggle, MobileThemeToggle } from "@/components/ThemeToggle";
 
-const NAV_ITEMS = [
+const PUBLIC_NAV_ITEMS = [
+  { to: "/movie", label: "Movies", icon: Film },
+  { to: "/web-series", label: "Web Series", icon: Tv },
+  { to: "/ott", label: "OTT", icon: MonitorPlay },
+] as const;
+
+const AUTH_NAV_ITEMS = [
   { to: "/recommendation", label: "Recommend for You", icon: Sparkles },
   { to: "/movie", label: "Movies", icon: Film },
   { to: "/web-series", label: "Web Series", icon: Tv },
@@ -50,13 +56,16 @@ const navLinkClass =
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [savedOpen, setSavedOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const user = useAuthStore((s) => s.user);
+  const authReady = useAuthStore((s) => s.authReady);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const clear = useAuthStore((s) => s.clear);
   const navigate = useNavigate();
-  // The mascot bookend beside the wordmark is a home-page-only brand accent.
-  const isHome = useRouterState({ select: (s) => s.location.pathname === "/" });
+
+  // Strictly gate navigation on settled auth state to avoid UI flicker
+  const isLoggedIn = Boolean(authReady && !isLoading && user);
+  const navItems = isLoggedIn ? AUTH_NAV_ITEMS : PUBLIC_NAV_ITEMS;
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-[10px]">
               <img
-                src="/watchman-icon.png"
+                src="/watchman-mascot.png"
                 alt=""
                 className="h-full w-full object-cover"
                 width={36}
@@ -103,23 +112,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
               />
             </span>
             <span className="hidden sm:inline">WatchMan</span>
-            {/* Mascot accent to the right of the wordmark — home page only. */}
-            {isHome && (
-              <span className="hidden h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-[10px] sm:grid">
-                <img
-                  src="/watchman-mascot.png"
-                  alt=""
-                  className="h-full w-full object-cover"
-                  width={36}
-                  height={36}
-                />
-              </span>
-            )}
           </Link>
 
           {/* Desktop navigation */}
           <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            {navItems.map(({ to, label, icon: Icon }) => (
               <Link
                 key={to}
                 to={to}
@@ -140,11 +137,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => setSavedOpen(true)}
-                  aria-label="Open saved content"
+                  asChild
+                  aria-label="Saved content"
                   title="Saved content"
                 >
-                  <Heart size={18} />
+                  <Link to="/saved">
+                    <Heart size={18} />
+                  </Link>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -223,7 +222,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   <SheetTitle className="flex items-center gap-2.5">
                     <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-[10px]">
                       <img
-                        src="/watchman-icon.png"
+                        src="/watchman-mascot.png"
                         alt=""
                         className="h-full w-full object-cover"
                         width={32}
@@ -234,7 +233,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </SheetTitle>
                 </SheetHeader>
                 <nav aria-label="Mobile" className="mt-6 flex flex-col gap-1">
-                  {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+                  {navItems.map(({ to, label, icon: Icon }) => (
                     <SheetClose asChild key={to}>
                       <Link
                         to={to}
@@ -257,6 +256,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                           className="flex items-center gap-3 rounded-md px-2 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
                         >
                           <User size={17} aria-hidden="true" /> Profile
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link
+                          to="/saved"
+                          className="flex items-center gap-3 rounded-md px-2 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                        >
+                          <Heart size={17} aria-hidden="true" /> Saved content
                         </Link>
                       </SheetClose>
                       <button
@@ -297,30 +304,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <form
             onSubmit={handleSearchSubmit}
             role="search"
-            className="relative mx-auto w-full max-w-2xl"
+            className="mx-auto flex w-full max-w-2xl items-center gap-2"
           >
-            <label htmlFor="global-search" className="sr-only">
-              Search movies and web series by name
-            </label>
-            <Search
-              size={16}
-              aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              id="global-search"
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search movies & web series by name..."
-              className="h-10 pl-9"
-            />
+            <div className="relative flex-1">
+              <label htmlFor="global-search" className="sr-only">
+                Search movies and web series by name
+              </label>
+              <Search
+                size={16}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                id="global-search"
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search movies & web series by name..."
+                className="h-10 pl-9"
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              asChild
+              className="h-10 shrink-0 gap-1.5 border-border bg-secondary font-medium text-foreground hover:border-primary/50 hover:bg-accent hover:text-primary transition-colors"
+            >
+              <Link
+                to="/search"
+                search={searchQuery.trim() ? { q: searchQuery.trim() } : undefined}
+              >
+                <SlidersHorizontal size={14} className="text-primary" aria-hidden="true" />
+                <span className="hidden sm:inline">Advanced Search</span>
+                <span className="sm:hidden">Advanced</span>
+              </Link>
+            </Button>
           </form>
         </div>
       </div>
-
-      {/* Saved content slide-over (right-to-left) */}
-      <SavedDrawer open={savedOpen} onOpenChange={setSavedOpen} />
 
       {/* Main content */}
       <main id="main-content">{children}</main>
@@ -333,9 +354,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <span>Cinematic movie &amp; web-series discovery platform</span>
           </p>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link to="/recommendation" className="hover:text-foreground">
-              Recommend for You
-            </Link>
+            {isLoggedIn && (
+              <Link to="/recommendation" className="hover:text-foreground">
+                Recommend for You
+              </Link>
+            )}
             <Link to="/movie" className="hover:text-foreground">
               Movies
             </Link>

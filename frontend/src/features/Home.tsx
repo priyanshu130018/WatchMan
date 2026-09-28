@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { Play, Search, Sparkles } from "lucide-react";
 
 import { ContentSection } from "@/components/ContentSection";
+import { PersonalizedShelf } from "@/components/PersonalizedShelf";
 import { ErrorState } from "@/components/States";
 import { Button } from "@/components/ui/button";
 import { catalogService } from "@/services/catalog";
@@ -43,13 +44,22 @@ export function Home() {
         },
         {
           queryKey: ["homepage", "movies", "all"],
-          queryFn: () => catalogService.getMovies({ page: 1, limit: CONTENT_PAGE_SIZE, sort: "popularity_desc" }),
+          queryFn: () =>
+            catalogService.getMovies({
+              page: 1,
+              limit: CONTENT_PAGE_SIZE,
+              sort: "popularity_desc",
+            }),
           refetchInterval: LIVE_REFRESH_MS,
         },
         {
           queryKey: ["homepage", "tv", "all"],
           queryFn: () =>
-            catalogService.getWebSeries({ page: 1, limit: CONTENT_PAGE_SIZE, sort: "popularity_desc" }),
+            catalogService.getWebSeries({
+              page: 1,
+              limit: CONTENT_PAGE_SIZE,
+              sort: "popularity_desc",
+            }),
           refetchInterval: LIVE_REFRESH_MS,
         },
       ],
@@ -61,30 +71,64 @@ export function Home() {
   const movies = moviesQuery.data?.results || [];
   const webSeries = webSeriesQuery.data?.results || [];
 
-  // Personalized rail — sourced ONLY from the existing recommendation engine
-  // (/api/recommendations → UnifiedRecommendationService → HybridRanker). No
-  // client-side scoring, no second algorithm. Only runs for signed-in users.
-  const recommendationsQuery = useQuery({
-    queryKey: ["homepage", "recommendations", user?.id],
-    queryFn: () => recommendationService.getRecommendations({ contentType: "all", limit: CONTENT_PAGE_SIZE }),
+  // Personalized shelves:
+  // Each shelf has its own backend source/query and its own React Query cache key.
+  // 1. You Must Like (highest-confidence recommendations from the hybrid engine)
+  const mustLikeQuery = useQuery({
+    queryKey: ["homepage", "personalized", "must_like", user?.id],
+    queryFn: () => recommendationService.getMustLike({ limit: 12 }),
     enabled: Boolean(user),
+    staleTime: 5 * 60_000,
   });
-  const recItems = recommendationsQuery.data?.items ?? [];
 
-  // Cold-start detection reuses the backend's own `sources` stamp: its fallback
-  // path marks every item "cold_start_popularity" when the engine lacks enough
-  // real signal for this user. On the homepage we NEVER present popularity as
-  // personalization — if the engine is cold (or the user is a guest), the whole
-  // section is hidden rather than shown with a misleading label or fake rail.
-  const isColdStart = recItems.some((it) =>
-    (it.sources ?? []).some((s) => s.includes("cold_start")),
+  // 2. You Already Watched & Liked (meaningful watch + positive feedback signals)
+  const watchedLikedQuery = useQuery({
+    queryKey: ["homepage", "personalized", "watched_liked", user?.id],
+    queryFn: () => recommendationService.getWatchedLiked({ limit: 12 }),
+    enabled: Boolean(user),
+    staleTime: 5 * 60_000,
+  });
+
+  // 3. Continue Watching (real in-progress playback; frequent polling/refresh)
+  const continueWatchingQuery = useQuery({
+    queryKey: ["homepage", "personalized", "continue_watching", user?.id],
+    queryFn: () => recommendationService.getContinueWatching({ limit: 12 }),
+    enabled: Boolean(user),
+    refetchInterval: 30_000,
+  });
+
+  const mustLikeItems = mustLikeQuery.data?.items ?? [];
+  const watchedLikedItems = watchedLikedQuery.data?.items ?? [];
+  const continueWatchingItems = continueWatchingQuery.data?.items ?? [];
+
+  // Defensive cross-shelf deduplication in priority order:
+  // 1. Continue Watching
+  // 2. You Already Watched & Liked
+  // 3. You Must Like
+  const cwIds = React.useMemo(
+    () => new Set(continueWatchingItems.map((it) => it.id || it.tmdb_id)),
+    [continueWatchingItems],
   );
-  const isPersonalized = Boolean(user) && recItems.length > 0 && !isColdStart;
-  const displayName =
-    user?.full_name?.trim() ||
-    user?.username?.trim() ||
-    (user?.email ? user.email.split("@")[0] : "");
-  const personalizedTitle = displayName ? `${displayName}, You May Like` : "You May Like";
+  const dedupedWatchedLiked = React.useMemo(
+    () => watchedLikedItems.filter((it) => !cwIds.has(it.id || it.tmdb_id)),
+    [watchedLikedItems, cwIds],
+  );
+  const wlIds = React.useMemo(
+    () => new Set(dedupedWatchedLiked.map((it) => it.id || it.tmdb_id)),
+    [dedupedWatchedLiked],
+  );
+  const dedupedMustLike = React.useMemo(
+    () =>
+      mustLikeItems.filter(
+        (it) => !cwIds.has(it.id || it.tmdb_id) && !wlIds.has(it.id || it.tmdb_id),
+      ),
+    [mustLikeItems, cwIds, wlIds],
+  );
+
+  const hasPersonalizedContent =
+    continueWatchingItems.length > 0 ||
+    dedupedWatchedLiked.length > 0 ||
+    dedupedMustLike.length > 0;
 
   // "Top Rated Worldwide" merges the highest-rated movies and web series into a
   // single cross-type rail, ordered by audience score. Dedupe defensively by
@@ -189,20 +233,57 @@ export function Home() {
           </div>
         )}
 
-        {/* 2. Personalized — "{Name}, You May Like". Rendered ONLY when the
-            existing engine returns genuine personalized signal (signed-in,
-            non-cold-start). Hidden for guests and cold-start users so we never
-            label popularity as personalization. */}
-        {isPersonalized && (
-          <ContentSection
-            title={personalizedTitle}
-            subtitle="Picked for you by WatchMan's hybrid engine"
-            items={recItems}
-            isLoading={recommendationsQuery.isLoading}
-            showTypeBadge
-            maxItems={CONTENT_PAGE_SIZE}
-            exploreLink="/recommendation"
-          />
+        {/* 2. Personalized Area — PERSONALIZED FOR YOU
+            Rendered ONLY when the user is signed in and has genuine personalized activity.
+            Independent horizontal shelves:
+            1. You Must Like
+            2. You Already Watched & Liked
+            3. Continue Watching */}
+        {Boolean(user) && hasPersonalizedContent && (
+          <div className="pt-6">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles size={16} className="text-primary" aria-hidden="true" />
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+                Personalized For You
+              </span>
+            </div>
+
+            {/* Shelf 1: You Must Like */}
+            {dedupedMustLike.length > 0 && (
+              <PersonalizedShelf
+                title="You Must Like"
+                subtitle="Picked from your taste and activity"
+                items={dedupedMustLike}
+                sectionKey="must_like"
+                isLoading={mustLikeQuery.isLoading}
+                exploreLink="/recommendation"
+              />
+            )}
+
+            {/* Shelf 2: You Already Watched & Liked */}
+            {dedupedWatchedLiked.length > 0 && (
+              <PersonalizedShelf
+                title="You Already Watched & Liked"
+                subtitle="Titles you completed and enjoyed"
+                items={dedupedWatchedLiked}
+                sectionKey="watched_liked"
+                isLoading={watchedLikedQuery.isLoading}
+                exploreLink="/history"
+              />
+            )}
+
+            {/* Shelf 3: Continue Watching */}
+            {continueWatchingItems.length > 0 && (
+              <PersonalizedShelf
+                title="Continue Watching"
+                subtitle="Pick up where you left off"
+                items={continueWatchingItems}
+                sectionKey="continue_watching"
+                isLoading={continueWatchingQuery.isLoading}
+                exploreLink="/history"
+              />
+            )}
+          </div>
         )}
 
         {/* 3. Trending Now — global combined trending for the week */}

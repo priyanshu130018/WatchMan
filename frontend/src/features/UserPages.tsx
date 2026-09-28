@@ -573,9 +573,7 @@ export function ProfilePage() {
   };
 
   const toggleDraftGenre = (id: number) => {
-    setGenreDraft((prev) =>
-      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id],
-    );
+    setGenreDraft((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
   };
 
   // Single batched save. We send the EXISTING disliked_genres back untouched so
@@ -714,7 +712,12 @@ export function ProfilePage() {
                   >
                     <X size={15} aria-hidden="true" /> Cancel
                   </Button>
-                  <Button type="submit" variant="brand" disabled={isSaving} className="w-full sm:w-auto">
+                  <Button
+                    type="submit"
+                    variant="brand"
+                    disabled={isSaving}
+                    className="w-full sm:w-auto"
+                  >
                     <Save size={15} aria-hidden="true" /> {isSaving ? "Saving…" : "Save Changes"}
                   </Button>
                 </div>
@@ -752,7 +755,12 @@ export function ProfilePage() {
                   </div>
                 </div>
                 <div className="flex shrink-0 justify-center sm:justify-end">
-                  <Button type="button" variant="brand" onClick={startEditing} className="w-full sm:w-auto">
+                  <Button
+                    type="button"
+                    variant="brand"
+                    onClick={startEditing}
+                    className="w-full sm:w-auto"
+                  >
                     <Pencil size={15} aria-hidden="true" /> Edit Profile
                   </Button>
                 </div>
@@ -772,7 +780,9 @@ export function ProfilePage() {
                     <Card key={s.label}>
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">{s.label}</span>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {s.label}
+                          </span>
                           <span className={s.color}>{s.icon}</span>
                         </div>
                         {q.isLoading ? (
@@ -813,7 +823,8 @@ export function ProfilePage() {
                 <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
                   <div>
                     <CardTitle className="flex items-center gap-2 text-base">
-                      <Sparkles size={17} className="text-primary" aria-hidden="true" /> My preferences
+                      <Sparkles size={17} className="text-primary" aria-hidden="true" /> My
+                      preferences
                     </CardTitle>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Favorite genres tune your personalized recommendations.
@@ -904,7 +915,11 @@ export function ProfilePage() {
               Pick the genres you love. These feed your personalized recommendations.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-wrap gap-2 py-1" role="group" aria-label="Select favorite genres">
+          <div
+            className="flex flex-wrap gap-2 py-1"
+            role="group"
+            aria-label="Select favorite genres"
+          >
             {AVAILABLE_GENRES.map((g) => {
               const selected = genreDraft.includes(g.id);
               return (

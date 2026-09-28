@@ -3,9 +3,10 @@ import { z } from "zod";
 import { ContentListingPage } from "@/components/ContentListingPage";
 
 const tvSearchSchema = z.object({
-  page: z.number().optional(),
-  genre: z.number().optional(),
-  year: z.number().optional(),
+  page: z.coerce.number().optional(),
+  genre: z.coerce.number().optional(),
+  genre_id: z.coerce.number().optional(),
+  year: z.coerce.number().optional(),
   language: z.string().optional(),
   sort: z.string().optional(),
   collection: z.string().optional(),
@@ -29,7 +30,7 @@ function WebSeriesRouteComponent() {
       onUpdateFilters={(newFilters) => {
         void navigate({
           to: "/web-series",
-          search: newFilters as any,
+          search: () => (newFilters || {}) as any,
         });
       }}
     />

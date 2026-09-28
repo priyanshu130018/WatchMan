@@ -78,6 +78,31 @@ class CandidatePipeline:
         ):
             seen.add(ev[0])
 
+        # Content explicitly skipped by user in WatchMan decisions
+        from app.models.watchman import WatchmanDecision
+
+        for d in (
+            db.query(WatchmanDecision.content_id)
+            .filter(
+                WatchmanDecision.user_id == user_id,
+                WatchmanDecision.decision == "skip",
+            )
+            .all()
+        ):
+            seen.add(d[0])
+
+        for ev in (
+            db.query(InteractionEvent.content_id)
+            .filter(
+                InteractionEvent.user_id == user_id,
+                InteractionEvent.event_type == "watchman_decision",
+                InteractionEvent.event_value == 0.0,
+            )
+            .all()
+        ):
+            if ev[0] is not None:
+                seen.add(ev[0])
+
         return seen
 
     @classmethod

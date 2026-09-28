@@ -6,6 +6,7 @@ from app.models.review import Rating, Review
 from app.models.interaction import SavedContent, WatchHistory, InteractionEvent, SearchHistory
 from app.models.embedding import ContentEmbedding, UserEmbedding
 from app.models.collaborative import ALSUserFactors, ALSItemFactors
+from app.models.watchman import WatchmanDecision
 from app.models.recommendation import (
     RecommendationCandidate,
     Recommendation,
@@ -42,6 +43,7 @@ __all__ = [
     "UserEmbedding",
     "ALSUserFactors",
     "ALSItemFactors",
+    "WatchmanDecision",
     "RecommendationCandidate",
     "Recommendation",
     "RecommendationCache",

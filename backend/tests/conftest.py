@@ -44,6 +44,11 @@ _TEST_ENV_DEFAULTS = {
     "HF_API_URL": "https://api-inference.huggingface.co/pipeline/feature-extraction",
     "HF_API_TOKEN": "ci_test_hf_token",
     "FRONTEND_URL": "http://localhost:3000",
+    "INITIAL_POPULAR_MOVIE_EMBED_LIMIT": "500",
+    "INITIAL_POPULAR_TV_EMBED_LIMIT": "500",
+    "ENABLE_INTERACTION_EMBEDDING": "true",
+    "ENABLE_SEARCH_EMBEDDING": "false",
+    "SEARCH_EMBED_THRESHOLD": "3",
 }
 
 for key, val in _TEST_ENV_DEFAULTS.items():
@@ -117,4 +122,13 @@ def mock_sentence_encoder(monkeypatch):
         return [unit_vec for _ in inputs]
 
     monkeypatch.setattr(SentenceEncoder, "_request", _mock_request)
+
+
+@pytest.fixture(autouse=True)
+def mock_enqueue_interaction_ml(monkeypatch):
+    """Prevent Celery background tasks from trying to hit Redis broker in tests."""
+    monkeypatch.setattr(
+        "app.services.interaction.enqueue_interaction_ml_update",
+        lambda *args, **kwargs: None,
+    )
 

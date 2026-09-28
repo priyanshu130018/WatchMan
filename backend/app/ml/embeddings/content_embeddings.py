@@ -9,12 +9,15 @@ from app.models.content import Content
 from app.models.embedding import ContentEmbedding
 from app.ml.embeddings.sentence_encoder import SentenceEncoder
 from app.ml.embeddings.text_builder import build_movie_embedding_text, compute_movie_text_hash
+from app.ml.embeddings.eligibility import ContentEmbeddingEligibilityService
 
 
 class ContentEmbeddingService:
     """
     Service for generating, storing, and searching dense embeddings for unified Content items.
     """
+
+    MODEL_VERSION = "1.0.0"
 
     @classmethod
     def generate_embedding(cls, text: str) -> list[float]:
@@ -28,20 +31,20 @@ class ContentEmbeddingService:
     def embed_content(cls, db: Session, content_id: int, force: bool = False) -> ContentEmbedding:
         """
         Embeds a single Content item idempotently.
-        Skips re-embedding if text hash and model version match, unless force=True.
+        Skips re-embedding if text hash, model name, dimension, and model version match,
+        unless force=True.
         """
         content = db.query(Content).filter(Content.id == content_id).first()
         if not content:
             raise ValueError(f"Content with id {content_id} does not exist.")
 
-        text_content = build_movie_embedding_text(content)
-        text_hash = compute_movie_text_hash(text_content)
-
         existing = db.query(ContentEmbedding).filter(ContentEmbedding.content_id == content_id).first()
         if existing and not force:
-            if existing.content_hash == text_hash and existing.embedding is not None:
+            if ContentEmbeddingEligibilityService.is_embedding_current(content, existing):
                 return existing
 
+        text_content = build_movie_embedding_text(content)
+        text_hash = compute_movie_text_hash(text_content)
         vector = cls.generate_embedding(text_content)
 
         if existing:
@@ -49,64 +52,115 @@ class ContentEmbeddingService:
             existing.content_hash = text_hash
             existing.model_name = settings.EMBEDDING_MODEL
             existing.dimension = settings.VECTOR_DIMENSION
-            existing.model_version = "1.0.0"
+            existing.model_version = cls.MODEL_VERSION
             existing.updated_at = datetime.utcnow()
             db.commit()
             db.refresh(existing)
             return existing
         else:
-            new_embedding = ContentEmbedding(
-                content_id=content_id,
-                embedding=vector,
-                content_hash=text_hash,
-                model_name=settings.EMBEDDING_MODEL,
-                dimension=settings.VECTOR_DIMENSION,
-                model_version="1.0.0",
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
-            )
-            db.add(new_embedding)
-            db.commit()
-            db.refresh(new_embedding)
-            return new_embedding
+            try:
+                new_embedding = ContentEmbedding(
+                    content_id=content_id,
+                    embedding=vector,
+                    content_hash=text_hash,
+                    model_name=settings.EMBEDDING_MODEL,
+                    dimension=settings.VECTOR_DIMENSION,
+                    model_version=cls.MODEL_VERSION,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                db.add(new_embedding)
+                db.commit()
+                db.refresh(new_embedding)
+                return new_embedding
+            except Exception:
+                db.rollback()
+                # Race condition guard: concurrent worker may have inserted the embedding
+                concurrent_existing = (
+                    db.query(ContentEmbedding)
+                    .filter(ContentEmbedding.content_id == content_id)
+                    .first()
+                )
+                if concurrent_existing:
+                    return concurrent_existing
+                raise
 
     @classmethod
-    def batch_embed_contents(cls, db: Session, limit: int = 100, batch_size: int = 32) -> dict:
+    def batch_embed_items(
+        cls,
+        db: Session,
+        contents: Sequence[Content],
+        batch_size: int = 32,
+        force: bool = False,
+    ) -> dict:
         """
-        Embeds Content items that do not have embeddings or whose content has changed.
+        Embeds a given collection of Content items idempotently.
+        Skips items that already have a current embedding matching hash, model, and version,
+        unless force=True.
         """
-        missing_query = (
-            db.query(Content)
-            .outerjoin(ContentEmbedding, Content.id == ContentEmbedding.content_id)
-            .filter(
-                or_(
-                    ContentEmbedding.id.is_(None),
-                    ContentEmbedding.embedding.is_(None),
-                )
-            )
-            .limit(limit)
-        )
-        contents_to_process = missing_query.all()
+        if not contents:
+            return {
+                "status": "success",
+                "total_candidates": 0,
+                "to_embed": 0,
+                "newly_created": 0,
+                "updated": 0,
+                "skipped_current": 0,
+            }
 
-        total_processed = 0
-        total_updated = 0
+        # Normalize contents: support either Content models or integer IDs
+        if isinstance(contents[0], (int, str)):
+            int_ids = [int(i) for i in contents]
+            contents = db.query(Content).filter(Content.id.in_(int_ids)).all()
+            if not contents:
+                return {
+                    "status": "success",
+                    "total_candidates": 0,
+                    "to_embed": 0,
+                    "newly_created": 0,
+                    "updated": 0,
+                    "skipped_current": 0,
+                }
 
-        for i in range(0, len(contents_to_process), batch_size):
-            batch = contents_to_process[i : i + batch_size]
-            texts = [build_movie_embedding_text(m) for m in batch]
+        content_ids = [c.id for c in contents]
+        existing_recs = {
+            rec.content_id: rec
+            for rec in db.query(ContentEmbedding).filter(ContentEmbedding.content_id.in_(content_ids)).all()
+        }
+
+        to_embed: list[Content] = []
+        skipped_count = 0
+
+        for c in contents:
+            existing = existing_recs.get(c.id)
+            if not force and ContentEmbeddingEligibilityService.is_embedding_current(c, existing):
+                skipped_count += 1
+            else:
+                to_embed.append(c)
+
+        newly_created = 0
+        updated = 0
+
+        for i in range(0, len(to_embed), batch_size):
+            chunk = to_embed[i : i + batch_size]
+            texts = [build_movie_embedding_text(c) for c in chunk]
             hashes = [compute_movie_text_hash(t) for t in texts]
             vectors = cls.generate_embeddings_batch(texts)
 
-            for content, vector, text_hash in zip(batch, vectors, hashes):
-                existing = db.query(ContentEmbedding).filter(ContentEmbedding.content_id == content.id).first()
+            for content, vector, text_hash in zip(chunk, vectors, hashes):
+                existing = existing_recs.get(content.id) or (
+                    db.query(ContentEmbedding)
+                    .filter(ContentEmbedding.content_id == content.id)
+                    .first()
+                )
                 if existing:
                     existing.embedding = vector
                     existing.content_hash = text_hash
                     existing.model_name = settings.EMBEDDING_MODEL
                     existing.dimension = settings.VECTOR_DIMENSION
-                    existing.model_version = "1.0.0"
+                    existing.model_version = cls.MODEL_VERSION
                     existing.updated_at = datetime.utcnow()
-                    total_updated += 1
+                    updated += 1
                 else:
                     new_emb = ContentEmbedding(
                         content_id=content.id,
@@ -114,18 +168,76 @@ class ContentEmbeddingService:
                         content_hash=text_hash,
                         model_name=settings.EMBEDDING_MODEL,
                         dimension=settings.VECTOR_DIMENSION,
-                        model_version="1.0.0",
+                        model_version=cls.MODEL_VERSION,
                         created_at=datetime.utcnow(),
                         updated_at=datetime.utcnow(),
                     )
                     db.add(new_emb)
-                    total_processed += 1
+                    existing_recs[content.id] = new_emb
+                    newly_created += 1
 
             db.commit()
 
         return {
             "status": "success",
-            "total_candidates": len(contents_to_process),
+            "total_candidates": len(contents),
+            "to_embed": len(to_embed),
+            "newly_created": newly_created,
+            "updated": updated,
+            "skipped_current": skipped_count,
+        }
+
+    @classmethod
+    def batch_embed_contents(
+        cls,
+        db: Session,
+        limit: int | None = 100,
+        batch_size: int = 32,
+        content_ids: Sequence[int] | None = None,
+        force: bool = False,
+    ) -> dict:
+        """
+        Embeds Content items that do not have embeddings or whose content has changed.
+        If content_ids is provided, restricts to those IDs.
+        If limit is None or <= 0, processes the entire eligible catalog in batches.
+        """
+        if content_ids is not None:
+            contents = db.query(Content).filter(Content.id.in_(content_ids)).all()
+            return cls.batch_embed_items(db, contents, batch_size=batch_size, force=force)
+
+        total_processed = 0
+        total_updated = 0
+
+        while True:
+            chunk_limit = batch_size
+            if limit is not None and limit > 0:
+                remaining = limit - (total_processed + total_updated)
+                if remaining <= 0:
+                    break
+                chunk_limit = min(batch_size, remaining)
+
+            missing_query = (
+                db.query(Content)
+                .outerjoin(ContentEmbedding, Content.id == ContentEmbedding.content_id)
+                .filter(
+                    or_(
+                        ContentEmbedding.id.is_(None),
+                        ContentEmbedding.embedding.is_(None),
+                    )
+                )
+                .limit(chunk_limit)
+            )
+            batch = missing_query.all()
+            if not batch:
+                break
+
+            res = cls.batch_embed_items(db, batch, batch_size=batch_size, force=force)
+            total_processed += res["newly_created"]
+            total_updated += res["updated"]
+
+        return {
+            "status": "success",
+            "total_candidates": total_processed + total_updated,
             "newly_created": total_processed,
             "updated": total_updated,
         }
@@ -202,8 +314,8 @@ class ContentEmbeddingService:
 
         # In-memory cosine similarity fallback (for SQLite test environments or if pgvector unavailable)
         query = (
-            db.query(Content, ContentEmbedding.embedding)
-            .join(ContentEmbedding, Content.id == ContentEmbedding.content_id)
+            db.query(ContentEmbedding)
+            .join(Content, Content.id == ContentEmbedding.content_id)
             .filter(ContentEmbedding.embedding.isnot(None))
         )
         if exclude_ids:
@@ -221,8 +333,10 @@ class ContentEmbeddingService:
             return []
 
         scored = []
-        for item, emb in records:
-            if emb is None:
+        for emb_row in records:
+            emb = emb_row.embedding
+            item = emb_row.content
+            if emb is None or item is None:
                 continue
             emb_arr = np.array(emb, dtype=np.float32)
             emb_norm = np.linalg.norm(emb_arr)

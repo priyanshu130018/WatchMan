@@ -21,6 +21,7 @@ services:
     runtime: python
     rootDir: backend
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    preDeployCommand: alembic upgrade head
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
@@ -33,6 +34,8 @@ services:
         value: "false"
       - key: APP_VERSION
         value: 1.0.0
+      - key: HOST
+        value: "0.0.0.0"
       - key: AUTH_PROVIDER
         value: supabase
       - key: SUPABASE_JWT_AUD
@@ -57,8 +60,6 @@ services:
         sync: false
       - key: TMDB_BASE_URL
         value: https://api.themoviedb.org/3
-      - key: TMDB_IMAGE_BASE_URL
-        value: https://image.tmdb.org/t/p
       - key: OMDB_API_KEY
         sync: false
       - key: OMDB_BASE_URL
@@ -136,9 +137,9 @@ services:
       - key: OMDB_BASE_URL
         value: https://www.omdbapi.com/
       - key: CORS_ORIGINS
-        value: "https://localhost:3000"
+        sync: false
       - key: FRONTEND_URL
-        value: "https://localhost:3000"
+        sync: false
       - key: EMBEDDING_MODEL
         value: sentence-transformers/all-MiniLM-L6-v2
       - key: VECTOR_DIMENSION
@@ -146,7 +147,7 @@ services:
       - key: ENABLE_PGVECTOR
         value: "true"
       - key: ML_ADMIN_EMAILS
-        value: "admin@watchman.io"
+        sync: false
       - key: HF_API_URL
         value: https://router.huggingface.co/hf-inference/models
       - key: HF_API_TOKEN
@@ -157,6 +158,10 @@ services:
         value: "500"
       - key: ENABLE_INTERACTION_EMBEDDING
         value: "true"
+      - key: ENABLE_SEARCH_EMBEDDING
+        value: "false"
+      - key: SEARCH_EMBED_THRESHOLD
+        value: "3"
 
   # ---------------------------------------------------------------------------
   # 3. Celery Periodic Beat Scheduler
@@ -177,6 +182,16 @@ services:
         value: "false"
       - key: AUTH_PROVIDER
         value: supabase
+      - key: SUPABASE_JWT_AUD
+        value: authenticated
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
@@ -185,20 +200,18 @@ services:
         sync: false
       - key: CELERY_RESULT_BACKEND
         sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
       - key: TMDB_API_KEY
         sync: false
+      - key: TMDB_BASE_URL
+        value: https://api.themoviedb.org/3
       - key: OMDB_API_KEY
         sync: false
+      - key: OMDB_BASE_URL
+        value: https://www.omdbapi.com/
       - key: CORS_ORIGINS
-        value: "https://localhost:3000"
+        sync: false
       - key: FRONTEND_URL
-        value: "https://localhost:3000"
+        sync: false
       - key: EMBEDDING_MODEL
         value: sentence-transformers/all-MiniLM-L6-v2
       - key: VECTOR_DIMENSION
@@ -206,8 +219,18 @@ services:
       - key: ENABLE_PGVECTOR
         value: "true"
       - key: ML_ADMIN_EMAILS
-        value: "admin@watchman.io"
+        sync: false
       - key: HF_API_URL
         value: https://router.huggingface.co/hf-inference/models
       - key: HF_API_TOKEN
         sync: false
+      - key: INITIAL_POPULAR_MOVIE_EMBED_LIMIT
+        value: "500"
+      - key: INITIAL_POPULAR_TV_EMBED_LIMIT
+        value: "500"
+      - key: ENABLE_INTERACTION_EMBEDDING
+        value: "true"
+      - key: ENABLE_SEARCH_EMBEDDING
+        value: "false"
+      - key: SEARCH_EMBED_THRESHOLD
+        value: "3"

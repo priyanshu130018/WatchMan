@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Any, Generic, TypeVar
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.core.constants import CONTENT_PAGE_SIZE
 
@@ -14,8 +14,8 @@ class ContentPaginationResponse(BaseModel, Generic[T]):
     """Generic paginated envelope for catalog, listing, and search endpoints.
 
     Wraps a page of ``results`` with the pagination metadata the frontend grids
-    expect (page/limit/total/total_pages). Parametrized per endpoint, e.g.
-    ``ContentPaginationResponse[ContentSummaryDTO]``.
+    expect (page/limit/total/total_pages). Exposes both ``limit``/``total`` and
+    ``page_size``/``total_results`` for complete API client compatibility.
     """
 
     page: int
@@ -23,6 +23,16 @@ class ContentPaginationResponse(BaseModel, Generic[T]):
     total: int
     total_pages: int
     results: list[T]
+    page_size: int | None = None
+    total_results: int | None = None
+
+    @model_validator(mode="after")
+    def populate_pagination_aliases(self) -> "ContentPaginationResponse[T]":
+        if self.page_size is None:
+            self.page_size = self.limit
+        if self.total_results is None:
+            self.total_results = self.total
+        return self
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -108,6 +118,8 @@ class ContentSummaryDTO(BaseModel):
     number_of_seasons: int | None = None
     number_of_episodes: int | None = None
     genres: list[GenreDTO] = Field(default_factory=list)
+    watchman_score: float | None = None
+    watchman_label: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -149,6 +161,8 @@ class ContentDetailResponse(BaseModel):
     imdb_rating: str | None = None
     imdb_votes: str | None = None
     ratings: list[RatingDTO] = Field(default_factory=list)
+    watchman_score: float | None = None
+    watchman_label: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

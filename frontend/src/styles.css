@@ -453,11 +453,7 @@ body {
 .movie-row::-webkit-scrollbar {
   display: none;
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 22px;
-}
+
 .movie-card {
   min-width: 0;
 }
@@ -817,9 +813,7 @@ footer {
   .search {
     width: 38vw;
   }
-  .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+
   .movie-row {
     grid-auto-columns: 155px;
   }
@@ -862,10 +856,7 @@ footer {
     padding-left: 18px;
     padding-right: 18px;
   }
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
+
   .section {
     padding-top: 34px;
   }

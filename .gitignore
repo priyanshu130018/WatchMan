@@ -91,6 +91,10 @@ frontend/dist/
 frontend/build/
 frontend/.next/
 frontend/out/
+frontend/.output/
+.output/
+frontend/.vercel/
+.vercel/
 frontend/.cache/
 frontend/.vite/
 frontend/.env.local

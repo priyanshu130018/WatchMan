@@ -17,21 +17,36 @@ export interface ContentCardProps {
   showTypeBadge?: boolean;
   showReason?: boolean;
   aspectRatio?: "poster" | "backdrop";
+  progress?: number;
+  completed?: boolean;
 }
+
+import { getContentDetailRoute } from "@/lib/catalogHelpers";
+export { getContentDetailRoute };
 
 export function ContentCard({
   content,
   showTypeBadge = true,
   showReason = true,
+  progress,
+  completed,
 }: ContentCardProps) {
   const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [imageError, setImageError] = useState(false);
 
-  const isTv = content.content_type === "tv";
-  const targetId = String(content.tmdb_id || content.id);
-  const detailPath = isTv ? "/web-series/$id" : "/movie/$id";
+  const effectiveProgress =
+    progress !== undefined
+      ? progress
+      : content.progress !== undefined
+        ? content.progress
+        : content.progress_percent;
+  const isCompleted = completed !== undefined ? completed : content.completed;
+  const hasActiveProgress =
+    effectiveProgress !== undefined && effectiveProgress > 0 && !isCompleted;
+
+  const { isTv, targetId, detailPath } = getContentDetailRoute(content);
 
   const favorites = useQuery({
     queryKey: ["favorites"],
@@ -68,6 +83,7 @@ export function ContentCard({
       if (!token) return;
       await queryClient.invalidateQueries({ queryKey: ["favorites"] });
       await queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+      await queryClient.invalidateQueries({ queryKey: ["homepage", "personalized"] });
       toast.success(isSaved ? "Removed from your library." : "Saved to your watchlist.");
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
@@ -116,8 +132,69 @@ export function ContentCard({
             </Badge>
           )}
 
-          <span className="pointer-events-none absolute bottom-2.5 left-2.5 z-10 inline-flex translate-y-1 items-center gap-1 rounded-md bg-primary px-2 py-1.5 text-[10px] font-extrabold text-primary-foreground opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
-            <Play size={13} fill="currentColor" aria-hidden="true" /> Details
+          {(content.watchman_label || (content.vote_average && content.vote_average > 0)) &&
+            (() => {
+              const rawLabel =
+                content.watchman_label ||
+                (content.vote_average
+                  ? content.vote_average >= 7.5
+                    ? "must_watch"
+                    : content.vote_average >= 4.5
+                      ? "time_pass"
+                      : "skip"
+                  : null);
+              if (!rawLabel) return null;
+              return (
+                <span
+                  className={cn(
+                    "absolute right-2 top-2 z-10 rounded-md px-1.5 py-0.5 text-[9px] font-black tracking-wider uppercase backdrop-blur-md shadow-sm border",
+                    rawLabel === "must_watch" &&
+                      "bg-amber-400 text-black border-amber-300 font-extrabold",
+                    rawLabel === "time_pass" &&
+                      "bg-neutral-900/85 text-neutral-300 border-neutral-700 font-medium",
+                    rawLabel === "skip" && "bg-red-600 text-white border-red-500 font-extrabold",
+                  )}
+                >
+                  {rawLabel === "must_watch" && "MUST WATCH"}
+                  {rawLabel === "time_pass" && "TIME PASS"}
+                  {rawLabel === "skip" && "SKIP"}
+                </span>
+              );
+            })()}
+
+          {hasActiveProgress && (
+            <div className="absolute inset-x-0 bottom-0 z-20 bg-background/95 backdrop-blur-md px-2.5 py-1.5 border-t border-border/40">
+              <div className="flex items-center justify-between text-[10px] font-bold text-foreground mb-1">
+                <span className="text-primary">{Math.round(effectiveProgress)}% watched</span>
+                {content.runtime ? (
+                  <span className="text-muted-foreground font-medium text-[9px]">
+                    {Math.max(1, Math.round(content.runtime * (1 - effectiveProgress / 100)))}m left
+                  </span>
+                ) : null}
+              </div>
+              <div
+                role="progressbar"
+                aria-valuenow={Math.round(effectiveProgress)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                className="h-1.5 w-full overflow-hidden rounded-full bg-secondary/80"
+              >
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${Math.min(100, Math.max(0, effectiveProgress))}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          <span
+            className={cn(
+              "pointer-events-none absolute left-2.5 z-10 inline-flex translate-y-1 items-center gap-1 rounded-md bg-primary px-2 py-1.5 text-[10px] font-extrabold text-primary-foreground opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100",
+              hasActiveProgress ? "bottom-12" : "bottom-2.5",
+            )}
+          >
+            <Play size={13} fill="currentColor" aria-hidden="true" />{" "}
+            {hasActiveProgress ? "Resume" : "Details"}
           </span>
         </div>
       </Link>

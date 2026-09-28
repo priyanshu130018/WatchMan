@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import { normalizeMovie, type Movie, type RecommendationMovie } from "@/types/movie";
+import { normalizeContentItem, type ContentItem } from "@/types/content";
 
 export interface RecommendationListResponse {
   items: RecommendationMovie[];
@@ -7,6 +8,7 @@ export interface RecommendationListResponse {
   page: number;
   page_size: number;
   total_pages: number;
+  is_cold_start?: boolean;
 }
 
 export interface RecommendationParams {
@@ -16,7 +18,95 @@ export interface RecommendationParams {
   forceRefresh?: boolean;
 }
 
+export interface RecommendationSection {
+  key: "must_like" | "watched_liked" | "continue_watching" | string;
+  title: string;
+  subtitle?: string;
+  items: ContentItem[];
+}
+
+export interface HomeRecommendationsResponse {
+  has_personalization: boolean;
+  sections: RecommendationSection[];
+}
+
 export const recommendationService = {
+  getHomeSections: async (params?: {
+    limit?: number;
+    forceRefresh?: boolean;
+  }): Promise<HomeRecommendationsResponse> => {
+    const { data } = await api.get("/recommendations/home", {
+      params: {
+        limit: params?.limit ?? 12,
+        force_refresh: params?.forceRefresh ?? false,
+      },
+    });
+    const sections = Array.isArray(data?.sections)
+      ? data.sections.map((s: any) => ({
+          key: String(s.key),
+          title: String(s.title),
+          subtitle: s.subtitle ? String(s.subtitle) : undefined,
+          items: Array.isArray(s.items) ? s.items.map((it: any) => normalizeContentItem(it)) : [],
+        }))
+      : [];
+    return {
+      has_personalization: Boolean(data?.has_personalization && sections.length > 0),
+      sections,
+    };
+  },
+
+  getMustLike: async (params?: {
+    limit?: number;
+    forceRefresh?: boolean;
+  }): Promise<{ key: string; title: string; items: ContentItem[] }> => {
+    const { data } = await api.get("/recommendations/must-like", {
+      params: {
+        limit: params?.limit ?? 12,
+        force_refresh: params?.forceRefresh ?? false,
+      },
+    });
+    const items = Array.isArray(data?.items)
+      ? data.items.map((it: any) => normalizeContentItem(it))
+      : [];
+    return {
+      key: data?.key || "must_like",
+      title: data?.title || "You Must Like",
+      items,
+    };
+  },
+
+  getWatchedLiked: async (params?: {
+    limit?: number;
+  }): Promise<{ key: string; title: string; items: ContentItem[] }> => {
+    const { data } = await api.get("/recommendations/watched-liked", {
+      params: { limit: params?.limit ?? 12 },
+    });
+    const items = Array.isArray(data?.items)
+      ? data.items.map((it: any) => normalizeContentItem(it))
+      : [];
+    return {
+      key: data?.key || "watched_liked",
+      title: data?.title || "You Already Watched & Liked",
+      items,
+    };
+  },
+
+  getContinueWatching: async (params?: {
+    limit?: number;
+  }): Promise<{ key: string; title: string; items: ContentItem[] }> => {
+    const { data } = await api.get("/recommendations/continue-watching", {
+      params: { limit: params?.limit ?? 12 },
+    });
+    const items = Array.isArray(data?.items)
+      ? data.items.map((it: any) => normalizeContentItem(it))
+      : [];
+    return {
+      key: data?.key || "continue_watching",
+      title: data?.title || "Continue Watching",
+      items,
+    };
+  },
+
   getRecommendations: async (
     params?: RecommendationParams,
   ): Promise<RecommendationListResponse> => {
@@ -51,6 +141,7 @@ export const recommendationService = {
       page: Number(data?.page ?? 1),
       page_size: Number(data?.page_size ?? normalizedItems.length),
       total_pages: Number(data?.total_pages ?? 1),
+      is_cold_start: Boolean(data?.is_cold_start),
     };
   },
 

@@ -1,14 +1,18 @@
 from collections import defaultdict
 from datetime import datetime
+import logging
 from uuid import UUID
 import numpy as np
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.models.content import Content
 from app.models.embedding import ContentEmbedding, UserEmbedding
 from app.models.interaction import InteractionEvent, SavedContent, WatchHistory
 from app.models.review import Rating
 from app.ml.embeddings.content_embeddings import ContentEmbeddingService
+
+logger = logging.getLogger(__name__)
 
 
 class UserEmbeddingService:
@@ -56,6 +60,36 @@ class UserEmbeddingService:
         for ev in events:
             weights[ev.content_id] = max(weights[ev.content_id], 0.5)
 
+        # 5. WatchMan Decisions
+        from app.models.watchman import WatchmanDecision
+        decisions = db.query(WatchmanDecision).filter(WatchmanDecision.user_id == user_id).all()
+        for dec in decisions:
+            if dec.decision == "must_watch":
+                weights[dec.content_id] = max(weights[dec.content_id], 1.0)
+            elif dec.decision == "time_pass":
+                weights[dec.content_id] = max(weights[dec.content_id], 0.35)
+            elif dec.decision == "skip":
+                weights.pop(dec.content_id, None)
+
+        # Interaction events from watchman decisions
+        wm_events = (
+            db.query(InteractionEvent)
+            .filter(
+                InteractionEvent.user_id == user_id,
+                InteractionEvent.event_type == "watchman_decision",
+            )
+            .all()
+        )
+        for ev in wm_events:
+            if not ev.content_id:
+                continue
+            dec = (ev.event_data or {}).get("decision") if ev.event_data else None
+            val = ev.event_value
+            if dec == "must_watch" or val == 1.0:
+                weights[ev.content_id] = max(weights[ev.content_id], 1.0)
+            elif dec == "skip" or val == 0.0:
+                weights.pop(ev.content_id, None)
+
         return dict(weights)
 
     @classmethod
@@ -72,6 +106,10 @@ class UserEmbeddingService:
         """
         item_weights = cls.get_user_interaction_weights(db, user_id)
         if not item_weights:
+            existing = db.query(UserEmbedding).filter(UserEmbedding.user_id == user_id).first()
+            if existing:
+                db.delete(existing)
+                db.commit()
             return None
 
         # Fetch embeddings for all interacted items
@@ -86,15 +124,33 @@ class UserEmbeddingService:
         )
         found_ids = {r.content_id: r.embedding for r in embeddings_records}
 
-        # Generate on-demand for any missing content embeddings
-        for cid in content_ids:
-            if cid not in found_ids or found_ids[cid] is None:
-                try:
-                    new_emb = ContentEmbeddingService.embed_content(db, cid)
-                    if new_emb and new_emb.embedding is not None:
-                        found_ids[cid] = new_emb.embedding
-                except Exception:
-                    continue
+        # Generate on-demand for any missing content embeddings if interaction embedding is enabled
+        if settings.ENABLE_INTERACTION_EMBEDDING:
+            missing_cids = [cid for cid in content_ids if cid not in found_ids or found_ids[cid] is None]
+            if missing_cids:
+                missing_contents = db.query(Content).filter(Content.id.in_(missing_cids)).all()
+                if missing_contents:
+                    try:
+                        ContentEmbeddingService.batch_embed_items(db, missing_contents)
+                        embeddings_records = (
+                            db.query(ContentEmbedding)
+                            .filter(
+                                ContentEmbedding.content_id.in_(missing_cids),
+                                ContentEmbedding.embedding.isnot(None),
+                            )
+                            .all()
+                        )
+                        for r in embeddings_records:
+                            found_ids[r.content_id] = r.embedding
+                    except Exception as exc:
+                        logger.warning("Batch embedding for interaction items failed: %s; falling back to per-item", exc)
+                        for cid in missing_cids:
+                            try:
+                                new_emb = ContentEmbeddingService.embed_content(db, cid)
+                                if new_emb and new_emb.embedding is not None:
+                                    found_ids[cid] = new_emb.embedding
+                            except Exception:
+                                continue
 
         if not found_ids:
             return None
@@ -132,19 +188,30 @@ class UserEmbeddingService:
             db.refresh(existing)
             return existing
         else:
-            new_user_emb = UserEmbedding(
-                user_id=user_id,
-                embedding=normalized_vector,
-                model_name=settings.EMBEDDING_MODEL,
-                dimension=dim,
-                model_version="1.0.0",
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
-            )
-            db.add(new_user_emb)
-            db.commit()
-            db.refresh(new_user_emb)
-            return new_user_emb
+            try:
+                new_user_emb = UserEmbedding(
+                    user_id=user_id,
+                    embedding=normalized_vector,
+                    model_name=settings.EMBEDDING_MODEL,
+                    dimension=dim,
+                    model_version="1.0.0",
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                db.add(new_user_emb)
+                db.commit()
+                db.refresh(new_user_emb)
+                return new_user_emb
+            except Exception:
+                db.rollback()
+                concurrent_user_emb = (
+                    db.query(UserEmbedding)
+                    .filter(UserEmbedding.user_id == user_id)
+                    .first()
+                )
+                if concurrent_user_emb:
+                    return concurrent_user_emb
+                raise
 
     @classmethod
     def get_or_compute_user_embedding(

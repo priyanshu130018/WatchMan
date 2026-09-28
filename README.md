@@ -99,7 +99,7 @@ WatcheMan/
 │   │   ├── services/            # API client services (catalog, auth, watchman, recs)
 │   │   └── types/               # TypeScript domain interfaces
 │   ├── Dockerfile               # Production container definition
-│   ├── vercel.json              # Vercel SPA rewrites configuration
+│   ├── vercel.json              # Vercel deployment configuration
 │   ├── package.json             # NPM dependencies and scripts
 │   └── .env.example
 ├── scripts/
@@ -114,7 +114,6 @@ WatcheMan/
 │   └── verify_search_filter_experience.py# Live search & filter verification
 ├── compose.yml                  # Local Docker Compose (API + Worker + Beat + Frontend)
 ├── render.yaml                  # Render Blueprint definition (FastAPI + Worker + Beat)
-├── vercel.json                  # Root Vercel SPA deployment configuration
 ├── .env.example                 # Root environment template
 └── README.md
 ```
@@ -205,14 +204,16 @@ npm run build
 ### 1. Vercel Deployment (Frontend)
 1. Import repository on [Vercel](https://vercel.com).
 2. Set **Root Directory** to `frontend`.
-3. Framework Preset: **Vite** (build command: `npm run build`, output directory: `dist` or `.output/public`).
+3. Framework Preset: **Other** / **Vite** (build command: `npm run build`).
+   * When deployed on Vercel (`VERCEL=1`), Nitro automatically compiles to **Vercel Build Output API v3** (`.vercel/output`).
+   * Static assets (`/assets/*`) are served directly from the edge network with immutable cache headers.
+   * Direct navigations (`/movie/:id`, `/web-series/:id`, `/recommendation`, `/search`, `/profile`, `/saved`, `/history`) route dynamically to the TanStack Start SSR serverless function (`/__server`).
 4. Set Environment Variables in Vercel Project Settings:
    - `VITE_API_BASE_URL`: `https://<your-render-backend>.onrender.com/api`
    - `VITE_AUTH_PROVIDER`: `supabase`
    - `VITE_SUPABASE_URL`: `https://<your-project>.supabase.co`
    - `VITE_SUPABASE_PUBLISHABLE_KEY`: `<your-supabase-publishable-key>`
    - `VITE_TMDB_IMAGE_BASE_URL`: `https://image.tmdb.org/t/p`
-5. The included `vercel.json` rewrite rules route direct URL navigations (`/movie/:id`, `/web-series/:id`, `/recommendation`, `/search`) to `/index.html` without 404s.
 
 ### 2. Render Deployment (Backend & Celery)
 You can deploy using the included `render.yaml` Blueprint or create 3 separate services manually:

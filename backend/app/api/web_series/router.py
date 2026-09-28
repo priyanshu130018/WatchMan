@@ -29,9 +29,11 @@ catalog = ContentCatalogService(tmdb)
 def list_web_series(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=CONTENT_PAGE_SIZE, ge=1, le=100),
+    page_size: int | None = Query(default=None, ge=1, le=100, description="Alias for limit"),
     sort: str = Query(default="popularity_desc"),
     year: int | None = Query(default=None),
     genre_id: int | None = Query(default=None),
+    genre: int | None = Query(default=None, description="Alias for genre_id"),
     language: str | None = Query(default=None),
     collection: str | None = Query(
         default=None,
@@ -46,7 +48,9 @@ def list_web_series(
     titles by popularity (ordering fixed to ``popularity_desc``); filters still
     apply and narrow within that set.
     """
-    genre_ids = [genre_id] if genre_id else None
+    effective_limit = page_size if page_size is not None else limit
+    effective_genre = genre_id if genre_id is not None else genre
+    genre_ids = [effective_genre] if effective_genre else None
     max_items = None
     effective_sort = sort
     if collection == "popular":
@@ -60,13 +64,15 @@ def list_web_series(
         year=year,
         sort_by=effective_sort,
         page=page,
-        limit=limit,
+        limit=effective_limit,
         max_items=max_items,
     )
     return ContentPaginationResponse[ContentSummaryDTO](
         page=page,
-        limit=limit,
+        limit=effective_limit,
+        page_size=effective_limit,
         total=total,
+        total_results=total,
         total_pages=total_pages,
         results=results,
     )

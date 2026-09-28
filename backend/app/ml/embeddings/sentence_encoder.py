@@ -1,8 +1,7 @@
 import threading
 from typing import Sequence
 
-import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from huggingface_hub import InferenceClient
 
 from app.core.config import settings
 
@@ -23,9 +22,9 @@ class SentenceEncoder:
     def __init__(self) -> None:
         self.model_name = settings.EMBEDDING_MODEL
         self.expected_dimension = settings.VECTOR_DIMENSION
-        # Endpoint like: https://api-inference.huggingface.co/pipeline/feature-extraction/{model}
+        # Informational endpoint assembled from the configured router base.
         self.api_url = f"{settings.HF_API_URL.rstrip('/')}/{self.model_name}"
-        self._client: httpx.Client | None = None
+        self._client: InferenceClient | None = None
 
     @classmethod
     def get_instance(cls) -> "SentenceEncoder":
@@ -35,38 +34,25 @@ class SentenceEncoder:
                     cls._instance = cls()
         return cls._instance
 
-    def _get_client(self) -> httpx.Client:
+    def _get_client(self) -> InferenceClient:
         if self._client is None:
             with self._lock:
                 if self._client is None:
-                    headers = {"Content-Type": "application/json"}
-                    if settings.HF_API_TOKEN:
-                        headers["Authorization"] = f"Bearer {settings.HF_API_TOKEN}"
-                    self._client = httpx.Client(
-                        headers=headers,
-                        timeout=httpx.Timeout(60.0, connect=10.0),
+                    self._client = InferenceClient(
+                        model=self.model_name,
+                        provider="hf-inference",
+                        token=settings.HF_API_TOKEN,
+                        timeout=60.0,
                     )
         return self._client
 
-    @retry(
-        stop=stop_after_attempt(4),
-        wait=wait_exponential(multiplier=1, min=1, max=20),
-        retry=retry_if_exception_type((httpx.HTTPError,)),
-        reraise=True,
-    )
     def _request(self, inputs: str | list[str]) -> list:
         """
-        Calls the HF feature-extraction endpoint. Retries on transient errors
-        and on 503 (model still loading on HF's side).
+        Calls Hugging Face's current feature-extraction provider API.
         """
         client = self._get_client()
-        payload = {"inputs": inputs, "options": {"wait_for_model": True}}
-        resp = client.post(self.api_url, json=payload)
-        # 503 = model loading; raise so tenacity retries with backoff
-        if resp.status_code == 503:
-            raise httpx.HTTPError("HF model is loading (503)")
-        resp.raise_for_status()
-        return resp.json()
+        data = client.feature_extraction(inputs)
+        return data.tolist() if hasattr(data, "tolist") else data
 
     def _validate(self, vector: Sequence[float]) -> list[float]:
         if len(vector) != self.expected_dimension:

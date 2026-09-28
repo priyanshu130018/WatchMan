@@ -188,9 +188,22 @@ class HybridRanker:
 
         pref_genres, pref_langs = cls.get_user_profile_preferences(db, user_id)
 
+        # Check user WatchMan decisions
+        from app.models.watchman import WatchmanDecision
+        user_decisions = {
+            d.content_id: d.decision
+            for d in db.query(WatchmanDecision)
+            .filter(WatchmanDecision.user_id == user_id)
+            .all()
+        }
+
         scored_items: list[dict[str, Any]] = []
 
         for item in candidates:
+            # Suppress content user explicitly marked 'skip'
+            if user_decisions.get(item.content_id) == "skip":
+                continue
+
             c = item.content
             pref_score = cls._compute_preference_score(c, pref_genres, pref_langs)
 
@@ -201,6 +214,10 @@ class HybridRanker:
                 + w["freshness"] * item.freshness_score
                 + w["preference"] * pref_score
             )
+
+            # Boost must_watch signal
+            if user_decisions.get(item.content_id) == "must_watch":
+                composite_score = min(1.0, composite_score + 0.15)
 
             explanation = cls._build_explanation(
                 content_score=item.content_score,

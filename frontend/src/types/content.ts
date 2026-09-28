@@ -71,7 +71,14 @@ export interface ContentItem {
   reason?: string;
   explanation?: string;
   is_saved?: boolean;
-  is_favorite?: boolean;
+  watchman_score?: number;
+  watchman_label?: "must_watch" | "time_pass" | "skip" | string;
+  progress?: number;
+  progress_percent?: number;
+  completed?: boolean;
+  last_watched_at?: string;
+  duration_seconds?: number;
+  progress_seconds?: number;
 }
 
 export interface ContentPagination<T = ContentItem> {
@@ -196,5 +203,23 @@ export function normalizeContentItem(raw: any, defaultType: ContentType = "movie
     explanation: raw.explanation || raw.reason || undefined,
     is_saved: Boolean(raw.is_saved || raw.is_favorite),
     is_favorite: Boolean(raw.is_saved || raw.is_favorite),
+    watchman_score: raw.watchman_score !== undefined ? Number(raw.watchman_score) : undefined,
+    watchman_label: raw.watchman_label || undefined,
+    progress:
+      raw.progress !== undefined
+        ? Number(raw.progress)
+        : raw.progress_percent !== undefined
+          ? Number(raw.progress_percent)
+          : undefined,
+    progress_percent:
+      raw.progress_percent !== undefined
+        ? Number(raw.progress_percent)
+        : raw.progress !== undefined
+          ? Number(raw.progress)
+          : undefined,
+    completed: raw.completed !== undefined ? Boolean(raw.completed) : undefined,
+    last_watched_at: raw.last_watched_at || raw.watched_at || undefined,
+    duration_seconds: raw.duration_seconds !== undefined ? Number(raw.duration_seconds) : undefined,
+    progress_seconds: raw.progress_seconds !== undefined ? Number(raw.progress_seconds) : undefined,
   };
 }

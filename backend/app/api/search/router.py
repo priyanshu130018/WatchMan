@@ -28,54 +28,81 @@ async def search_unified(
     q: str | None = Query(default=None),
     query: str | None = Query(default=None),
     type: str = Query(default="all", pattern="^(all|movie|tv)$"),
+    content_type: str | None = Query(default=None, pattern="^(all|movie|tv)$", description="Alias for type"),
     genre: int | None = Query(default=None),
+    genre_id: int | None = Query(default=None, description="Alias for genre"),
     language: str | None = Query(default=None),
     year: int | None = Query(default=None),
     sort: str = Query(default="popularity_desc"),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=CONTENT_PAGE_SIZE, ge=1, le=100),
+    page_size: int | None = Query(default=None, ge=1, le=100, description="Alias for limit"),
     db: Session = Depends(get_db),
 ):
     """Unified search endpoint for movies and web series with filtering, pagination, and TMDB fallback.
     
-    Returns 200 OK with empty results if search query is blank.
+    Returns 200 OK with empty results if search query is blank and no filters applied.
     """
+    effective_limit = page_size if page_size is not None else limit
+    effective_genre = genre_id if genre_id is not None else genre
+    effective_type = content_type if content_type is not None else type
+
     search_query = (q or query or "").strip()
-    if not search_query:
+    has_filters = effective_type != "all" or effective_genre is not None or language is not None or year is not None
+    has_sort = sort != "popularity_desc"
+
+    if not search_query and not has_filters and not has_sort:
         return ContentPaginationResponse[ContentSummaryDTO](
             page=page,
-            limit=limit,
+            limit=effective_limit,
+            page_size=effective_limit,
             total=0,
+            total_results=0,
             total_pages=0,
             results=[],
         )
 
-    content_type = None
-    if type == "movie":
-        content_type = ContentType.MOVIE.value
-    elif type == "tv":
-        content_type = ContentType.TV.value
+    resolved_content_type = None
+    if effective_type == "movie":
+        resolved_content_type = ContentType.MOVIE.value
+    elif effective_type == "tv":
+        resolved_content_type = ContentType.TV.value
 
-    genre_ids = [genre] if genre else None
+    genre_ids = [effective_genre] if effective_genre else None
 
-    # First attempt searching local synchronized database
-    results, total, total_pages = catalog.search_content(
-        db=db,
-        query_str=search_query,
-        content_type=content_type,
-        genre_ids=genre_ids,
-        language_code=language,
-        year=year,
-        sort_by=sort,
-        page=page,
-        limit=limit,
-    )
+    # Browse the local catalog when filters are used without a title query;
+    # otherwise search titles and overviews as before.
+    if search_query:
+        results, total, total_pages = catalog.search_content(
+            db=db,
+            query_str=search_query,
+            content_type=resolved_content_type,
+            genre_ids=genre_ids,
+            language_code=language,
+            year=year,
+            sort_by=sort,
+            page=page,
+            limit=effective_limit,
+        )
+    else:
+        results, total, total_pages = catalog.list_content(
+            db=db,
+            content_type=resolved_content_type,
+            genre_ids=genre_ids,
+            language_code=language,
+            year=year,
+            sort_by=sort,
+            page=page,
+            limit=effective_limit,
+        )
 
     if total > 0:
         return ContentPaginationResponse[ContentSummaryDTO](
             page=page,
-            limit=limit,
+            limit=effective_limit,
+            page_size=effective_limit,
             total=total,
+            total_results=total,
             total_pages=total_pages,
             results=results,
         )
@@ -136,17 +163,21 @@ async def search_unified(
 
         return ContentPaginationResponse[ContentSummaryDTO](
             page=page,
-            limit=limit,
+            limit=effective_limit,
+            page_size=effective_limit,
             total=tmdb_total,
+            total_results=tmdb_total,
             total_pages=tmdb_pages,
-            results=fallback_results[:limit],
+            results=fallback_results[:effective_limit],
         )
     except Exception:
         # If external TMDB fails during fallback, return empty result set gracefully
         return ContentPaginationResponse[ContentSummaryDTO](
             page=page,
-            limit=limit,
+            limit=effective_limit,
+            page_size=effective_limit,
             total=0,
+            total_results=0,
             total_pages=0,
             results=[],
         )

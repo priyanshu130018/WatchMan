@@ -125,15 +125,18 @@ export const LANGUAGES = [
 
 export const catalogService = {
   getMovies: async (params?: CatalogFilterParams): Promise<ContentPagination> => {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? CONTENT_PAGE_SIZE;
     const { data } = await api.get("/movies", {
       params: {
-        page: params?.page ?? 1,
-        limit: params?.limit ?? CONTENT_PAGE_SIZE,
+        page,
+        limit,
+        page_size: limit,
         sort: params?.sort ?? "popularity_desc",
         year: params?.year,
         genre_id: params?.genre_id,
         language: params?.language,
-        collection: params?.collection,
+        collection: params?.collection || undefined,
       },
     });
 
@@ -141,9 +144,9 @@ export const catalogService = {
       ? data.results.map((r: any) => normalizeContentItem(r, "movie"))
       : [];
     return {
-      page: Number(data?.page ?? 1),
-      limit: Number(data?.limit ?? CONTENT_PAGE_SIZE),
-      total: Number(data?.total ?? results.length),
+      page: Number(data?.page ?? page),
+      limit: Number(data?.limit ?? data?.page_size ?? limit),
+      total: Number(data?.total ?? data?.total_results ?? results.length),
       total_pages: Number(data?.total_pages ?? 1),
       results,
     };
@@ -187,15 +190,18 @@ export const catalogService = {
   },
 
   getWebSeries: async (params?: CatalogFilterParams): Promise<ContentPagination> => {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? CONTENT_PAGE_SIZE;
     const { data } = await api.get("/web-series", {
       params: {
-        page: params?.page ?? 1,
-        limit: params?.limit ?? CONTENT_PAGE_SIZE,
+        page,
+        limit,
+        page_size: limit,
         sort: params?.sort ?? "popularity_desc",
         year: params?.year,
         genre_id: params?.genre_id,
         language: params?.language,
-        collection: params?.collection,
+        collection: params?.collection || undefined,
       },
     });
 
@@ -203,9 +209,9 @@ export const catalogService = {
       ? data.results.map((r: any) => normalizeContentItem(r, "tv"))
       : [];
     return {
-      page: Number(data?.page ?? 1),
-      limit: Number(data?.limit ?? CONTENT_PAGE_SIZE),
-      total: Number(data?.total ?? results.length),
+      page: Number(data?.page ?? page),
+      limit: Number(data?.limit ?? data?.page_size ?? limit),
+      total: Number(data?.total ?? data?.total_results ?? results.length),
       total_pages: Number(data?.total_pages ?? 1),
       results,
     };
@@ -263,8 +269,9 @@ export const catalogService = {
       params: {
         q: params.q,
         query: params.q,
-        content_type: params.type && params.type !== "all" ? params.type : undefined,
-        genre_id: params.genre_id,
+        type: params.type && params.type !== "all" ? params.type : undefined,
+        genre: params.genre_id,
+        language: params.language,
         year: params.year,
         sort: params.sort,
         page: params.page ?? 1,

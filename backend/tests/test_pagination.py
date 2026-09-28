@@ -361,3 +361,54 @@ def test_api_trending_ignores_page_parameter(client):
     assert page1 == page2
     assert page2["total_pages"] == 1
     assert len(page2["results"]) == TRENDING_ITEMS
+
+
+def test_api_movies_popular_page1_vs_page2_different_records(client, db_session):
+    """Popular mode page 1 and page 2 must return completely disjoint sets of records."""
+    _seed(db_session, ContentType.MOVIE.value, 50, start_tmdb=50_000)
+
+    p1 = client.get("/api/movies?collection=popular&page=1").json()
+    p2 = client.get("/api/movies?collection=popular&page=2").json()
+
+    assert p1["page"] == 1
+    assert p2["page"] == 2
+    assert len(p1["results"]) == CONTENT_PAGE_SIZE
+    assert len(p2["results"]) == CONTENT_PAGE_SIZE
+
+    ids_p1 = [r["tmdb_id"] for r in p1["results"]]
+    ids_p2 = [r["tmdb_id"] for r in p2["results"]]
+    assert set(ids_p1).isdisjoint(set(ids_p2))
+
+
+def test_api_popular_and_full_catalogue_differ_in_query_and_totals(client, db_session):
+    """Full Catalogue and Popular mode must return different totals when dataset exceeds 100."""
+    _seed(db_session, ContentType.MOVIE.value, 120, start_tmdb=60_000)
+
+    # Full Catalogue: real database total (120), 7 pages of 18
+    full = client.get("/api/movies?page=1&page_size=18").json()
+    assert full["total"] == 120
+    assert full["total_results"] == 120
+    assert full["total_pages"] == 7
+    assert full["page_size"] == 18
+    assert len(full["results"]) == 18
+
+    # Popular mode: capped at 100, exactly 6 pages
+    popular = client.get("/api/movies?collection=popular&page=1&page_size=18").json()
+    assert popular["total"] == POPULAR_COLLECTION_MAX
+    assert popular["total_results"] == POPULAR_COLLECTION_MAX
+    assert popular["total_pages"] == 6
+    assert popular["page_size"] == 18
+    assert len(popular["results"]) == 18
+
+
+def test_api_page_size_query_param_supported(client, db_session):
+    """Verify page_size is accepted as alias for limit and reflected in response envelope."""
+    _seed(db_session, ContentType.MOVIE.value, 25, start_tmdb=70_000)
+
+    resp = client.get("/api/movies?page=1&page_size=10").json()
+    assert resp["limit"] == 10
+    assert resp["page_size"] == 10
+    assert resp["total"] == 25
+    assert resp["total_results"] == 25
+    assert resp["total_pages"] == 3
+    assert len(resp["results"]) == 10

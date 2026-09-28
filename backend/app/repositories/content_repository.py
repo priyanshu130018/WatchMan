@@ -83,7 +83,16 @@ class ContentRepository:
             query = query.filter(Content.content_type == content_type)
 
         if genre_ids:
-            query = query.join(Content.genres).filter(ContentGenre.genre_id.in_(genre_ids))
+            query = query.filter(
+                Content.genres.any(
+                    ContentGenre.genre.has(
+                        or_(
+                            Genre.tmdb_id.in_(genre_ids),
+                            Genre.id.in_(genre_ids),
+                        )
+                    )
+                )
+            )
 
         if language_code:
             query = query.filter(
@@ -164,7 +173,16 @@ class ContentRepository:
             query = query.filter(Content.content_type == content_type)
 
         if genre_ids:
-            query = query.join(Content.genres).filter(ContentGenre.genre_id.in_(genre_ids))
+            query = query.filter(
+                Content.genres.any(
+                    ContentGenre.genre.has(
+                        or_(
+                            Genre.tmdb_id.in_(genre_ids),
+                            Genre.id.in_(genre_ids),
+                        )
+                    )
+                )
+            )
 
         if language_code:
             query = query.filter(

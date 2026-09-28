@@ -27,6 +27,7 @@ from app.api.ratings.router import router as ratings_router
 from app.api.reviews.router import router as reviews_router
 from app.api.watch_history.router import router as watch_history_router
 from app.api.ml.router import router as ml_router
+from app.api.watchman.router import router as watchman_router
 from app.api.ops.router import router as ops_router
 
 app = FastAPI(
@@ -173,6 +174,7 @@ app.include_router(reviews_router, prefix="/api")
 app.include_router(watch_history_router, prefix="/api")
 app.include_router(recommendation_router, prefix="/api")
 app.include_router(ml_router, prefix="/api")
+app.include_router(watchman_router, prefix="/api")
 app.include_router(ops_router, prefix="/api/ops")
 
 

@@ -91,6 +91,72 @@ async def similar(movie_id: int):
 
 
 
+@router.get("/home")
+async def get_homepage_recommendations(
+    limit: int = Query(default=12, ge=1, le=50),
+    force_refresh: bool = Query(default=False),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get personalized homepage shelves (You Must Like, You Already Watched & Liked, Continue Watching).
+    Enforces cross-shelf deduplication in priority order.
+    """
+    return await service.get_homepage_sections(
+        db=db,
+        user_id=current_user.id,
+        limit=limit,
+        force_refresh=force_refresh,
+    )
+
+
+@router.get("/must-like")
+async def get_must_like_shelf(
+    limit: int = Query(default=12, ge=1, le=50),
+    force_refresh: bool = Query(default=False),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get the 'You Must Like' recommendation shelf for the user."""
+    items = await service.get_must_like(
+        db=db,
+        user_id=current_user.id,
+        limit=limit,
+        force_refresh=force_refresh,
+    )
+    return {"key": "must_like", "title": "You Must Like", "items": items}
+
+
+@router.get("/watched-liked")
+async def get_watched_liked_shelf(
+    limit: int = Query(default=12, ge=1, le=50),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get the 'You Already Watched & Liked' shelf for the user."""
+    items = await service.get_watched_liked(
+        db=db,
+        user_id=current_user.id,
+        limit=limit,
+    )
+    return {"key": "watched_liked", "title": "You Already Watched & Liked", "items": items}
+
+
+@router.get("/continue-watching")
+async def get_continue_watching_shelf(
+    limit: int = Query(default=12, ge=1, le=50),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get the 'Continue Watching' shelf representing real in-progress playback."""
+    items = await service.get_continue_watching(
+        db=db,
+        user_id=current_user.id,
+        limit=limit,
+    )
+    return {"key": "continue_watching", "title": "Continue Watching", "items": items}
+
+
 @router.get("/{content_type}/{tmdb_id}")
 async def similar_content(
     content_type: Literal["movie", "tv"],

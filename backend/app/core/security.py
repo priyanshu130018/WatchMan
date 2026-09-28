@@ -159,6 +159,19 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Resolve user if bearer token is provided and valid, otherwise return None."""
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        return await get_current_user(credentials=credentials, db=db)
+    except Exception:
+        return None
+
+
 def require_resource_owner(resource_user_id: uuid.UUID | str, current_user_id: uuid.UUID | str) -> None:
     """Validate that the authenticated user owns the target resource."""
     if str(resource_user_id) != str(current_user_id):

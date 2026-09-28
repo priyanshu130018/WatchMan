@@ -25,6 +25,7 @@ import { ErrorState } from "@/components/States";
 import { RatingModal } from "@/components/RatingModal";
 import { VideoModal } from "@/components/VideoModal";
 import { ReviewsSection } from "@/components/ReviewsSection";
+import { WatchmanScoreCard } from "@/components/WatchmanScoreCard";
 import { catalogService } from "@/services/catalog";
 import { recommendationService } from "@/services/recommendations";
 import { userService } from "@/services/user";
@@ -65,7 +66,8 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
   // Content-type-aware noun for copy (e.g. the error title). Derived from the
   // actual content type; falls back to the generic "content" for any
   // unexpected/ambiguous type instead of mislabeling a movie as a web series.
-  const contentNoun = contentType === "movie" ? "movie" : contentType === "tv" ? "web series" : "content";
+  const contentNoun =
+    contentType === "movie" ? "movie" : contentType === "tv" ? "web series" : "content";
 
   // 1. Fetch Content Details
   const detailQueryKey = [isTv ? "web-series" : "movies", "detail", id];
@@ -273,17 +275,17 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
             <ArrowLeft size={16} aria-hidden="true" /> Back to {isTv ? "Web Series" : "Movies"}
           </Link>
 
-          <div className="grid grid-cols-1 items-end gap-8 md:grid-cols-[240px_1fr] lg:gap-12">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 lg:gap-12">
             {/* Poster */}
-            <div>
+            <div className="w-56 sm:w-64 md:w-72 lg:w-80 shrink-0">
               {content.poster_url ? (
                 <img
                   src={content.poster_url}
                   alt={`Poster for ${content.title}`}
-                  className="w-full rounded-2xl border border-border shadow-2xl"
+                  className="w-full rounded-2xl border border-border/80 shadow-2xl object-cover aspect-[2/3]"
                 />
               ) : (
-                <div className="flex aspect-[2/3] flex-col items-center justify-center rounded-2xl border border-border bg-card p-4 text-center text-muted-foreground">
+                <div className="flex aspect-[2/3] w-full flex-col items-center justify-center rounded-2xl border border-border bg-card p-4 text-center text-muted-foreground">
                   {isTv ? (
                     <Tv size={48} aria-hidden="true" />
                   ) : (
@@ -295,7 +297,7 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
             </div>
 
             {/* Main Info */}
-            <div className="space-y-4">
+            <div className="flex-1 min-w-0 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="brand">{isTv ? "WEB SERIES" : "MOVIE"}</Badge>
                 {content.genres?.map((g) => (
@@ -412,7 +414,7 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   Overview
                 </h2>
-                <p className="max-w-3xl text-base leading-relaxed text-foreground/90">
+                <p className="max-w-4xl text-base leading-relaxed text-foreground/90">
                   {content.overview || "No detailed overview is available for this title."}
                 </p>
               </div>
@@ -431,6 +433,16 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* WatchMan Verdict & Decision Section */}
+      <section className="relative z-20 -mt-8 mx-auto max-w-[1400px] px-4 sm:px-7">
+        <WatchmanScoreCard
+          contentId={content.id}
+          contentType={contentType}
+          initialScore={content.watchman_score}
+          initialLabel={content.watchman_label}
+        />
       </section>
 
       {/* Detail Body Content */}
@@ -630,7 +642,7 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
                 Sourced from The Movie Database — distinct from WatchMan member reviews.
               </p>
             </div>
-            <ul className="grid gap-4 md:grid-cols-2">
+            <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {tmdbReviews.map((review) => {
                 const avatar = review.avatar_path
                   ? review.avatar_path.startsWith("/http")

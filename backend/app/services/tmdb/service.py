@@ -65,10 +65,11 @@ def _build_tmdb_client() -> httpx.AsyncClient:
 class TMDBService:
     """Client for TMDB REST API supporting Movies, TV Shows, and trending content with non-blocking cache."""
 
-    def __init__(self, redis_cache=None) -> None:
+    def __init__(self, redis_cache=None, client: httpx.AsyncClient | None = None) -> None:
         self.api_key = settings.TMDB_API_KEY
         self.base_url = settings.TMDB_BASE_URL.rstrip("/")
         self.cache = redis_cache or cache
+        self._client = client
 
     # -------------------------------------------------------------------------
     # Response normalization helpers
@@ -124,8 +125,11 @@ class TMDBService:
         url = f"{self.base_url}/{clean_endpoint}"
 
         try:
-            async with _build_tmdb_client() as client:
-                response = await client.get(url, params=params)
+            if self._client is not None:
+                response = await self._client.get(url, params=params)
+            else:
+                async with _build_tmdb_client() as client:
+                    response = await client.get(url, params=params)
 
             if response.status_code == 404:
                 if clean_endpoint.startswith("tv/") or "search/tv" in clean_endpoint:

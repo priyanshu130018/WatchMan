@@ -27,9 +27,6 @@ class RecommendationGenerator:
         user_id: UUID,
         ranked: list[RankedRecommendation],
     ) -> None:
-        """Atomically replace the user's persisted recommendation snapshot."""
-        if not ranked:
-            return
         try:
             db.query(Recommendation).filter(Recommendation.user_id == user_id).delete()
             for r in ranked:

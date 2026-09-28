@@ -7,7 +7,13 @@ import { ContentGridSkeleton } from "./Skeletons";
 import { Pagination } from "./Pagination";
 import { EmptyState, ErrorState } from "./States";
 import { Button } from "@/components/ui/button";
-import { catalogService, MOVIE_GENRES, TV_GENRES, LANGUAGES, type CatalogFilterParams } from "@/services/catalog";
+import {
+  catalogService,
+  MOVIE_GENRES,
+  TV_GENRES,
+  LANGUAGES,
+  type CatalogFilterParams,
+} from "@/services/catalog";
 import { CONTENT_PAGE_SIZE, POPULAR_COLLECTION_MAX } from "@/lib/constants";
 import { type ContentType } from "@/types/content";
 import { cn } from "@/lib/utils";
@@ -28,6 +34,7 @@ const selectClass =
 export interface ListingFilters {
   page?: number;
   genre?: number;
+  genre_id?: number;
   year?: number;
   language?: string;
   sort?: string;
@@ -50,6 +57,9 @@ export interface ContentListingPageProps {
   searchParams: ListingFilters;
   onUpdateFilters: (filters: ListingFilters) => void;
 }
+import { getContentListingQueryKey } from "@/lib/catalogHelpers";
+export { getContentListingQueryKey };
+
 export function ContentListingPage({
   title,
   subtitle,
@@ -61,7 +71,8 @@ export function ContentListingPage({
   // These are the only values that feed the data query, so changing draft state
   // in the panel can never trigger a fetch.
   const page = Number(searchParams.page) > 1 ? Number(searchParams.page) : 1;
-  const genreId = searchParams.genre ? Number(searchParams.genre) : undefined;
+  const rawGenre = searchParams.genre ?? searchParams.genre_id;
+  const genreId = rawGenre ? Number(rawGenre) : undefined;
   const year = searchParams.year ? Number(searchParams.year) : undefined;
   const language = searchParams.language || undefined;
   // In the popular collection the backend forces popularity ordering, so the
@@ -77,8 +88,15 @@ export function ContentListingPage({
   const [draft, setDraft] = useState<DraftFilters>({ genre: genreId, year, language, sort });
 
   // --- Data query: keyed ONLY on applied (URL-derived) values. ---
+  const activeMode = collection === "popular" ? "popular" : "all";
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
-    queryKey: [contentType, "listing", { page, genreId, year, language, sort, collection }],
+    queryKey: getContentListingQueryKey(contentType, collection, {
+      page,
+      genreId,
+      year,
+      language,
+      sort,
+    }),
     queryFn: () => {
       const params: CatalogFilterParams = {
         page,
@@ -93,9 +111,25 @@ export function ContentListingPage({
         ? catalogService.getMovies(params)
         : catalogService.getWebSeries(params);
     },
-    // Keep the previous page's data visible while the next page loads (project
-    // pattern, see Search.tsx) so the grid doesn't flash empty between pages.
-    placeholderData: (prev) => prev,
+    // Keep previous page data during page navigation, but NEVER when mode or filter criteria change
+    placeholderData: (previousData, previousQuery) => {
+      const prevKey = previousQuery?.queryKey;
+      if (!prevKey) return undefined;
+      const prevMode = prevKey[2];
+      if (prevMode !== activeMode) {
+        return undefined;
+      }
+      const prevFilters = prevKey[3] as any;
+      if (
+        prevFilters?.genreId !== genreId ||
+        prevFilters?.year !== year ||
+        prevFilters?.language !== language ||
+        prevFilters?.sort !== sort
+      ) {
+        return undefined;
+      }
+      return previousData;
+    },
     staleTime: 30_000,
   });
   // Only emit params that are actually selected — no empty/default keys.

@@ -15,14 +15,14 @@ class Settings(BaseSettings):
     APP_ENV: str
     APP_DEBUG: bool
     APP_VERSION: str
-    HOST: str
-    PORT: int
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
 
-    # Security / Authentication
-    SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
-    REFRESH_TOKEN_EXPIRE_DAYS: int
+    # Security / Authentication (Local JWT path)
+    SECRET_KEY: str = "watchman-local-dev-secret-key-minimum-32-chars"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Database
     # Strategy A: Full connection URL
@@ -57,11 +57,11 @@ class Settings(BaseSettings):
 
     # TMDB
     TMDB_API_KEY: str
-    TMDB_BASE_URL: str
+    TMDB_BASE_URL: str = "https://api.themoviedb.org/3"
 
     # OMDb (IMDb / Rotten Tomatoes / Metacritic ratings)
     OMDB_API_KEY: str
-    OMDB_BASE_URL: str
+    OMDB_BASE_URL: str = "https://www.omdbapi.com/"
 
     # Redis & Celery
     REDIS_URL: str
@@ -73,14 +73,21 @@ class Settings(BaseSettings):
     FRONTEND_URL: str
 
     # ML & Embeddings
-    EMBEDDING_MODEL: str
-    VECTOR_DIMENSION: int
-    ENABLE_PGVECTOR: bool
-    ML_ADMIN_EMAILS: str
+    EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    VECTOR_DIMENSION: int = 384
+    ENABLE_PGVECTOR: bool = True
+    ML_ADMIN_EMAILS: str = "admin@watchman.io"
 
-    # HuggingFace Inference API (remote embeddings) - required, no defaults
-    HF_API_URL: str
+    # HuggingFace Inference API (remote embeddings)
+    HF_API_URL: str = "https://router.huggingface.co/hf-inference/models"
     HF_API_TOKEN: str
+
+    # Selective content embedding strategy
+    INITIAL_POPULAR_MOVIE_EMBED_LIMIT: int = 500
+    INITIAL_POPULAR_TV_EMBED_LIMIT: int = 500
+    ENABLE_INTERACTION_EMBEDDING: bool = True
+    ENABLE_SEARCH_EMBEDDING: bool = False
+    SEARCH_EMBED_THRESHOLD: int = 3
 
     # ---- Hybrid recommendation tuning ----------------------------------
     # These are ALGORITHM hyperparameters (not secrets), so they carry safe,
@@ -155,6 +162,10 @@ class Settings(BaseSettings):
         # Validate CORS
         if not self.cors_origins_list:
             raise ValueError("CORS_ORIGINS must contain at least one valid origin URL.")
+        if "*" in self.cors_origins_list:
+            raise ValueError(
+                "Wildcard '*' in CORS_ORIGINS is not permitted with authenticated credentials."
+            )
 
         # ---- Production hardening ------------------------------------------
         # In production the runtime path MUST be Supabase Auth + hosted infra.
@@ -216,11 +227,16 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [
+        origins = [
             origin.strip()
             for origin in self.CORS_ORIGINS.split(",")
             if origin.strip()
         ]
+        if hasattr(self, "FRONTEND_URL") and self.FRONTEND_URL and self.FRONTEND_URL.strip():
+            fe = self.FRONTEND_URL.strip()
+            if fe not in origins:
+                origins.append(fe)
+        return origins
 
     @property
     def ml_admin_emails(self) -> set[str]:

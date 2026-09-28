@@ -1,14 +1,13 @@
 import { useState, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Sparkles, RefreshCw, Film, Tv, Info, Zap } from "lucide-react";
+import { Sparkles, RefreshCw, Film, Tv, Info } from "lucide-react";
 
 import { ContentCard } from "@/components/ContentCard";
 import { ContentGridSkeleton } from "@/components/Skeletons";
 import { EmptyState, ErrorState } from "@/components/States";
 import { Button } from "@/components/ui/button";
 import { recommendationService } from "@/services/recommendations";
-import { catalogService } from "@/services/catalog";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 
@@ -29,17 +28,6 @@ export function RecommendationPage() {
     enabled: Boolean(user),
   });
 
-  // Fallback trending/popular for non-authenticated guests
-  const guestQuery = useQuery({
-    queryKey: ["guestRecommendations", contentType],
-    queryFn: () =>
-      catalogService.getTrending({
-        type: contentType,
-        timeWindow: "week",
-      }),
-    enabled: !user,
-  });
-
   const refreshMutation = useMutation({
     mutationFn: () => recommendationService.refresh(),
     onSuccess: () => {
@@ -53,25 +41,51 @@ export function RecommendationPage() {
     },
   });
 
-  const isLoading = user ? recQuery.isLoading : guestQuery.isLoading;
-  const isError = user ? recQuery.isError : guestQuery.isError;
-  const error = user ? recQuery.error : guestQuery.error;
-  const refetch = () => (user ? recQuery.refetch() : guestQuery.refetch());
+  // 1. Logged-out state: show dedicated sign-in prompt without fake recommendations
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-[1400px] px-4 py-20 sm:px-7">
+        <div className="mx-auto max-w-xl text-center">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-sm">
+            <Sparkles size={32} aria-hidden="true" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Personalized Recommendations
+          </h1>
+          <p className="mt-3.5 text-base text-muted-foreground leading-relaxed">
+            Sign in to unlock WatchMan&apos;s hybrid AI recommendation engine. We combine semantic
+            content embeddings, collaborative filtering, and your personal watch history to
+            recommend titles tailored to your taste.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <Button asChild variant="brand" size="lg">
+              <Link to="/login">Sign in</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/signup">Create Account</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const items = user ? recQuery.data?.items || [] : guestQuery.data || [];
+  const isLoading = recQuery.isLoading;
+  const isError = recQuery.isError;
+  const error = recQuery.error;
+  const refetch = () => recQuery.refetch();
 
-  // Cold-start detection: the backend's fallback path stamps every item with a
-  // `cold_start_popularity` source when the recommendation engine lacks enough
-  // signal for this user. We never fabricate personalization — we surface the
-  // real engine state instead. (Threshold lives server-side, not in React.)
-  const recItems = user ? (recQuery.data?.items ?? []) : [];
+  const items = recQuery.data?.items ?? [];
+
+  // Cold-start detection: backend returns is_cold_start=true or items=[] when the user
+  // lacks interaction history, or stamps fallback items with cold_start.
   const isColdStart =
-    Boolean(user) &&
-    recItems.length > 0 &&
-    recItems.some((it) => (it.sources ?? []).some((s) => s.includes("cold_start")));
+    recQuery.data?.is_cold_start === true ||
+    items.length === 0 ||
+    items.some((it) => (it.sources ?? []).some((s) => s.includes("cold_start")));
 
-  // Personalized only once real signal exists; otherwise keep the generic title.
-  const isPersonalized = Boolean(user) && recItems.length > 0 && !isColdStart;
+  // Personalized only once real signal exists
+  const isPersonalized = items.length > 0 && !isColdStart;
   const displayName =
     user?.full_name?.trim() ||
     user?.username?.trim() ||
@@ -107,44 +121,21 @@ export function RecommendationPage() {
             </p>
           </div>
 
-          {user && (
-            <Button
-              type="button"
-              variant="brand"
-              onClick={() => refreshMutation.mutate()}
-              disabled={refreshMutation.isPending}
-            >
-              <RefreshCw
-                size={16}
-                aria-hidden="true"
-                className={refreshMutation.isPending ? "animate-spin" : ""}
-              />
-              {refreshMutation.isPending ? "Recalculating…" : "Refresh Feed"}
-            </Button>
-          )}
-        </div>
-      </header>
-
-      {/* Guest notice */}
-      {!user && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4">
-          <div className="flex items-center gap-3">
-            <Zap size={22} className="shrink-0 text-primary" aria-hidden="true" />
-            <div>
-              <strong className="text-sm font-semibold text-foreground">
-                Unlock personalized AI recommendations
-              </strong>
-              <p className="mt-0.5 text-[13px] text-muted-foreground">
-                Sign in to train your personalized taste profile and get recommendations matching
-                your tastes.
-              </p>
-            </div>
-          </div>
-          <Button asChild variant="brand" size="sm" className="shrink-0">
-            <Link to="/login">Sign in</Link>
+          <Button
+            type="button"
+            variant="brand"
+            onClick={() => refreshMutation.mutate()}
+            disabled={refreshMutation.isPending}
+          >
+            <RefreshCw
+              size={16}
+              aria-hidden="true"
+              className={refreshMutation.isPending ? "animate-spin" : ""}
+            />
+            {refreshMutation.isPending ? "Recalculating…" : "Refresh Feed"}
           </Button>
         </div>
-      )}
+      </header>
 
       {/* Refresh notice */}
       {refreshNotice && (
@@ -193,8 +184,8 @@ export function RecommendationPage() {
         <ErrorState error={error} onRetry={refetch} />
       ) : isColdStart ? (
         <>
-          {/* Cold-start: the engine has no personalized signal yet. We say so
-              honestly and explain how the user builds it up — no fake personalization. */}
+          {/* Cold-start: the engine has no personalized signal yet. We explain honestly
+              how the user builds it up — never showing fake personalization or hardcoded items. */}
           <div className="mb-8 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-6">
             <div className="flex items-start gap-3">
               <Sparkles size={22} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
@@ -240,20 +231,15 @@ export function RecommendationPage() {
             </div>
           </div>
 
-          {/* Real, popularity-based picks to get started — explicitly NOT presented
-              as personalized. These are genuine TMDB-popular titles, never fabricated. */}
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Popular on WatchMan to get you started
-          </h2>
-          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {items.map((item) => (
-              <li
-                key={`${item.content_type || (contentType === "tv" ? "tv" : "movie")}-${item.id || item.tmdb_id}`}
-              >
-                <ContentCard content={item as any} />
-              </li>
-            ))}
-          </ul>
+          <EmptyState
+            title="No personalized recommendations yet"
+            description="Start watching, saving, or rating titles and your personalized hybrid feed will automatically generate."
+            action={
+              <Button asChild variant="brand" size="sm">
+                <Link to="/trending">Explore trending titles</Link>
+              </Button>
+            }
+          />
         </>
       ) : items.length > 0 ? (
         <>
@@ -267,19 +253,17 @@ export function RecommendationPage() {
             ))}
           </ul>
 
-          {user && (
-            <div className="mt-10 flex items-center gap-3 rounded-xl border border-border bg-card/50 px-5 py-4 text-[13px] text-muted-foreground">
-              <Info size={18} className="shrink-0 text-primary" aria-hidden="true" />
-              <span>
-                Want to refine these recommendations? Rate titles you&apos;ve watched, mark
-                favorites, or set preferred genres in{" "}
-                <Link to="/profile" className="font-medium text-primary hover:underline">
-                  your Profile
-                </Link>
-                .
-              </span>
-            </div>
-          )}
+          <div className="mt-10 flex items-center gap-3 rounded-xl border border-border bg-card/50 px-5 py-4 text-[13px] text-muted-foreground">
+            <Info size={18} className="shrink-0 text-primary" aria-hidden="true" />
+            <span>
+              Want to refine these recommendations? Rate titles you&apos;ve watched, mark favorites,
+              or set preferred genres in{" "}
+              <Link to="/profile" className="font-medium text-primary hover:underline">
+                your Profile
+              </Link>
+              .
+            </span>
+          </div>
         </>
       ) : (
         <EmptyState
