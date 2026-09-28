@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { CONTENT_PAGE_SIZE } from "@/lib/constants";
 
 export function ContentCardSkeleton() {
   return (
@@ -10,7 +11,7 @@ export function ContentCardSkeleton() {
   );
 }
 
-export function ContentGridSkeleton({ count = 16 }: { count?: number }) {
+export function ContentGridSkeleton({ count = CONTENT_PAGE_SIZE }: { count?: number }) {
   return (
     <ul
       className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
@@ -77,7 +78,7 @@ export function PageSkeleton() {
   return (
     <div className="mx-auto max-w-[1400px] px-4 pb-24 pt-16 sm:px-7" aria-busy="true">
       <Skeleton className="mb-6 h-9 w-64" />
-      <ContentGridSkeleton count={16} />
+      <ContentGridSkeleton />
     </div>
   );
 }

@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.core.constants import CONTENT_PAGE_SIZE
 from app.models.content import ContentType
 from app.schemas.content import (
     ContentPaginationResponse,
@@ -32,7 +33,7 @@ async def search_unified(
     year: int | None = Query(default=None),
     sort: str = Query(default="popularity_desc"),
     page: int = Query(default=1, ge=1),
-    limit: int = Query(default=16, ge=1, le=100),
+    limit: int = Query(default=CONTENT_PAGE_SIZE, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     """Unified search endpoint for movies and web series with filtering, pagination, and TMDB fallback.

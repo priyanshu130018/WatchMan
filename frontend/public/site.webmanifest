@@ -1,0 +1,28 @@
+{
+  "name": "WatchMan",
+  "short_name": "WatchMan",
+  "description": "Discover movies and web series with personalized recommendations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08090C",
+  "theme_color": "#08090C",
+  "icons": [
+    {
+      "src": "/watchman-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/watchman-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

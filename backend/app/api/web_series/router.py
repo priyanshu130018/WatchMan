@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.core.constants import CONTENT_PAGE_SIZE, POPULAR_COLLECTION_MAX
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.user import User
@@ -27,24 +28,40 @@ catalog = ContentCatalogService(tmdb)
 @router.get("/", response_model=ContentPaginationResponse[ContentSummaryDTO])
 def list_web_series(
     page: int = Query(default=1, ge=1),
-    limit: int = Query(default=16, ge=1, le=100),
+    limit: int = Query(default=CONTENT_PAGE_SIZE, ge=1, le=100),
     sort: str = Query(default="popularity_desc"),
     year: int | None = Query(default=None),
     genre_id: int | None = Query(default=None),
     language: str | None = Query(default=None),
+    collection: str | None = Query(
+        default=None,
+        description="Optional named collection. 'popular' exposes the top-100 "
+        "most popular web series as a finite, paginated set (6 pages of 18).",
+    ),
     db: Session = Depends(get_db),
 ):
-    """List web series / TV shows stored locally with database-level pagination and filtering."""
+    """List web series / TV shows stored locally with database-level pagination and filtering.
+
+    With ``collection=popular`` the result set is the top ``POPULAR_COLLECTION_MAX``
+    titles by popularity (ordering fixed to ``popularity_desc``); filters still
+    apply and narrow within that set.
+    """
     genre_ids = [genre_id] if genre_id else None
+    max_items = None
+    effective_sort = sort
+    if collection == "popular":
+        max_items = POPULAR_COLLECTION_MAX
+        effective_sort = "popularity_desc"
     results, total, total_pages = catalog.list_content(
         db=db,
         content_type=ContentType.TV.value,
         genre_ids=genre_ids,
         language_code=language,
         year=year,
-        sort_by=sort,
+        sort_by=effective_sort,
         page=page,
         limit=limit,
+        max_items=max_items,
     )
     return ContentPaginationResponse[ContentSummaryDTO](
         page=page,
@@ -81,9 +98,9 @@ async def sync_web_series(
 
 @router.get("/trending")
 async def trending_web_series(time_window: str = "week"):
-    """Get trending TV shows from TMDB (normalized to 16 per page / 4x4)."""
+    """Get trending TV shows from TMDB (normalized to one grid page)."""
     data = await tmdb.trending_tv(time_window=time_window)
-    return tmdb.normalize_page(data, page_size=16, raise_if_empty=True)
+    return tmdb.normalize_page(data, page_size=CONTENT_PAGE_SIZE, raise_if_empty=True)
 
 
 @router.get("/top-10")
@@ -95,34 +112,34 @@ async def top_10_web_series():
 
 @router.get("/popular")
 async def popular_web_series(page: int = Query(default=1, ge=1)):
-    """Get popular TV shows from TMDB (normalized to 16 per page / 4x4)."""
+    """Get popular TV shows from TMDB (normalized to one grid page)."""
     data = await tmdb.popular_tv(page=page)
-    return tmdb.normalize_page(data, page_size=16, raise_if_empty=True)
+    return tmdb.normalize_page(data, page_size=CONTENT_PAGE_SIZE, raise_if_empty=True)
 
 
 @router.get("/top-rated")
 async def top_rated_web_series(page: int = Query(default=1, ge=1)):
-    """Get top-rated TV shows from TMDB (normalized to 16 per page / 4x4)."""
+    """Get top-rated TV shows from TMDB (normalized to one grid page)."""
     data = await tmdb.top_rated_tv(page=page)
-    return tmdb.normalize_page(data, page_size=16, raise_if_empty=True)
+    return tmdb.normalize_page(data, page_size=CONTENT_PAGE_SIZE, raise_if_empty=True)
 
 
 @router.get("/latest")
 async def latest_web_series(page: int = Query(default=1, ge=1)):
-    """Get latest / on-the-air ('new') TV shows from TMDB (16 per page / 4x4)."""
+    """Get latest / on-the-air ('new') TV shows from TMDB (one grid page)."""
     data = await tmdb.latest_tv(page=page)
-    return tmdb.normalize_page(data, page_size=16, raise_if_empty=True)
+    return tmdb.normalize_page(data, page_size=CONTENT_PAGE_SIZE, raise_if_empty=True)
 
 
 @router.get("/search")
 async def search_web_series(query: str = Query(..., min_length=1), page: int = Query(default=1, ge=1)):
-    """Search TV shows via TMDB (normalized to 16 per page / 4x4).
+    """Search TV shows via TMDB (normalized to one grid page).
 
     An empty result set is a valid search outcome and is returned as an empty
     page rather than an error.
     """
     data = await tmdb.search_tv(query=query, page=page)
-    return tmdb.normalize_page(data, page_size=16, raise_if_empty=False)
+    return tmdb.normalize_page(data, page_size=CONTENT_PAGE_SIZE, raise_if_empty=False)
 
 
 @router.get("/{tv_id}")

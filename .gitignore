@@ -1,23 +1,24 @@
-﻿# Environment Variables
+# Environment Variables
 .env
 .env.local
 .env.*.local
 # Any environment file with real secrets (production.env, staging.env, etc.)
 *.env
-# Only the two per-app templates are tracked. There is intentionally NO root/
-# common env template — configuration lives solely in frontend/.env and
-# backend/.env (see frontend/.env.example and backend/.env.example).
+# Belt-and-suspenders: ignore any file literally named `.env` at any depth
+# (root ./.env, backend/.env, frontend/.env, ...). The bare `.env` rule above
+# already matches nested paths; this just makes the intent explicit.
+**/.env
+# Only *.example TEMPLATES are tracked: the consolidated root .env.example plus
+# the two per-app templates. The real, secret-bearing .env files stay ignored.
+# LOCAL Docker now reads a single root .env (see .env.example / compose.yml).
+!.env.example
 !backend/.env.example
 !frontend/.env.example
 
-# TLS private keys / certificates must never be committed. The nginx/certs
-# material is local/self-signed and should be generated per-environment (and a
-# real CA cert used in production). If a key was already committed, rotate it
-# and untrack with `git rm --cached nginx/certs/server.key nginx/certs/server.crt`.
+# TLS private keys / certificates must never be committed.
 *.key
 *.crt
 *.pem
-nginx/certs/
 
 # root pytest cache
 .pytest_cache/

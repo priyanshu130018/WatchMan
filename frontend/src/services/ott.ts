@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { CONTENT_PAGE_SIZE } from "@/lib/constants";
 import {
   type ContentItem,
   type ContentPagination,
@@ -88,7 +89,7 @@ export const ottService = {
       : [];
     return {
       page: Number(data?.page ?? 1),
-      limit: Number(data?.page_size ?? 16),
+      limit: Number(data?.page_size ?? CONTENT_PAGE_SIZE),
       total: Number(data?.total_results ?? results.length),
       total_pages: Number(data?.total_pages ?? 1),
       results,

@@ -54,7 +54,7 @@ export function Pagination({ page, totalPages, onPageChange, disabled = false }:
               className={cn(
                 "inline-flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default",
                 p === page
-                  ? "bg-brand-gradient text-white"
+                  ? "bg-brand-gradient font-semibold text-watchman-black"
                   : "border border-border bg-secondary text-foreground hover:bg-accent",
               )}
               onClick={() => onPageChange(p)}

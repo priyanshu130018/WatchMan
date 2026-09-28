@@ -62,6 +62,10 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
   const [watchRegion, setWatchRegion] = useState("IN");
 
   const isTv = contentType === "tv";
+  // Content-type-aware noun for copy (e.g. the error title). Derived from the
+  // actual content type; falls back to the generic "content" for any
+  // unexpected/ambiguous type instead of mislabeling a movie as a web series.
+  const contentNoun = contentType === "movie" ? "movie" : contentType === "tv" ? "web series" : "content";
 
   // 1. Fetch Content Details
   const detailQueryKey = [isTv ? "web-series" : "movies", "detail", id];
@@ -214,7 +218,7 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
     return (
       <div className="mx-auto max-w-[1400px] px-4 pt-16 sm:px-7">
         <ErrorState
-          title={`Could not load ${isTv ? "web series" : "movie"} details`}
+          title={`Could not load ${contentNoun} details`}
           error={detailQuery.error}
           onRetry={() => detailQuery.refetch()}
         />

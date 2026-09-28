@@ -22,10 +22,11 @@ function OttRouteComponent() {
   return (
     <OttPage
       searchParams={search}
-      onUpdateFilters={(newFilters) => {
+      onUpdateFilters={(newFilters, options) => {
         void navigate({
           to: "/ott",
           search: newFilters as any,
+          replace: options?.replace,
         });
       }}
     />

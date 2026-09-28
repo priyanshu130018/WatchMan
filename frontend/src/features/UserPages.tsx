@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Heart,
   History,
   Trash2,
   CheckCircle2,
   User,
-  Settings as SettingsIcon,
   Save,
   Film,
   Tv,
   Star,
   ExternalLink,
-  ShieldCheck,
   Loader2,
   Pencil,
   X,
+  Plus,
+  Check,
+  LogOut,
+  Sparkles,
+  Calendar,
 } from "lucide-react";
 
 import { ContentCard } from "@/components/ContentCard";
@@ -34,6 +37,16 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { authService } from "@/services/auth";
 
 const AVAILABLE_GENRES = [
   { id: 28, name: "Action" },
@@ -219,7 +232,7 @@ export function SavedContentPage() {
           eyebrow="Personal Library"
           title="Saved Content"
           description="Movies and web series you've bookmarked to watch later."
-          icon={<Heart size={20} className="text-pink-500" aria-hidden="true" />}
+          icon={<Heart size={20} className="text-primary" aria-hidden="true" />}
         />
 
         {/* Filter Tabs */}
@@ -238,7 +251,7 @@ export function SavedContentPage() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 filterType === f.key
-                  ? "bg-brand-gradient text-white"
+                  ? "bg-brand-gradient text-watchman-black"
                   : "bg-secondary text-muted-foreground hover:text-foreground",
               )}
             >
@@ -295,7 +308,7 @@ export function SavedContentPage() {
                 ? "You haven't saved any movies or web series yet. Explore the catalog and click 'Save' to bookmark your favorites."
                 : "No titles match this filter tab."
             }
-            icon={<Heart size={36} className="text-pink-500" aria-hidden="true" />}
+            icon={<Heart size={36} className="text-muted-foreground" aria-hidden="true" />}
             action={
               <Button asChild variant="brand">
                 <Link to="/">Discover Movies &amp; Series</Link>
@@ -338,7 +351,7 @@ export function WatchHistoryPage() {
           eyebrow="Playback Activity"
           title="Watch History"
           description="Track your viewing progress across movies and web-series episodes."
-          icon={<History size={20} className="text-sky-400" aria-hidden="true" />}
+          icon={<History size={20} className="text-primary" aria-hidden="true" />}
         />
 
         {historyQuery.isLoading ? (
@@ -374,7 +387,7 @@ export function WatchHistoryPage() {
                       {type === "tv" ? (
                         <Tv size={20} className="text-primary" aria-hidden="true" />
                       ) : (
-                        <Film size={20} className="text-sky-400" aria-hidden="true" />
+                        <Film size={20} className="text-primary" aria-hidden="true" />
                       )}
                     </div>
 
@@ -389,7 +402,7 @@ export function WatchHistoryPage() {
                       <div className="mt-1.5 flex items-center gap-2.5 text-[13px] text-muted-foreground">
                         <span>
                           {item.completed ? (
-                            <span className="inline-flex items-center gap-1 text-green-400">
+                            <span className="inline-flex items-center gap-1 text-primary">
                               <CheckCircle2 size={13} aria-hidden="true" /> Finished
                             </span>
                           ) : (
@@ -448,7 +461,7 @@ export function WatchHistoryPage() {
           <EmptyState
             title="No watch history yet"
             description="Movies and series you stream or log progress on will appear here so you can pick up where you left off."
-            icon={<History size={36} className="text-sky-400" aria-hidden="true" />}
+            icon={<History size={36} className="text-muted-foreground" aria-hidden="true" />}
             action={
               <Button asChild variant="brand">
                 <Link to="/">Discover Content</Link>
@@ -466,6 +479,9 @@ export const HistoryPage = WatchHistoryPage;
 export function ProfilePage() {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
+  const clear = useAuthStore((state) => state.clear);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [username, setUsername] = useState(user?.username || "");
@@ -488,6 +504,16 @@ export function ProfilePage() {
     queryFn: userService.ratings,
     enabled: Boolean(user),
   });
+
+  // Favorite genres only in this UI. The backend contract still carries
+  // disliked_genres; it is preserved on save and never surfaced here.
+  const prefQuery = useQuery({
+    queryKey: ["userPreferences"],
+    queryFn: userService.getPreferences,
+    enabled: Boolean(user),
+  });
+  const [genreDialogOpen, setGenreDialogOpen] = useState(false);
+  const [genreDraft, setGenreDraft] = useState<number[]>([]);
 
   // Keep the form fields mirrored to the authoritative user record while NOT
   // editing, so view mode always reflects the latest saved data.
@@ -539,6 +565,53 @@ export function ProfilePage() {
     }
   };
 
+  const savedFavIds = prefQuery.data?.favorite_genres ?? [];
+
+  const openGenreDialog = () => {
+    setGenreDraft(prefQuery.data?.favorite_genres ?? []);
+    setGenreDialogOpen(true);
+  };
+
+  const toggleDraftGenre = (id: number) => {
+    setGenreDraft((prev) =>
+      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id],
+    );
+  };
+
+  // Single batched save. We send the EXISTING disliked_genres back untouched so
+  // the recommendation backend keeps whatever negative signal it already stored.
+  const savePrefs = useMutation({
+    mutationFn: (favorite_genres: number[]) =>
+      userService.updatePreferences({
+        favorite_genres,
+        disliked_genres: prefQuery.data?.disliked_genres ?? [],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
+      toast.success("Preferences saved.");
+      setGenreDialogOpen(false);
+    },
+    onError: (err) => toast.error(getApiErrorMessage(err)),
+  });
+
+  const handleSignOut = () => {
+    authService.logout();
+    clear();
+    toast.success("Signed out.");
+    navigate({ to: "/" });
+  };
+
+  const genreName = (id: number) =>
+    AVAILABLE_GENRES.find((g) => g.id === id)?.name ??
+    prefQuery.data?.favorite_genre_details?.find((d) => d.tmdb_id === id || d.id === id)?.name ??
+    `Genre ${id}`;
+
+  const initial = user?.email ? user.email[0].toUpperCase() : "U";
+  const joinedLabel = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    : null;
+
   const displayName = user?.full_name || user?.username || "WatchMan Member";
 
   const stats = [
@@ -547,68 +620,67 @@ export function ProfilePage() {
       icon: <Heart size={16} aria-hidden="true" />,
       label: "Saved Items",
       query: savedQuery,
-      color: "text-pink-500",
+      color: "text-primary",
     },
     {
       key: "watched",
       icon: <History size={16} aria-hidden="true" />,
       label: "Titles Watched",
       query: historyQuery,
-      color: "text-sky-400",
+      color: "text-primary",
     },
     {
       key: "ratings",
       icon: <Star size={16} aria-hidden="true" />,
       label: "Ratings Submitted",
       query: ratingsQuery,
-      color: "text-yellow-400",
+      color: "text-primary",
     },
   ];
 
   return (
     <Guard>
-      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-7">
-        <h1 className="mb-8 text-center text-3xl font-extrabold tracking-tight text-foreground">
-          Profile
-        </h1>
-
+      <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-7">
         {editing ? (
-          /* ---------------------------- EDIT MODE ---------------------------- */
-          <Card className="mx-auto w-full max-w-md">
-            <CardHeader>
-              <CardTitle className="text-lg">Edit Profile</CardTitle>
+          /* ----------------------------- EDIT MODE ----------------------------- */
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+              <Avatar className="h-16 w-16 border-2 border-primary">
+                <AvatarImage src={avatarUrl || undefined} alt="" />
+                <AvatarFallback className="text-2xl">{initial}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle className="text-xl">Edit profile</CardTitle>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Update your public account details.
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleUpdate} className="space-y-4">
-                <div className="flex justify-center">
-                  <Avatar className="h-20 w-20 border-2 border-primary">
-                    <AvatarImage src={avatarUrl || undefined} alt="" />
-                    <AvatarFallback className="text-2xl">
-                      {user?.email ? user.email[0].toUpperCase() : "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="profile-name">Full name</Label>
-                  <Input
-                    id="profile-name"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Priyanshu Verma"
-                    disabled={isSaving}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="profile-username">Username handle</Label>
-                  <Input
-                    id="profile-username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. cinephile99"
-                    disabled={isSaving}
-                  />
+              <form onSubmit={handleUpdate} className="space-y-5">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-name">Full name</Label>
+                    <Input
+                      id="profile-name"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="e.g. Priyanshu Verma"
+                      disabled={isSaving}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile-username">Username handle</Label>
+                    <Input
+                      id="profile-username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="e.g. cinephile99"
+                      disabled={isSaving}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="profile-avatar">Avatar image URL</Label>
@@ -632,7 +704,7 @@ export function ProfilePage() {
                   </p>
                 )}
 
-                <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+                <div className="flex flex-col-reverse gap-3 border-t border-border pt-5 sm:flex-row sm:justify-end">
                   <Button
                     type="button"
                     variant="outline"
@@ -642,12 +714,7 @@ export function ProfilePage() {
                   >
                     <X size={15} aria-hidden="true" /> Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    variant="brand"
-                    disabled={isSaving}
-                    className="w-full sm:w-auto"
-                  >
+                  <Button type="submit" variant="brand" disabled={isSaving} className="w-full sm:w-auto">
                     <Save size={15} aria-hidden="true" /> {isSaving ? "Saving…" : "Save Changes"}
                   </Button>
                 </div>
@@ -655,287 +722,233 @@ export function ProfilePage() {
             </CardContent>
           </Card>
         ) : (
-          /* ---------------------------- VIEW MODE ---------------------------- */
-          <div className="mx-auto w-full max-w-md space-y-6">
+          /* ----------------------------- VIEW MODE ----------------------------- */
+          <div className="space-y-8">
             <Card>
-              <CardContent className="flex flex-col items-center pt-8 text-center">
-                <Avatar className="mb-4 h-24 w-24 border-2 border-primary">
-                  <AvatarImage src={user?.avatar_url || undefined} alt="" />
-                  <AvatarFallback className="text-3xl">
-                    {user?.email ? user.email[0].toUpperCase() : "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
-                {user?.username && (
-                  <p className="mt-0.5 text-[13px] text-muted-foreground">@{user.username}</p>
-                )}
-
-                <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
-                  <ShieldCheck size={14} aria-hidden="true" /> Verified Member
+              <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+                  <Avatar className="h-24 w-24 border-2 border-primary sm:h-28 sm:w-28">
+                    <AvatarImage src={user?.avatar_url || undefined} alt="" />
+                    <AvatarFallback className="text-3xl">{initial}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                      <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+                        {displayName}
+                      </h1>
+                      <Badge variant="secondary" className="gap-1">
+                        <CheckCircle2 size={13} aria-hidden="true" /> Member
+                      </Badge>
+                    </div>
+                    <p className="mt-1.5 truncate text-sm text-muted-foreground">{user?.email}</p>
+                    <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[13px] text-muted-foreground sm:justify-start">
+                      {user?.username && <span>@{user.username}</span>}
+                      {joinedLabel && (
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar size={13} aria-hidden="true" /> Joined {joinedLabel}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-
-                <Button
-                  type="button"
-                  variant="brand"
-                  onClick={startEditing}
-                  className="mt-6 w-full"
-                >
-                  <Pencil size={15} aria-hidden="true" /> Edit Profile
-                </Button>
-
-                {/* Opens the existing Taste Preferences page (/settings) — reuses the
-                    same preferences component + API. Navigation only, no new system. */}
-                <Button asChild variant="outline" className="mt-3 w-full">
-                  <Link to="/settings">
-                    <SettingsIcon size={15} aria-hidden="true" /> Preferences
-                  </Link>
-                </Button>
+                <div className="flex shrink-0 justify-center sm:justify-end">
+                  <Button type="button" variant="brand" onClick={startEditing} className="w-full sm:w-auto">
+                    <Pencil size={15} aria-hidden="true" /> Edit Profile
+                  </Button>
+                </div>
               </CardContent>
             </Card>
-
-            {/* Statistics — stacked & centered. Each row reflects its own query's
-                loading / error / success state (never a fabricated 0 on error). */}
-            <Card className="divide-y divide-border">
-              {stats.map((s) => {
-                const q = s.query;
-                return (
-                  <div
-                    key={s.label}
-                    className="flex flex-col items-center gap-1 px-6 py-5 text-center"
-                  >
-                    <div className={cn("flex items-center gap-1.5 text-sm font-semibold", s.color)}>
-                      {s.icon} {s.label}
-                    </div>
-                    {q.isLoading ? (
-                      <div
-                        className="flex items-center gap-2 text-muted-foreground"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                        <span className="text-sm">Loading…</span>
-                      </div>
-                    ) : q.isError ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-destructive" role="alert">
-                          Couldn&apos;t load
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => q.refetch()}
-                          className="rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="text-2xl font-bold text-foreground">
-                        {q.data?.length ?? 0}
-                      </div>
-                    )}
+            <section aria-labelledby="profile-activity-heading">
+              <h2
+                id="profile-activity-heading"
+                className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
+              >
+                Your activity
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                {stats.map((s) => {
+                  const q = s.query;
+                  return (
+                    <Card key={s.label}>
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">{s.label}</span>
+                          <span className={s.color}>{s.icon}</span>
+                        </div>
+                        {q.isLoading ? (
+                          <div
+                            className="mt-2 flex items-center gap-2 text-muted-foreground"
+                            role="status"
+                            aria-live="polite"
+                          >
+                            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                            <span className="text-sm">Loading…</span>
+                          </div>
+                        ) : q.isError ? (
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="text-sm font-medium text-destructive" role="alert">
+                              Couldn&apos;t load
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => q.refetch()}
+                              className="rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            >
+                              Retry
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-1 text-3xl font-bold text-foreground">
+                            {q.data?.length ?? 0}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <Card className="lg:col-span-2">
+                <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Sparkles size={17} className="text-primary" aria-hidden="true" /> My preferences
+                    </CardTitle>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Favorite genres tune your personalized recommendations.
+                    </p>
                   </div>
-                );
-              })}
-            </Card>
+                  <Button type="button" variant="outline" size="sm" onClick={openGenreDialog}>
+                    <Plus size={15} aria-hidden="true" />
+                    {savedFavIds.length ? "Edit genres" : "Add favorite genres"}
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {prefQuery.isLoading ? (
+                    <div
+                      className="flex items-center gap-2 text-muted-foreground"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                      <span className="text-sm">Loading preferences…</span>
+                    </div>
+                  ) : prefQuery.isError ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-destructive" role="alert">
+                        Couldn&apos;t load your preferences.
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => prefQuery.refetch()}
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  ) : savedFavIds.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No favorite genres yet. Add a few so your recommendations feel more like you.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {savedFavIds.map((id) => (
+                        <Badge key={id} variant="secondary" className="px-3 py-1 text-[13px]">
+                          {genreName(id)}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Account</CardTitle>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Jump to your library or sign out.
+                  </p>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2">
+                  <Button asChild variant="outline" className="justify-start">
+                    <Link to="/saved">
+                      <Heart size={15} aria-hidden="true" /> Saved content
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="justify-start">
+                    <Link to="/history">
+                      <History size={15} aria-hidden="true" /> Watch history
+                    </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleSignOut}
+                    className="justify-start text-destructive hover:text-destructive"
+                  >
+                    <LogOut size={15} aria-hidden="true" /> Sign out
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </div>
+      {/* Favorite-genre picker: batch edit -> single Save. Cancel discards the draft. */}
+      <Dialog open={genreDialogOpen} onOpenChange={setGenreDialogOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Favorite genres</DialogTitle>
+            <DialogDescription>
+              Pick the genres you love. These feed your personalized recommendations.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap gap-2 py-1" role="group" aria-label="Select favorite genres">
+            {AVAILABLE_GENRES.map((g) => {
+              const selected = genreDraft.includes(g.id);
+              return (
+                <button
+                  type="button"
+                  key={g.id}
+                  onClick={() => toggleDraftGenre(g.id)}
+                  aria-pressed={selected}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    selected
+                      ? "border-primary/60 bg-primary/15 text-primary"
+                      : "border-border bg-secondary text-foreground/80 hover:text-foreground",
+                  )}
+                >
+                  {selected && <Check size={13} aria-hidden="true" />}
+                  {g.name}
+                </button>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setGenreDialogOpen(false)}
+              disabled={savePrefs.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="brand"
+              onClick={() => savePrefs.mutate(genreDraft)}
+              disabled={savePrefs.isPending}
+            >
+              <Save size={15} aria-hidden="true" />
+              {savePrefs.isPending ? "Saving…" : "Save preferences"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Guard>
   );
 }
 
 export const Profile = ProfilePage;
-
-export function SettingsPage() {
-  const queryClient = useQueryClient();
-  const prefQuery = useQuery({
-    queryKey: ["userPreferences"],
-    queryFn: userService.getPreferences,
-  });
-
-  const [favGenres, setFavGenres] = useState<number[]>([]);
-  const [disGenres, setDisGenres] = useState<number[]>([]);
-  const [statusMsg, setStatusMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  useEffect(() => {
-    if (prefQuery.data) {
-      setFavGenres(prefQuery.data.favorite_genres || []);
-      setDisGenres(prefQuery.data.disliked_genres || []);
-    }
-  }, [prefQuery.data]);
-
-  const saveMutation = useMutation({
-    mutationFn: (payload: { favorite_genres: number[]; disliked_genres: number[] }) =>
-      userService.updatePreferences(payload),
-    onSuccess: () => {
-      setStatusMsg("Taste preferences saved! AI recommendation candidate weights updated.");
-      toast.success("Taste preferences saved.");
-      queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
-      queryClient.invalidateQueries({ queryKey: ["recommendations"] });
-    },
-    onError: (err) => {
-      const message = getApiErrorMessage(err);
-      setErrorMsg(message);
-      toast.error(message);
-    },
-  });
-
-  const toggleFav = (id: number) => {
-    setStatusMsg("");
-    setErrorMsg("");
-    if (favGenres.includes(id)) {
-      setFavGenres(favGenres.filter((g) => g !== id));
-    } else {
-      setFavGenres([...favGenres, id]);
-      setDisGenres(disGenres.filter((g) => g !== id));
-    }
-  };
-
-  const toggleDis = (id: number) => {
-    setStatusMsg("");
-    setErrorMsg("");
-    if (disGenres.includes(id)) {
-      setDisGenres(disGenres.filter((g) => g !== id));
-    } else {
-      setDisGenres([...disGenres, id]);
-      setFavGenres(favGenres.filter((g) => g !== id));
-    }
-  };
-
-  const handleSave = () => {
-    setStatusMsg("");
-    setErrorMsg("");
-    saveMutation.mutate({ favorite_genres: favGenres, disliked_genres: disGenres });
-  };
-
-  return (
-    <Guard>
-      <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-7">
-        <PageHeader
-          eyebrow="Personalization & Taste"
-          title="Taste Preferences"
-          description="Fine-tune the genres you love and dislike to guide vector candidate scoring."
-          icon={<SettingsIcon size={20} className="text-primary" aria-hidden="true" />}
-        />
-
-        {prefQuery.isLoading ? (
-          <div className="flex items-center justify-center py-24" role="status" aria-live="polite">
-            <Loader2 size={26} className="animate-spin text-primary" aria-hidden="true" />
-            <span className="ml-3 text-sm text-muted-foreground">Loading your preferences…</span>
-          </div>
-        ) : prefQuery.isError ? (
-          <ErrorState
-            title="Could not load your preferences"
-            error={prefQuery.error}
-            onRetry={() => prefQuery.refetch()}
-          />
-        ) : (
-          <>
-            {/* Favorite Genres Card */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-[17px] text-green-400">Favorite Genres</CardTitle>
-                <p className="text-[13px] text-muted-foreground">
-                  Click to tag genres you enjoy. These receive high positive affinity in hybrid AI
-                  scoring.
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Favorite genres">
-                  {AVAILABLE_GENRES.map((g) => {
-                    const isSelected = favGenres.includes(g.id);
-                    return (
-                      <button
-                        type="button"
-                        key={g.id}
-                        onClick={() => toggleFav(g.id)}
-                        aria-pressed={isSelected}
-                        className={cn(
-                          "rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          isSelected
-                            ? "border-green-500/60 bg-green-500/20 text-green-400"
-                            : "border-border bg-secondary text-foreground/80 hover:text-foreground",
-                        )}
-                      >
-                        {isSelected ? "✓ " : ""}
-                        {g.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Disliked Genres Card */}
-            <Card className="mb-7">
-              <CardHeader>
-                <CardTitle className="text-[17px] text-destructive">Disliked Genres</CardTitle>
-                <p className="text-[13px] text-muted-foreground">
-                  Click to mark genres you prefer to avoid or down-rank in recommendations.
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Disliked genres">
-                  {AVAILABLE_GENRES.map((g) => {
-                    const isSelected = disGenres.includes(g.id);
-                    return (
-                      <button
-                        type="button"
-                        key={g.id}
-                        onClick={() => toggleDis(g.id)}
-                        aria-pressed={isSelected}
-                        className={cn(
-                          "rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          isSelected
-                            ? "border-destructive/60 bg-destructive/20 text-destructive"
-                            : "border-border bg-secondary text-foreground/80 hover:text-foreground",
-                        )}
-                      >
-                        {isSelected ? "✕ " : ""}
-                        {g.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {statusMsg && (
-              <p
-                role="status"
-                aria-live="polite"
-                className="mb-5 rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-400"
-              >
-                {statusMsg}
-              </p>
-            )}
-            {errorMsg && (
-              <p
-                role="alert"
-                aria-live="assertive"
-                className="mb-5 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              >
-                {errorMsg}
-              </p>
-            )}
-
-            <Button
-              type="button"
-              variant="brand"
-              size="lg"
-              onClick={handleSave}
-              disabled={saveMutation.isPending}
-            >
-              <Save size={16} aria-hidden="true" />
-              {saveMutation.isPending ? "Saving Preferences…" : "Save Preferences"}
-            </Button>
-          </>
-        )}
-      </div>
-    </Guard>
-  );
-}
-
-export const Settings = SettingsPage;

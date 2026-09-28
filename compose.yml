@@ -2,24 +2,26 @@
 # WatchMan — single Compose file (containers on your machine -> CLOUD services)
 # =============================================================================
 # Runs the whole app as containers pointed at your managed third-party services:
-#   * Database   : Supabase PostgreSQL (+pgvector)  -> DATABASE_URL   (backend/.env)
-#   * Redis      : Upstash Redis (TLS, rediss://)   -> REDIS_URL/CELERY_* (backend/.env)
+#   * Database   : Supabase PostgreSQL (+pgvector)  -> DATABASE_URL   (root .env)
+#   * Redis      : Upstash Redis (TLS, rediss://)   -> REDIS_URL/CELERY_* (root .env)
 #   * Auth       : Supabase Auth                     -> AUTH_PROVIDER=supabase
 #   * Embeddings : HuggingFace Inference API         -> HF_API_URL/HF_API_TOKEN
 #
 # There are deliberately NO postgres/redis containers — cloud only. The backend
 # fail-fast config (APP_ENV=production) rejects any localhost/Docker DB/Redis URL.
 #
-# Runtime env comes from the two per-app files:
-#   backend  <- backend/.env   (via env_file:)
-#   frontend <- frontend/.env  (via --env-file for the VITE_* build args)
+# ALL runtime config lives in ONE root-level file next to this compose.yml:
+#   .env   (copy from .env.example, then fill in your values)
+# Docker Compose auto-loads that root .env, so it serves both roles:
+#   * backend / celery_worker / celery_beat  <- env_file: ./.env
+#   * frontend build  <- ${VITE_*} build-arg interpolation from the same .env
+# No `--env-file` flag is ever needed.
 #
 # This file is named compose.yml, so Docker finds it automatically (no -f needed):
-#   docker compose --env-file frontend/.env build
-#   docker compose --env-file frontend/.env run --rm backend alembic upgrade head
-#   docker compose --env-file frontend/.env up -d
+#   docker compose up --build            # build + start the whole stack
+#   docker compose run --rm backend alembic upgrade head   # run DB migrations
 #   docker compose logs -f backend
-#   docker compose down
+#   docker compose down                  # stop everything
 #
 # Reach it at:  backend http://localhost:8000  |  frontend http://localhost:3000
 
@@ -31,7 +33,7 @@ services:
       dockerfile: Dockerfile
     container_name: watchman_backend
     env_file:
-      - ./backend/.env
+      - ./.env
     ports:
       - "8000:8000"
     healthcheck:
@@ -50,7 +52,7 @@ services:
     container_name: watchman_celery_worker
     command: celery -A app.core.celery.celery_app worker --loglevel=info
     env_file:
-      - ./backend/.env
+      - ./.env
     # Override the image's HTTP healthcheck (meant for the API on :8000) with a
     # Celery-native liveness ping. Two deliberate choices:
     #   * No `-d celery@$HOSTNAME` destination. That form depends on $HOSTNAME
@@ -83,7 +85,7 @@ services:
     container_name: watchman_celery_beat
     command: celery -A app.core.celery.celery_app beat --loglevel=info
     env_file:
-      - ./backend/.env
+      - ./.env
     # Beat has no broker mailbox to ping and exposes no HTTP endpoint, so we just
     # verify the scheduler process is alive by scanning /proc for a 'beat'
     # command line (pure Python — no procps/pgrep needed in the slim image).
@@ -98,8 +100,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Frontend (Nitro SSR). VITE_* are baked at BUILD time from frontend/.env,
-  # supplied here via --env-file frontend/.env interpolation.
+  # Frontend (Nitro SSR). VITE_* are baked at BUILD time from the root .env,
+  # supplied here as build args via ${VITE_*} interpolation (Compose auto-loads
+  # ./.env — no --env-file needed).
   frontend:
     build:
       context: ./frontend

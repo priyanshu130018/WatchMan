@@ -48,7 +48,7 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
       <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
         <SheetHeader className="border-b border-border px-5 py-4">
           <SheetTitle className="flex items-center gap-2">
-            <Heart size={18} className="text-pink-500" aria-hidden="true" /> Saved content
+            <Heart size={18} className="text-primary" aria-hidden="true" /> Saved content
           </SheetTitle>
         </SheetHeader>
 
@@ -63,7 +63,7 @@ export function SavedDrawer({ open, onOpenChange }: SavedDrawerProps) {
             </p>
           ) : items.length === 0 ? (
             <div className="py-12 text-center">
-              <Heart size={32} className="mx-auto text-pink-500/70" aria-hidden="true" />
+              <Heart size={32} className="mx-auto text-muted-foreground" aria-hidden="true" />
               <p className="mt-3 text-sm text-muted-foreground">
                 You haven't saved anything yet. Tap the bookmark on any title to add it here.
               </p>

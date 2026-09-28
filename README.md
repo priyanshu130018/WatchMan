@@ -35,27 +35,36 @@ A full-stack movie discovery and recommendation application built with React/Typ
 
 ## Quick Start with Docker
 
-1. Clone repository and setup env:
+The entire stack (frontend + backend + Celery worker + Celery beat) runs from a
+**single root `.env` file** — Docker Compose auto-loads it, so no `--env-file`
+flag is ever needed.
+
+1. Clone the repository and create your env file:
    ```bash
    git clone https://github.com/priyanshu130018/Watcher.git
    cd WatcheMan
-   cp backend/.env.example backend/.env
+   cp .env.example .env
    ```
 
-2. Add your TMDB API key to `backend/.env`:
-   ```bash
-   TMDB_API_KEY=your_key_here
-   ```
+2. Edit `.env` and fill in your values — Supabase Postgres + Auth, Upstash Redis,
+   `TMDB_API_KEY` / OMDb key, and the HuggingFace token. `.env` holds secrets and
+   is gitignored; the public `VITE_*` values at the bottom are baked into the
+   frontend bundle at build time.
 
 3. Start all services:
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 
 4. Access the app:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
    - API Docs: http://localhost:8000/docs
+
+5. Stop everything:
+   ```bash
+   docker compose down
+   ```
 
 ## Local Development Setup
 
@@ -125,6 +134,12 @@ Authorization: Bearer <token>
 
 ## Environment Configuration
 
+**Docker (recommended):** every service reads a single root `.env` (copy it from
+`.env.example`). Docker Compose auto-loads it, so `docker compose up --build`
+needs no `--env-file` flag — see *Quick Start with Docker* above. The sections
+below describe those same variables. For bare-metal (non-Docker) runs the backend
+reads `backend/.env` and the Vite dev server reads `frontend/.env`.
+
 ### Backend (.env)
 ```env
 POSTGRES_HOST=localhost
@@ -156,9 +171,19 @@ All backend settings are loaded from `.env` via `app/core/config.py` with **no d
 
 The frontend refreshes catalog and personalized queries every 30 seconds while open. Favoriting or rating a title immediately invalidates the personalized query, so the next recommendation fetch reflects the new signal.
 
-### Frontend (.env)
+### Frontend (VITE_*)
+
+These are **public** build-time variables embedded into the browser bundle — never
+put backend secrets, database/Redis credentials, the Supabase service-role key, or
+server-side TMDB/OMDb keys here. In Docker they are supplied from the root `.env`
+as build args (see `compose.yml`); for bare-metal `vite dev` they come from
+`frontend/.env` (copy `frontend/.env.example`).
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api
+VITE_AUTH_PROVIDER=supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-or-publishable-key
+VITE_TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
 ```
 
 ## Security
@@ -207,7 +232,8 @@ WatcheMan/
 │   ├── requirements.txt
 │   └── .env.example
 │
-└── docker-compose.yml
+├── .env.example       # root env template — single file for Docker
+└── compose.yml
 ```
 
 ## Testing
@@ -241,8 +267,9 @@ netstat -ano | findstr :8000
 
 **Docker issues:**
 ```bash
-docker-compose down
-docker-compose up --build --no-cache
+docker compose down
+docker compose build --no-cache
+docker compose up
 ```
 
 ## License

@@ -5,11 +5,12 @@ from typing import Any
 from sqlalchemy import desc, asc, func, or_, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
+from app.core.constants import CONTENT_PAGE_SIZE
 from app.models.content import Content, ContentExternalId, ContentType, ContentVideo
 from app.models.taxonomy import Genre, ContentGenre, Language, ContentLanguage
 from app.models.people import Person, ContentCast, ContentCrew
 
-DEFAULT_PAGE_SIZE = 16
+DEFAULT_PAGE_SIZE = CONTENT_PAGE_SIZE
 
 
 class ContentRepository:
@@ -65,9 +66,17 @@ class ContentRepository:
         year: int | None = None,
         sort_by: str = "popularity_desc",
         skip: int = 0,
-        limit: int = 16,
+        limit: int = DEFAULT_PAGE_SIZE,
+        max_items: int | None = None,
     ) -> tuple[list[Content], int]:
-        """List and filter content with pagination and total count."""
+        """List and filter content with pagination and total count.
+
+        When ``max_items`` is set (e.g. a "popular" top-100 collection), the
+        reported ``total`` is clamped to that cap and the returned window never
+        reaches past it — so pagination sees a finite set (100 -> 6 pages of 18,
+        last page = 10) without fetching or fabricating extra rows. Slicing stays
+        at the database level via OFFSET/LIMIT.
+        """
         query = db.query(Content)
 
         if content_type:
@@ -102,13 +111,26 @@ class ContentRepository:
             query = query.order_by(desc(Content.popularity), desc(Content.id))
 
         total = query.count()
+        if max_items is not None and total > max_items:
+            total = max_items
+
+        # Clamp the fetch window to the capped total so the final page returns
+        # only the remainder (e.g. skip=90, total=100 -> 10 rows) and any page
+        # beyond the cap returns nothing.
+        effective_limit = limit
+        if max_items is not None:
+            remaining = total - skip
+            if remaining <= 0:
+                return [], total
+            effective_limit = min(limit, remaining)
+
         items = (
             query.options(
                 selectinload(Content.genres).joinedload(ContentGenre.genre),
                 selectinload(Content.languages).joinedload(ContentLanguage.language),
             )
             .offset(skip)
-            .limit(limit)
+            .limit(effective_limit)
             .all()
         )
         return items, total
@@ -123,7 +145,7 @@ class ContentRepository:
         year: int | None = None,
         sort_by: str = "popularity_desc",
         skip: int = 0,
-        limit: int = 16,
+        limit: int = DEFAULT_PAGE_SIZE,
     ) -> tuple[list[Content], int]:
         """Search content titles and overviews with pagination and optional filters."""
         if not query_str or not query_str.strip():

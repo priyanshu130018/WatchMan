@@ -89,7 +89,7 @@ export function ContentCard({
         aria-label={`${content.title}${releaseYear ? `, ${releaseYear}` : ""}`}
         className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background after:absolute after:inset-0 after:z-0 after:content-['']"
       >
-        <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-secondary">
+        <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-secondary ring-1 ring-transparent transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl group-hover:shadow-black/40 group-hover:ring-primary/50">
           {posterSrc ? (
             <img
               src={posterSrc}
@@ -116,7 +116,7 @@ export function ContentCard({
             </Badge>
           )}
 
-          <span className="pointer-events-none absolute bottom-2.5 left-2.5 z-10 inline-flex translate-y-1 items-center gap-1 rounded-md bg-white px-2 py-1.5 text-[10px] font-extrabold text-black opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+          <span className="pointer-events-none absolute bottom-2.5 left-2.5 z-10 inline-flex translate-y-1 items-center gap-1 rounded-md bg-primary px-2 py-1.5 text-[10px] font-extrabold text-primary-foreground opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
             <Play size={13} fill="currentColor" aria-hidden="true" /> Details
           </span>
         </div>
@@ -157,7 +157,7 @@ export function ContentCard({
             "relative z-10 mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold outline-none transition-colors",
             "focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60",
             isSaved
-              ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15"
+              ? "border-primary bg-primary text-primary-foreground hover:bg-watchman-yellow-hover"
               : "border-border bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground",
           )}
         >

@@ -20,7 +20,6 @@ import { Route as RecommendationRouteImport } from './routes/recommendation'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TrendingRouteImport } from './routes/trending'
 import { Route as MovieIndexRouteImport } from './routes/movie.index'
@@ -85,11 +84,6 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -143,7 +137,6 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
-  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/trending': typeof TrendingRouteWithChildren
   '/movie/$id': typeof MovieIdRoute
@@ -165,7 +158,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
-  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/trending': typeof TrendingRouteWithChildren
   '/movie/$id': typeof MovieIdRoute
@@ -188,7 +180,6 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/search': typeof SearchRoute
-  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
   '/trending': typeof TrendingRouteWithChildren
   '/movie/$id': typeof MovieIdRoute
@@ -212,7 +203,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/saved'
     | '/search'
-    | '/settings'
     | '/signup'
     | '/trending'
     | '/movie/$id'
@@ -234,7 +224,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/saved'
     | '/search'
-    | '/settings'
     | '/signup'
     | '/trending'
     | '/movie/$id'
@@ -256,7 +245,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/saved'
     | '/search'
-    | '/settings'
     | '/signup'
     | '/trending'
     | '/movie/$id'
@@ -279,7 +267,6 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SavedRoute: typeof SavedRoute
   SearchRoute: typeof SearchRoute
-  SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
   TrendingRoute: typeof TrendingRouteWithChildren
   MovieIdRoute: typeof MovieIdRoute
@@ -365,13 +352,6 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -469,7 +449,6 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SavedRoute: SavedRoute,
   SearchRoute: SearchRoute,
-  SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
   TrendingRoute: TrendingRouteWithChildren,
   MovieIdRoute: MovieIdRoute,

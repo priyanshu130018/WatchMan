@@ -10,6 +10,7 @@ import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { catalogService, MOVIE_GENRES, TV_GENRES } from "@/services/catalog";
+import { CONTENT_PAGE_SIZE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const selectClass =
@@ -108,7 +109,7 @@ export function SearchPage() {
         year: currentYear,
         sort: currentSort,
         page: currentPage,
-        limit: 16,
+        limit: CONTENT_PAGE_SIZE,
       }),
     enabled:
       currentQuery.trim().length > 0 || currentGenreId !== undefined || currentYear !== undefined,
@@ -206,7 +207,7 @@ export function SearchPage() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
-                  ? "border-transparent bg-brand-gradient text-white"
+                  ? "border-transparent bg-brand-gradient text-watchman-black"
                   : "border-border bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground",
               )}
             >
@@ -303,7 +304,7 @@ export function SearchPage() {
       currentGenreId !== undefined ||
       currentYear !== undefined ? (
         isLoading ? (
-          <ContentGridSkeleton count={16} />
+          <ContentGridSkeleton count={CONTENT_PAGE_SIZE} />
         ) : isError ? (
           <ErrorState error={error} onRetry={() => void refetch()} />
         ) : !data || data.results.length === 0 ? (

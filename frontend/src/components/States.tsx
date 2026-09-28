@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle, Film, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { getApiErrorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +11,15 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({
-  icon = <Film size={40} aria-hidden="true" />,
+  icon = (
+    <img
+      src="/watchman-icon.png"
+      alt=""
+      className="h-14 w-14 rounded-xl opacity-50"
+      width={56}
+      height={56}
+    />
+  ),
   title,
   description,
   action,

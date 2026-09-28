@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Search,
   User,
@@ -11,7 +11,6 @@ import {
   Tv,
   MonitorPlay,
   Sparkles,
-  Settings,
   ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
@@ -56,6 +55,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const clear = useAuthStore((s) => s.clear);
   const navigate = useNavigate();
+  // The mascot bookend beside the wordmark is a home-page-only brand accent.
+  const isHome = useRouterState({ select: (s) => s.location.pathname === "/" });
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const initial = user?.email ? user.email[0].toUpperCase() : "U";
 
   return (
-    <div className="min-h-screen bg-background text-foreground [background:radial-gradient(circle_at_80%_-10%,rgba(120,70,255,0.12),transparent_30%)]">
+    <div className="min-h-screen bg-background text-foreground [background:radial-gradient(circle_at_80%_-10%,rgba(255,199,44,0.08),transparent_30%)]">
       {/* Skip link for keyboard / screen-reader users */}
       <a
         href="#main-content"
@@ -92,10 +93,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
             className="flex shrink-0 items-center gap-2.5 text-[19px] font-extrabold tracking-tight text-foreground"
             aria-label="WatchMan — home"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-brand-gradient font-black text-white">
-              W
+            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-[10px]">
+              <img
+                src="/watchman-icon.png"
+                alt=""
+                className="h-full w-full object-cover"
+                width={36}
+                height={36}
+              />
             </span>
             <span className="hidden sm:inline">WatchMan</span>
+            {/* Mascot accent to the right of the wordmark — home page only. */}
+            {isHome && (
+              <span className="hidden h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-[10px] sm:grid">
+                <img
+                  src="/watchman-mascot.png"
+                  alt=""
+                  className="h-full w-full object-cover"
+                  width={36}
+                  height={36}
+                />
+              </span>
+            )}
           </Link>
 
           {/* Desktop navigation */}
@@ -105,7 +124,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 key={to}
                 to={to}
                 className={navLinkClass}
-                activeProps={{ className: "text-foreground" }}
+                activeProps={{ className: "text-primary font-semibold" }}
               >
                 <Icon size={15} aria-hidden="true" /> {label}
               </Link>
@@ -166,11 +185,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         <History size={15} aria-hidden="true" /> Watch history
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/settings">
-                        <Settings size={15} aria-hidden="true" /> Preferences
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onSelect={handleLogout}
@@ -207,8 +221,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <SheetContent side="left" className="w-72">
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-brand-gradient font-black text-white">
-                      W
+                    <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-[10px]">
+                      <img
+                        src="/watchman-icon.png"
+                        alt=""
+                        className="h-full w-full object-cover"
+                        width={32}
+                        height={32}
+                      />
                     </span>
                     WatchMan
                   </SheetTitle>
@@ -219,6 +239,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       <Link
                         to={to}
                         className="flex items-center gap-3 rounded-md px-2 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                        activeProps={{ className: "bg-accent font-semibold text-primary" }}
                       >
                         <Icon size={17} aria-hidden="true" /> {label}
                       </Link>
@@ -236,14 +257,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                           className="flex items-center gap-3 rounded-md px-2 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
                         >
                           <User size={17} aria-hidden="true" /> Profile
-                        </Link>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Link
-                          to="/settings"
-                          className="flex items-center gap-3 rounded-md px-2 py-2.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
-                        >
-                          <Settings size={17} aria-hidden="true" /> Preferences
                         </Link>
                       </SheetClose>
                       <button

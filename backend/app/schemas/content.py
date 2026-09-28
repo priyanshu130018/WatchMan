@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import Any, Generic, TypeVar
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.core.constants import CONTENT_PAGE_SIZE
+
 T = TypeVar("T")
 
 
@@ -149,14 +151,6 @@ class ContentDetailResponse(BaseModel):
     ratings: list[RatingDTO] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
-    """Standardized pagination wrapper matching WatchMan API spec."""
-    page: int
-    limit: int
-    total: int
-    total_pages: int
-    results: list[T] = Field(default_factory=list)
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class ContentFilterParams(BaseModel):
@@ -166,7 +160,7 @@ class ContentFilterParams(BaseModel):
     year: int | None = None
     sort_by: str = "popularity_desc"
     page: int = Field(default=1, ge=1)
-    limit: int = Field(default=16, ge=1, le=100)
+    limit: int = Field(default=CONTENT_PAGE_SIZE, ge=1, le=100)
 
 
 class SearchQueryParams(BaseModel):
@@ -177,7 +171,7 @@ class SearchQueryParams(BaseModel):
     year: int | None = None
     sort: str = "popularity_desc"
     page: int = Field(default=1, ge=1)
-    limit: int = Field(default=16, ge=1, le=100)
+    limit: int = Field(default=CONTENT_PAGE_SIZE, ge=1, le=100)
 
 
 class MovieSyncRequest(BaseModel):

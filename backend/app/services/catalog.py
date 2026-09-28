@@ -7,6 +7,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.constants import CONTENT_PAGE_SIZE
 from app.core.exceptions import DatabaseException, TMDBInvalidResponseException, ContentNotFoundException
 from app.models.content import Content, ContentType
 from app.repositories.content_repository import ContentRepository
@@ -111,9 +112,16 @@ class ContentCatalogService:
         year: int | None = None,
         sort_by: str = "popularity_desc",
         page: int = 1,
-        limit: int = 16,
+        limit: int = CONTENT_PAGE_SIZE,
+        max_items: int | None = None,
     ) -> tuple[list[ContentSummaryDTO], int, int]:
-        """List content from database with pagination and filters."""
+        """List content from database with pagination and filters.
+
+        ``limit`` is the page size (used for the OFFSET/LIMIT window and to
+        compute ``total_pages``). ``max_items`` optionally caps the collection to
+        a finite size (e.g. the top-100 "popular" set), so ``total`` and
+        ``total_pages`` reflect the cap rather than the full catalogue.
+        """
         skip = (page - 1) * limit
         items, total = ContentRepository.list(
             db=db,
@@ -124,6 +132,7 @@ class ContentCatalogService:
             sort_by=sort_by,
             skip=skip,
             limit=limit,
+            max_items=max_items,
         )
         total_pages = (total + limit - 1) // limit if limit > 0 else 0
         dtos = [self.content_to_summary_dto(item) for item in items]
@@ -139,7 +148,7 @@ class ContentCatalogService:
         year: int | None = None,
         sort_by: str = "popularity_desc",
         page: int = 1,
-        limit: int = 16,
+        limit: int = CONTENT_PAGE_SIZE,
     ) -> tuple[list[ContentSummaryDTO], int, int]:
         """Search content in database with filters and pagination."""
         if not query_str or not query_str.strip():

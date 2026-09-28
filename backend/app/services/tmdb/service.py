@@ -8,6 +8,7 @@ from typing import Any
 import httpx
 
 from app.core.config import settings
+from app.core.constants import CONTENT_PAGE_SIZE
 from app.core.exceptions import (
     MovieNotFoundException,
     TVShowNotFoundException,
@@ -76,10 +77,10 @@ class TMDBService:
     @staticmethod
     def normalize_page(
         data: dict[str, Any],
-        page_size: int = 16,
+        page_size: int = CONTENT_PAGE_SIZE,
         raise_if_empty: bool = False,
     ) -> dict[str, Any]:
-        """Cap a TMDB list payload to ``page_size`` items (4x4 = 16 by default).
+        """Cap a TMDB list payload to ``page_size`` items (one content grid page).
 
         Raises ``NoResultsFoundException`` when ``raise_if_empty`` is set and the
         upstream returned no results, so empty feeds surface as a proper error

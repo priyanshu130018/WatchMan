@@ -151,7 +151,7 @@ export function RecommendationPage() {
         <div
           role="status"
           aria-live="polite"
-          className="mb-5 rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-2.5 text-sm text-green-400"
+          className="mb-5 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm text-foreground"
         >
           {refreshNotice}
         </div>
@@ -175,7 +175,7 @@ export function RecommendationPage() {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
-                  ? "border-transparent bg-brand-gradient text-white"
+                  ? "border-transparent bg-brand-gradient text-watchman-black"
                   : "border-border bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground",
               )}
             >
@@ -233,7 +233,7 @@ export function RecommendationPage() {
                     <Link to="/trending">Explore trending</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link to="/settings">Set preferred genres</Link>
+                    <Link to="/profile">Set preferred genres</Link>
                   </Button>
                 </div>
               </div>
@@ -273,8 +273,8 @@ export function RecommendationPage() {
               <span>
                 Want to refine these recommendations? Rate titles you&apos;ve watched, mark
                 favorites, or set preferred genres in{" "}
-                <Link to="/settings" className="font-medium text-primary hover:underline">
-                  Preferences
+                <Link to="/profile" className="font-medium text-primary hover:underline">
+                  your Profile
                 </Link>
                 .
               </span>

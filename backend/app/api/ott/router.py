@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query, status
 
+from app.core.constants import CONTENT_PAGE_SIZE
 from app.services.tmdb.service import TMDBService
 
 router = APIRouter(prefix="/ott", tags=["OTT"])
@@ -92,8 +93,9 @@ async def discover_by_provider(
 ):
     """Discover titles available on a specific provider within a region.
 
-    Returns a normalized 16-item page. An empty catalog for that provider/region
-    is a valid outcome and yields an empty page rather than an error.
+    Returns one normalized content-grid page (see ``CONTENT_PAGE_SIZE``). An empty
+    catalog for that provider/region is a valid outcome and yields an empty page
+    rather than an error.
     """
     ctype = _validate_content_type(content_type)
     data = await tmdb.discover_by_provider(
@@ -103,7 +105,7 @@ async def discover_by_provider(
         page=page,
         sort_by=sort_by,
     )
-    normalized = tmdb.normalize_page(data, page_size=16, raise_if_empty=False)
+    normalized = tmdb.normalize_page(data, page_size=CONTENT_PAGE_SIZE, raise_if_empty=False)
     # Stamp each result with its media type so the frontend renders the correct
     # card + detail route (TMDB discover payloads omit media_type).
     for item in normalized.get("results", []):

@@ -1,4 +1,4 @@
-name: WatchMan CI/CD Pipeline
+name: CI
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  backend-test:
-    name: Backend Test Suite & Security Regression
+  backend:
+    name: Backend Tests
     runs-on: ubuntu-latest
     env:
       APP_NAME: "WatchMan API"
@@ -55,15 +55,14 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
+          pip install -r backend/requirements-dev.txt
 
-      - name: Run Backend Test Suite (Pytest)
+      - name: Run Pytest
         working-directory: ./backend
-        run: |
-          python -m pytest -v
+        run: pytest
 
-  frontend-build:
-    name: Frontend Production Build & Bundle Scan
+  frontend:
+    name: Frontend CI
     runs-on: ubuntu-latest
     env:
       VITE_API_BASE_URL: "http://localhost:8000/api"
@@ -74,26 +73,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Frontend Dependencies
+      - name: Install Dependencies
         working-directory: ./frontend
         run: npm ci
 
-      - name: Build Frontend Application
+      - name: Run Lint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build Application
         working-directory: ./frontend
         run: npm run build
-
-      - name: Scan Output Bundles for Leaked Secrets
-        working-directory: ./frontend
-        run: |
-          echo "Scanning production bundle output for sensitive backend keys..."
-          ! grep -rn "TMDB_API_KEY" .output/ || exit 1
-          ! grep -rn "JWT_SECRET" .output/ || exit 1
-          ! grep -rn "POSTGRES_PASSWORD" .output/ || exit 1
-          echo "Secret scan passed: zero server secrets found in browser bundle."

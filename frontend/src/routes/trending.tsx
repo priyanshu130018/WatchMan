@@ -8,6 +8,7 @@ import { ContentCard } from "@/components/ContentCard";
 import { ContentGridSkeleton } from "@/components/Skeletons";
 import { EmptyState, ErrorState } from "@/components/States";
 import { catalogService } from "@/services/catalog";
+import { TRENDING_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const trendingSearchSchema = z.object({
@@ -69,7 +70,7 @@ function TrendingRouteComponent() {
     <div className="mx-auto max-w-[1400px] px-4 py-8 sm:px-7">
       <header className="mb-8">
         <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary/80">
-          <Flame size={14} className="text-orange-400" aria-hidden="true" /> Hot Right Now
+          <Flame size={14} className="text-primary" aria-hidden="true" /> Hot Right Now
         </span>
         <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Trending Worldwide
@@ -98,7 +99,7 @@ function TrendingRouteComponent() {
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     active
-                      ? "border-transparent bg-brand-gradient text-white"
+                      ? "border-transparent bg-brand-gradient text-watchman-black"
                       : "border-border bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground",
                   )}
                 >
@@ -143,9 +144,9 @@ function TrendingRouteComponent() {
         </div>
       </header>
 
-      {/* Main grid state */}
+      {/* Main grid state — trending is a single fixed page (never paginated). */}
       {isLoading ? (
-        <ContentGridSkeleton count={16} />
+        <ContentGridSkeleton count={TRENDING_ITEMS} />
       ) : isError ? (
         <ErrorState
           title="Could not load trending content"

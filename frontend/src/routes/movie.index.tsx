@@ -8,6 +8,7 @@ const movieSearchSchema = z.object({
   year: z.number().optional(),
   language: z.string().optional(),
   sort: z.string().optional(),
+  collection: z.string().optional(),
 });
 
 export const Route = createFileRoute("/movie/")({

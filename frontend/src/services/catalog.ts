@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { CONTENT_PAGE_SIZE } from "@/lib/constants";
 import {
   type ContentItem,
   type ContentPagination,
@@ -13,6 +14,12 @@ export interface CatalogFilterParams {
   year?: number;
   genre_id?: number;
   language?: string;
+  /**
+   * Optional named collection. `"popular"` restricts the catalogue to the
+   * top {@link POPULAR_COLLECTION_MAX} titles by popularity (server-capped);
+   * omitted means the full catalogue.
+   */
+  collection?: string;
 }
 
 export interface SearchFilterParams extends CatalogFilterParams {
@@ -121,11 +128,12 @@ export const catalogService = {
     const { data } = await api.get("/movies", {
       params: {
         page: params?.page ?? 1,
-        limit: params?.limit ?? 16,
+        limit: params?.limit ?? CONTENT_PAGE_SIZE,
         sort: params?.sort ?? "popularity_desc",
         year: params?.year,
         genre_id: params?.genre_id,
         language: params?.language,
+        collection: params?.collection,
       },
     });
 
@@ -134,7 +142,7 @@ export const catalogService = {
       : [];
     return {
       page: Number(data?.page ?? 1),
-      limit: Number(data?.limit ?? 16),
+      limit: Number(data?.limit ?? CONTENT_PAGE_SIZE),
       total: Number(data?.total ?? results.length),
       total_pages: Number(data?.total_pages ?? 1),
       results,
@@ -182,11 +190,12 @@ export const catalogService = {
     const { data } = await api.get("/web-series", {
       params: {
         page: params?.page ?? 1,
-        limit: params?.limit ?? 16,
+        limit: params?.limit ?? CONTENT_PAGE_SIZE,
         sort: params?.sort ?? "popularity_desc",
         year: params?.year,
         genre_id: params?.genre_id,
         language: params?.language,
+        collection: params?.collection,
       },
     });
 
@@ -195,7 +204,7 @@ export const catalogService = {
       : [];
     return {
       page: Number(data?.page ?? 1),
-      limit: Number(data?.limit ?? 16),
+      limit: Number(data?.limit ?? CONTENT_PAGE_SIZE),
       total: Number(data?.total ?? results.length),
       total_pages: Number(data?.total_pages ?? 1),
       results,
@@ -266,10 +275,11 @@ export const catalogService = {
     const results = rawResults.map((r: any) => normalizeContentItem(r));
     return {
       page: Number(data?.page ?? 1),
-      limit: Number(data?.limit ?? 16),
+      limit: Number(data?.limit ?? CONTENT_PAGE_SIZE),
       total: Number(data?.total ?? results.length),
       total_pages: Number(
-        data?.total_pages ?? Math.max(1, Math.ceil((data?.total ?? results.length) / 16)),
+        data?.total_pages ??
+          Math.max(1, Math.ceil((data?.total ?? results.length) / CONTENT_PAGE_SIZE)),
       ),
       results,
     };

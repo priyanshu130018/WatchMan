@@ -22,10 +22,14 @@ function Shell({
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mb-2 flex items-center justify-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient font-extrabold text-white">
-              W
-            </span>
+          <div className="mb-3 flex flex-col items-center gap-2">
+            <img
+              src="/watchman-icon.png"
+              alt=""
+              className="h-20 w-20 rounded-2xl object-cover"
+              width={80}
+              height={80}
+            />
             <span className="text-lg font-bold tracking-tight">WatchMan</span>
           </div>
           <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary/80">

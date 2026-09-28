@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/States";
 import { Button } from "@/components/ui/button";
 import { catalogService } from "@/services/catalog";
 import { recommendationService } from "@/services/recommendations";
+import { CONTENT_PAGE_SIZE } from "@/lib/constants";
 import { useAuthStore } from "@/store/authStore";
 import type { ContentItem } from "@/types/content";
 
@@ -42,13 +43,13 @@ export function Home() {
         },
         {
           queryKey: ["homepage", "movies", "all"],
-          queryFn: () => catalogService.getMovies({ page: 1, limit: 18, sort: "popularity_desc" }),
+          queryFn: () => catalogService.getMovies({ page: 1, limit: CONTENT_PAGE_SIZE, sort: "popularity_desc" }),
           refetchInterval: LIVE_REFRESH_MS,
         },
         {
           queryKey: ["homepage", "tv", "all"],
           queryFn: () =>
-            catalogService.getWebSeries({ page: 1, limit: 18, sort: "popularity_desc" }),
+            catalogService.getWebSeries({ page: 1, limit: CONTENT_PAGE_SIZE, sort: "popularity_desc" }),
           refetchInterval: LIVE_REFRESH_MS,
         },
       ],
@@ -65,7 +66,7 @@ export function Home() {
   // client-side scoring, no second algorithm. Only runs for signed-in users.
   const recommendationsQuery = useQuery({
     queryKey: ["homepage", "recommendations", user?.id],
-    queryFn: () => recommendationService.getRecommendations({ contentType: "all", limit: 18 }),
+    queryFn: () => recommendationService.getRecommendations({ contentType: "all", limit: CONTENT_PAGE_SIZE }),
     enabled: Boolean(user),
   });
   const recItems = recommendationsQuery.data?.items ?? [];
@@ -199,7 +200,7 @@ export function Home() {
             items={recItems}
             isLoading={recommendationsQuery.isLoading}
             showTypeBadge
-            maxItems={18}
+            maxItems={CONTENT_PAGE_SIZE}
             exploreLink="/recommendation"
           />
         )}
@@ -211,7 +212,7 @@ export function Home() {
           items={trending}
           isLoading={trendingQuery.isLoading}
           showTypeBadge
-          maxItems={18}
+          maxItems={CONTENT_PAGE_SIZE}
           exploreLink="/trending"
         />
 
@@ -222,7 +223,7 @@ export function Home() {
           items={topRatedWorldwide}
           isLoading={topRatedMoviesQuery.isLoading || topRatedTvQuery.isLoading}
           showTypeBadge
-          maxItems={18}
+          maxItems={CONTENT_PAGE_SIZE}
           exploreLink="/movie"
           exploreSearch={{ sort: "vote_average_desc" }}
         />
@@ -233,7 +234,7 @@ export function Home() {
           subtitle="Explore the movie catalog"
           items={movies}
           isLoading={moviesQuery.isLoading}
-          maxItems={18}
+          maxItems={CONTENT_PAGE_SIZE}
           exploreLink="/movie"
         />
 
@@ -243,7 +244,7 @@ export function Home() {
           subtitle="Explore the series catalog"
           items={webSeries}
           isLoading={webSeriesQuery.isLoading}
-          maxItems={18}
+          maxItems={CONTENT_PAGE_SIZE}
           exploreLink="/web-series"
         />
       </div>
