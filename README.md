@@ -1,281 +1,268 @@
-# WatchMan - Movie Discovery & Recommendation Platform
+# WatchMan - Movie & Web Series Discovery & Recommendation Platform
 
-A full-stack movie discovery and recommendation application built with React/TypeScript, FastAPI, and PostgreSQL with ML-powered recommendations.
+A production-ready, full-stack movie and web-series discovery platform built with React (TypeScript), FastAPI, PostgreSQL (+pgvector), Upstash Redis, and Supabase Auth, powered by a hybrid recommendation engine.
+
+---
+
+## Architecture Overview
+
+```
+                      +-----------------------------+
+                      |       Vercel (Frontend)     |
+                      |  React 19 / TanStack Router |
+                      +--------------+--------------+
+                                     |
+                                     | HTTPS / REST
+                                     v
+                      +-----------------------------+
+                      |     Render (Backend API)    |
+                      |        FastAPI Python       |
+                      +--------------+--------------+
+                                     |
+               +---------------------+---------------------+
+               |                     |                     |
+               v                     v                     v
++-------------------------+ +-----------------+ +-------------------------+
+|   Supabase PostgreSQL   | |  Upstash Redis  | |  Render (Celery Worker) |
+|  pgvector 384-D vectors | | TLS Broker/Cache| | Background ML & Ingest  |
+|  11K+ Catalog Items     | +-----------------+ +-------------------------+
++-------------------------+                                |
+                                                           v
+                                                +-------------------------+
+                                                |   Render (Celery Beat)  |
+                                                | Periodic Task Scheduler |
+                                                +-------------------------+
+```
+
+### Production Deployment Target
+- **Frontend**: [Vercel](https://vercel.com) (SPA with client-side rewrites and direct route handling)
+- **Backend / API**: [Render](https://render.com) (FastAPI Web Service)
+- **Celery Worker**: [Render](https://render.com) (Background Worker for ML and catalog sync)
+- **Celery Beat**: [Render](https://render.com) (Periodic Scheduler)
+- **Database**: [Supabase](https://supabase.com) PostgreSQL with `pgvector`
+- **Cache & Message Broker**: [Upstash](https://upstash.com) Redis (`rediss://` TLS)
+- **Authentication**: Supabase Auth (JWT validation in FastAPI)
+- **Embeddings**: Hugging Face Inference API (`sentence-transformers/all-MiniLM-L6-v2`, 384-D)
+- **Catalog Metadata**: TMDB API & OMDb API
+
+---
 
 ## Features
 
-- **User Authentication**: Secure JWT-based authentication with password hashing
-- **Movie Discovery**: Browse trending, popular, top-rated, and latest movies
-- **Search**: Full-text movie search powered by TMDB API
-- **Favorites**: Save and manage favorite movies
-- **Watch History**: Track watched movies and progress
-- **Recommendations**: Live hybrid recommendations using content similarity, collaborative activity, and popularity fallback
-- **User Profiles**: Customizable user profiles with preferences
-- **Responsive UI**: Modern interface built with React and Tailwind CSS
+- **Authentication-Aware Experience**:
+  - Unauthenticated guests see public catalogue, search, and clean login/signup prompts.
+  - Authenticated users access *"Recommend for You"*, personal watchlists, watch history, star ratings, and WatchMan decisions.
+  - Sticky global search bar is accessible across all public and authenticated routes.
+- **Selective & On-Demand Content Embeddings**:
+  - Embeddings are generated strategically for initial high-value content (~500 popular movies + ~500 popular TV series) and on-demand when real users interact.
+  - Never forces a full 11K-item batch embed. Recommendations continue to work seamlessly when items lack vectors.
+- **Hybrid Recommendation Engine**:
+  - Blends content vector similarity (pgvector cosine distance), collaborative filtering (ALS latent factors / KNN), catalog popularity, freshness, and personal taste preferences.
+  - Transparent explanations and match scores on every card.
+  - Sub-second cached delivery via Upstash Redis.
+- **Honest Cold-Start Handling**:
+  - Guests and new users with zero interactions receive an educational cold-start state with links to explore trending titles. Popular items are never falsely labeled as personalized.
+- **WatchMan Decision System**:
+  - One-click feedback: *"Must Watch"*, *"Time Pass"*, or *"Skip"*, immediately tuning user taste vectors.
 
-## Tech Stack
-
-### Frontend
-- React 19 with TypeScript
-- Vite - Fast build tool
-- TanStack Router - Advanced routing
-- TanStack Query - Data fetching
-- Zustand - State management
-- Tailwind CSS - Styling
-
-### Backend
-- FastAPI - Python web framework
-- PostgreSQL with pgvector - Database and vector similarity search
-- Supabase - Managed Postgres / project services
-- SQLAlchemy + Alembic - ORM and migrations
-- Redis - Caching of frequent TMDB/recommendation responses
-- Celery (worker + beat) - Background recommendation & catalog jobs
-- JWT - Authentication
-- HuggingFace Inference API - Remote sentence-transformer embeddings (`sentence-transformers/all-MiniLM-L6-v2`, 384-dim). Embeddings are generated via API call rather than a local torch model, keeping the image small.
-
-## Quick Start with Docker
-
-The entire stack (frontend + backend + Celery worker + Celery beat) runs from a
-**single root `.env` file** — Docker Compose auto-loads it, so no `--env-file`
-flag is ever needed.
-
-1. Clone the repository and create your env file:
-   ```bash
-   git clone https://github.com/priyanshu130018/Watcher.git
-   cd WatcheMan
-   cp .env.example .env
-   ```
-
-2. Edit `.env` and fill in your values — Supabase Postgres + Auth, Upstash Redis,
-   `TMDB_API_KEY` / OMDb key, and the HuggingFace token. `.env` holds secrets and
-   is gitignored; the public `VITE_*` values at the bottom are baked into the
-   frontend bundle at build time.
-
-3. Start all services:
-   ```bash
-   docker compose up --build
-   ```
-
-4. Access the app:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-
-5. Stop everything:
-   ```bash
-   docker compose down
-   ```
-
-## Local Development Setup
-
-### Backend
-
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with your configuration
-alembic upgrade head
-uvicorn app.main:app --reload
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
-```
-
-## API Endpoints
-
-### Auth
-- `POST /api/auth/register` - Register
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Current user
-- `POST /api/auth/logout` - Logout
-
-### Movies
-- `GET /api/movies/trending` - Trending movies
-- `GET /api/movies/popular` - Popular movies
-- `GET /api/movies/{movie_id}` - Movie details
-- `GET /api/movies/{movie_id}/similar` - Similar movies
-
-### Ratings
-- `GET /api/ratings/` - Current user's ratings
-- `PUT /api/ratings/{movie_id}` - Create or update a 1–5 rating
-
-### Search
-- `GET /api/search/movies?query=...` - Search
-
-### Favorites (Protected)
-- `GET /api/favorites` - List favorites
-- `POST /api/favorites` - Add favorite
-- `DELETE /api/favorites/{movie_id}` - Remove favorite
-
-### Watch History (Protected)
-- `GET /api/watch-history` - List history
-- `POST /api/watch-history` - Add to history
-- `PUT /api/watch-history/{id}` - Update progress
-- `DELETE /api/watch-history/{id}` - Delete
-
-### Personalized recommendations (Protected)
-- `GET /api/recommendations/personalized?limit=20` - Hybrid ranking from favorites, viewing progress, ratings, and peer activity
-
-## Authentication
-
-Uses JWT tokens. After login, include token in requests:
-```
-Authorization: Bearer <token>
-```
-
-## Environment Configuration
-
-**Docker (recommended):** every service reads a single root `.env` (copy it from
-`.env.example`). Docker Compose auto-loads it, so `docker compose up --build`
-needs no `--env-file` flag — see *Quick Start with Docker* above. The sections
-below describe those same variables. For bare-metal (non-Docker) runs the backend
-reads `backend/.env` and the Vite dev server reads `frontend/.env`.
-
-### Backend (.env)
-```env
-POSTGRES_HOST=localhost
-POSTGRES_DB=watchman_db
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
-SECRET_KEY=your-secret-key
-TMDB_API_KEY=your-tmdb-key
-TMDB_BASE_URL=https://api.themoviedb.org/3
-OMDB_API_KEY=your-omdb-key
-OMDB_BASE_URL=https://www.omdbapi.com/
-REDIS_URL=redis://localhost:6379/0
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/1
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-VECTOR_DIMENSION=384
-ENABLE_PGVECTOR=true
-ML_ADMIN_EMAILS=admin@example.com
-# HuggingFace Inference API (remote embeddings) - create a free token at
-# https://huggingface.co/settings/tokens
-HF_API_URL=https://api-inference.huggingface.co/pipeline/feature-extraction
-HF_API_TOKEN=your-hf-token
-```
-
-All backend settings are loaded from `.env` via `app/core/config.py` with **no default values** — a missing required variable raises a `ConfigurationError` at startup (fail-fast). See `.env.example` for the full list.
-
-The frontend refreshes catalog and personalized queries every 30 seconds while open. Favoriting or rating a title immediately invalidates the personalized query, so the next recommendation fetch reflects the new signal.
-
-### Frontend (VITE_*)
-
-These are **public** build-time variables embedded into the browser bundle — never
-put backend secrets, database/Redis credentials, the Supabase service-role key, or
-server-side TMDB/OMDb keys here. In Docker they are supplied from the root `.env`
-as build args (see `compose.yml`); for bare-metal `vite dev` they come from
-`frontend/.env` (copy `frontend/.env.example`).
-```env
-VITE_API_BASE_URL=http://localhost:8000/api
-VITE_AUTH_PROVIDER=supabase
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-or-publishable-key
-VITE_TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
-```
-
-## Security
-
-- Passwords hashed with bcrypt
-- JWT tokens for stateless auth
-- User data isolation - users only see their own data
-- All protected routes verify authentication
-- Secrets never committed to git
-
-## Database Migrations
-
-```bash
-# Create migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
-alembic upgrade head
-
-# Revert
-alembic downgrade -1
-```
+---
 
 ## Project Structure
 
 ```
 WatcheMan/
-├── frontend/          # React application
-│   ├── src/
-│   │   ├── api/      # API client
-│   │   ├── components/
-│   │   ├── routes/   # Pages
-│   │   ├── store/    # Zustand stores
-│   │   └── types/    # TypeScript types
-│   ├── Dockerfile
-│   └── package.json
-│
-├── backend/          # FastAPI application
+├── .github/
+│   └── workflows/
+│       └── ci.yml               # Automated CI for Backend (pytest) and Frontend (lint & build)
+├── backend/
+│   ├── alembic/                 # Linear database migrations (head: d4e5f6a7b8c9)
 │   ├── app/
-│   │   ├── api/      # Route handlers
-│   │   ├── core/     # Config, security
-│   │   ├── database/ # Models, migrations
-│   │   ├── ml/       # Recommendations
-│   │   └── main.py   # App setup
-│   ├── Dockerfile
-│   ├── requirements.txt
+│   │   ├── api/                 # FastAPI modular routers (/api/...)
+│   │   ├── core/                # Config, security, telemetry, Redis cache, Celery app
+│   │   ├── db/                  # Database session and base models
+│   │   ├── ml/                  # Recommendation pipeline, embeddings, ALS, hybrid ranker
+│   │   ├── models/              # SQLAlchemy schema models
+│   │   ├── repositories/        # Database access layer
+│   │   ├── schemas/             # Pydantic validation models
+│   │   ├── services/            # Catalog, recommendation, interaction, and TMDB services
+│   │   └── tasks/               # Celery async tasks (embeddings, ALS, TMDB sync, cleanup)
+│   ├── tests/                   # 217 hermetic unit and regression tests
+│   ├── Dockerfile               # Multi-stage production container definition
+│   ├── requirements.txt         # Production Python dependencies
+│   ├── requirements-dev.txt     # Test dependencies (pytest, pytest-asyncio)
 │   └── .env.example
-│
-├── .env.example       # root env template — single file for Docker
-└── compose.yml
+├── frontend/
+│   ├── src/
+│   │   ├── components/          # Reusable UI cards, modals, navigation, shelves
+│   │   ├── features/            # Feature views (Home, Movie, Series, Search, Profile, Recs)
+│   │   ├── routes/              # TanStack router page definitions
+│   │   ├── services/            # API client services (catalog, auth, watchman, recs)
+│   │   └── types/               # TypeScript domain interfaces
+│   ├── Dockerfile               # Production container definition
+│   ├── vercel.json              # Vercel SPA rewrites configuration
+│   ├── package.json             # NPM dependencies and scripts
+│   └── .env.example
+├── scripts/
+│   ├── backfill_content_embeddings.py    # Selective & on-demand embedding maintenance CLI
+│   ├── concurrency_test.py               # Performance and load benchmark utility
+│   ├── fix_sequences.py                  # PostgreSQL sequence synchronization
+│   ├── ingest_tmdb_catalog.py            # Partitioned TMDB catalog ingestion CLI
+│   ├── local_test_smoke.sh               # Fast read-only local stack smoke check
+│   ├── reset_dev_database.py             # Safe dev reset utility (preserves catalog & schema)
+│   ├── verify_homepage_experience.py     # Homepage personalized shelves E2E verification
+│   ├── verify_ml_data_flow.py            # ML health, embedding coverage, and database report
+│   └── verify_search_filter_experience.py# Live search & filter verification
+├── compose.yml                  # Local Docker Compose (API + Worker + Beat + Frontend)
+├── render.yaml                  # Render Blueprint definition (FastAPI + Worker + Beat)
+├── vercel.json                  # Root Vercel SPA deployment configuration
+├── .env.example                 # Root environment template
+└── README.md
 ```
+
+---
+
+## Environment Configuration
+
+Configuration is cleanly divided between **Backend Secrets** (server-only) and **Public Frontend Variables** (`VITE_*` only).
+
+### Required Environment Variables
+
+| Variable | Scope | Purpose | Example |
+| :--- | :--- | :--- | :--- |
+| `APP_ENV` | Backend | Environment mode | `production` or `development` |
+| `DATABASE_URL` | Backend | Supabase PostgreSQL URI | `postgresql+psycopg://user:pass@host:6543/postgres?sslmode=require` |
+| `REDIS_URL` | Backend | Upstash Redis connection string | `rediss://default:pass@host.upstash.io:6379` |
+| `CELERY_BROKER_URL` | Backend | Celery broker URL | `rediss://default:pass@host.upstash.io:6379` |
+| `CELERY_RESULT_BACKEND` | Backend | Celery result backend | `rediss://default:pass@host.upstash.io:6379` |
+| `AUTH_PROVIDER` | Backend | Auth provider (`supabase` in prod) | `supabase` |
+| `SUPABASE_URL` | Backend/FE | Supabase project URL | `https://your-project.supabase.co` |
+| `SUPABASE_ANON_KEY` | Backend | Supabase anonymous key | `sb_anon_...` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Backend | Supabase administrative key | `sb_secret_...` |
+| `SUPABASE_JWT_SECRET` | Backend | Supabase JWT signing secret | `your-supabase-jwt-secret` |
+| `TMDB_API_KEY` | Backend | TMDB v3 API key | `32-char-api-key` |
+| `OMDB_API_KEY` | Backend | OMDb API key | `your-omdb-key` |
+| `HF_API_URL` | Backend | Hugging Face model endpoint | `https://router.huggingface.co/hf-inference/models` |
+| `HF_API_TOKEN` | Backend | Hugging Face token | `hf_...` |
+| `CORS_ORIGINS` | Backend | Allowed frontend domains | `https://your-app.vercel.app,http://localhost:3000` |
+| `FRONTEND_URL` | Backend | Canonical frontend URL | `https://your-app.vercel.app` |
+| `VITE_API_BASE_URL` | Frontend | Public API base endpoint | `https://your-api.onrender.com/api` |
+| `VITE_AUTH_PROVIDER` | Frontend | Auth provider | `supabase` |
+| `VITE_SUPABASE_URL` | Frontend | Public Supabase URL | `https://your-project.supabase.co` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Frontend | Public publishable key | `sb_publishable_...` |
+| `VITE_TMDB_IMAGE_BASE_URL`| Frontend | TMDB image CDN base | `https://image.tmdb.org/t/p` |
+
+---
+
+## Local Development with Docker Compose
+
+The entire stack runs via Docker Compose pointing to your cloud services (Supabase & Upstash):
+
+```bash
+# 1. Copy the consolidated environment template
+cp .env.example .env
+
+# 2. Fill in your real API keys in .env
+
+# 3. Build and launch all 4 services
+docker compose up --build -d
+
+# 4. Verify running services
+docker compose ps
+# -> watchman_frontend        (http://localhost:3000)
+# -> watchman_backend         (http://localhost:8000)
+# -> watchman_celery_worker   (background task runner)
+# -> watchman_celery_beat     (periodic task scheduler)
+
+# 5. Run health check
+curl http://localhost:8000/health
+```
+
+---
 
 ## Testing
 
-Backend:
+### Hermetic Backend Test Suite
+The backend contains 217 hermetic tests with mock network boundaries:
+
 ```bash
-pytest backend/tests/
+# Run tests inside the test container
+docker compose run --rm backend_tests python -m pytest -q
+# Result: 217 passed in ~39s
 ```
 
-Frontend:
+### Frontend Build & Typecheck
 ```bash
-npm run build
+cd frontend
+npm ci
 npm run lint
+npm run build
 ```
 
-## Troubleshooting
+---
 
-**Port in use:**
+## Pre-Deployment Setup Guide
+
+### 1. Vercel Deployment (Frontend)
+1. Import repository on [Vercel](https://vercel.com).
+2. Set **Root Directory** to `frontend`.
+3. Framework Preset: **Vite** (build command: `npm run build`, output directory: `dist` or `.output/public`).
+4. Set Environment Variables in Vercel Project Settings:
+   - `VITE_API_BASE_URL`: `https://<your-render-backend>.onrender.com/api`
+   - `VITE_AUTH_PROVIDER`: `supabase`
+   - `VITE_SUPABASE_URL`: `https://<your-project>.supabase.co`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`: `<your-supabase-publishable-key>`
+   - `VITE_TMDB_IMAGE_BASE_URL`: `https://image.tmdb.org/t/p`
+5. The included `vercel.json` rewrite rules route direct URL navigations (`/movie/:id`, `/web-series/:id`, `/recommendation`, `/search`) to `/index.html` without 404s.
+
+### 2. Render Deployment (Backend & Celery)
+You can deploy using the included `render.yaml` Blueprint or create 3 separate services manually:
+
+1. **API Web Service (`watchman-api`)**:
+   - **Root Directory**: `backend`
+   - **Environment**: `Python 3.11`
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Health Check Path**: `/health`
+   - **Env Vars**: Fill in database, Redis, TMDB, OMDb, Hugging Face, Supabase, and CORS variables.
+2. **Background Worker (`watchman-worker`)**:
+   - **Root Directory**: `backend`
+   - **Environment**: `Python 3.11`
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+   - **Start Command**: `celery -A app.core.celery.celery_app worker --loglevel=info`
+3. **Periodic Beat Scheduler (`watchman-beat`)**:
+   - **Root Directory**: `backend`
+   - **Environment**: `Python 3.11`
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+   - **Start Command**: `celery -A app.core.celery.celery_app beat --loglevel=info`
+
+---
+
+## Operational Scripts
+
+All operational and maintenance scripts are located in `scripts/`:
+
 ```bash
-# Linux/Mac
-lsof -i :8000
+# Ingest TMDB catalogue with partitioned discover queries
+python scripts/ingest_tmdb_catalog.py --movies --tv --max-pages-per-partition 10
 
-# Windows
-netstat -ano | findstr :8000
+# Selective initial content embedding backfill (Top 500 Movies + Top 500 TV)
+python scripts/backfill_content_embeddings.py --popular --limit 1000
+
+# Embed unembedded titles referenced by real user interactions
+python scripts/backfill_content_embeddings.py --interacted
+
+# Synchronize PostgreSQL auto-increment sequences
+python scripts/fix_sequences.py
+
+# Verify live ML data flow, embedding coverage, and policy status
+python scripts/verify_ml_data_flow.py
+
+# Safe dev reset (preserves catalog contents and schema migrations)
+python scripts/reset_dev_database.py --runtime-only
 ```
 
-**Database connection error:**
-- Ensure PostgreSQL is running
-- Check POSTGRES_HOST, PORT, credentials
-- Run `alembic upgrade head`
-
-**Docker issues:**
-```bash
-docker compose down
-docker compose build --no-cache
-docker compose up
-```
+---
 
 ## License
 
 MIT License
-
-## Support
-
-Open an issue on GitHub for support.
