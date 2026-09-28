@@ -1,10 +1,14 @@
 # =============================================================================
-# WatchMan — Render Blueprint Specification
+# WatchMan — Render Blueprint Specification (Docker-Native)
 # =============================================================================
-# Deploys the 3 backend runtime services on Render:
+# Deploys the 3 backend runtime services on Render using the unified backend Dockerfile:
 #   1. watchman-api     : FastAPI Web Service (Liveness on /health)
 #   2. watchman-worker  : Celery background worker (ML & catalog sync)
 #   3. watchman-beat    : Celery periodic scheduler
+#
+# Docker is the single source of truth:
+#   - Build Context: ./backend
+#   - Dockerfile   : ./backend/Dockerfile
 #
 # Connects to managed cloud dependencies:
 #   - Database: Supabase PostgreSQL (+pgvector)
@@ -18,13 +22,47 @@ services:
   # ---------------------------------------------------------------------------
   - type: web
     name: watchman-api
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     preDeployCommand: alembic upgrade head
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
+    envVars:
+      - fromGroup: watchman-shared-env
+
+  # ---------------------------------------------------------------------------
+  # 2. Celery Background Worker
+  # ---------------------------------------------------------------------------
+  - type: worker
+    name: watchman-worker
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: celery -A app.core.celery.celery_app worker --loglevel=info
+    autoDeploy: true
+    envVars:
+      - fromGroup: watchman-shared-env
+
+  # ---------------------------------------------------------------------------
+  # 3. Celery Periodic Beat Scheduler
+  # ---------------------------------------------------------------------------
+  - type: worker
+    name: watchman-beat
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: celery -A app.core.celery.celery_app beat --loglevel=info
+    autoDeploy: true
+    envVars:
+      - fromGroup: watchman-shared-env
+
+# -----------------------------------------------------------------------------
+# Shared Environment Variables Group (Injected into API, Worker, and Beat)
+# -----------------------------------------------------------------------------
+envVarGroups:
+  - name: watchman-shared-env
     envVars:
       - key: APP_NAME
         value: WatchMan
@@ -36,150 +74,6 @@ services:
         value: 1.0.0
       - key: HOST
         value: "0.0.0.0"
-      - key: AUTH_PROVIDER
-        value: supabase
-      - key: SUPABASE_JWT_AUD
-        value: authenticated
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: SUPABASE_JWT_SECRET
-        sync: false
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: CELERY_BROKER_URL
-        sync: false
-      - key: CELERY_RESULT_BACKEND
-        sync: false
-      - key: TMDB_API_KEY
-        sync: false
-      - key: TMDB_BASE_URL
-        value: https://api.themoviedb.org/3
-      - key: OMDB_API_KEY
-        sync: false
-      - key: OMDB_BASE_URL
-        value: https://www.omdbapi.com/
-      - key: CORS_ORIGINS
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: EMBEDDING_MODEL
-        value: sentence-transformers/all-MiniLM-L6-v2
-      - key: VECTOR_DIMENSION
-        value: "384"
-      - key: ENABLE_PGVECTOR
-        value: "true"
-      - key: ML_ADMIN_EMAILS
-        sync: false
-      - key: HF_API_URL
-        value: https://router.huggingface.co/hf-inference/models
-      - key: HF_API_TOKEN
-        sync: false
-      - key: INITIAL_POPULAR_MOVIE_EMBED_LIMIT
-        value: "500"
-      - key: INITIAL_POPULAR_TV_EMBED_LIMIT
-        value: "500"
-      - key: ENABLE_INTERACTION_EMBEDDING
-        value: "true"
-      - key: ENABLE_SEARCH_EMBEDDING
-        value: "false"
-      - key: SEARCH_EMBED_THRESHOLD
-        value: "3"
-
-  # ---------------------------------------------------------------------------
-  # 2. Celery Background Worker
-  # ---------------------------------------------------------------------------
-  - type: worker
-    name: watchman-worker
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: celery -A app.core.celery.celery_app worker --loglevel=info
-    autoDeploy: true
-    envVars:
-      - key: APP_NAME
-        value: WatchMan
-      - key: APP_ENV
-        value: production
-      - key: APP_DEBUG
-        value: "false"
-      - key: AUTH_PROVIDER
-        value: supabase
-      - key: SUPABASE_JWT_AUD
-        value: authenticated
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: SUPABASE_JWT_SECRET
-        sync: false
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: CELERY_BROKER_URL
-        sync: false
-      - key: CELERY_RESULT_BACKEND
-        sync: false
-      - key: TMDB_API_KEY
-        sync: false
-      - key: TMDB_BASE_URL
-        value: https://api.themoviedb.org/3
-      - key: OMDB_API_KEY
-        sync: false
-      - key: OMDB_BASE_URL
-        value: https://www.omdbapi.com/
-      - key: CORS_ORIGINS
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: EMBEDDING_MODEL
-        value: sentence-transformers/all-MiniLM-L6-v2
-      - key: VECTOR_DIMENSION
-        value: "384"
-      - key: ENABLE_PGVECTOR
-        value: "true"
-      - key: ML_ADMIN_EMAILS
-        sync: false
-      - key: HF_API_URL
-        value: https://router.huggingface.co/hf-inference/models
-      - key: HF_API_TOKEN
-        sync: false
-      - key: INITIAL_POPULAR_MOVIE_EMBED_LIMIT
-        value: "500"
-      - key: INITIAL_POPULAR_TV_EMBED_LIMIT
-        value: "500"
-      - key: ENABLE_INTERACTION_EMBEDDING
-        value: "true"
-      - key: ENABLE_SEARCH_EMBEDDING
-        value: "false"
-      - key: SEARCH_EMBED_THRESHOLD
-        value: "3"
-
-  # ---------------------------------------------------------------------------
-  # 3. Celery Periodic Beat Scheduler
-  # ---------------------------------------------------------------------------
-  - type: worker
-    name: watchman-beat
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: celery -A app.core.celery.celery_app beat --loglevel=info
-    autoDeploy: true
-    envVars:
-      - key: APP_NAME
-        value: WatchMan
-      - key: APP_ENV
-        value: production
-      - key: APP_DEBUG
-        value: "false"
       - key: AUTH_PROVIDER
         value: supabase
       - key: SUPABASE_JWT_AUD

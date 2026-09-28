@@ -98,8 +98,7 @@ WatcheMan/
 │   │   ├── routes/              # TanStack router page definitions
 │   │   ├── services/            # API client services (catalog, auth, watchman, recs)
 │   │   └── types/               # TypeScript domain interfaces
-│   ├── Dockerfile               # Production container definition
-│   ├── vercel.json              # Vercel deployment configuration
+│   ├── Dockerfile               # Local Docker Compose container definition
 │   ├── package.json             # NPM dependencies and scripts
 │   └── .env.example
 ├── scripts/
@@ -199,42 +198,66 @@ npm run build
 
 ---
 
-## Pre-Deployment Setup Guide
+## Deployment Guide
 
-### 1. Vercel Deployment (Frontend)
-1. Import repository on [Vercel](https://vercel.com).
+### Local Development (Docker Compose)
+Start the complete stack connected to managed cloud services (Supabase & Upstash):
+
+```bash
+cp .env.example .env
+# Edit .env with your Supabase, Upstash, TMDB, OMDb, and Hugging Face credentials
+docker compose up -d
+```
+
+Services exposed locally:
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8000` (docs: `/docs`, health: `/health`, readiness: `/api/ready`)
+- **Celery Worker**: background task runner
+- **Celery Beat**: periodic task scheduler
+
+---
+
+### Production Deployment
+
+#### 1. Frontend: Vercel (Dashboard Configuration)
+The frontend is deployed to Vercel using standard Vercel Dashboard configuration. **No `vercel.json` is required**—when deployed with `VERCEL=1`, TanStack Start and Nitro automatically compile to the native **Vercel Build Output API v3** (`.vercel/output`).
+
+1. Import the repository in [Vercel](https://vercel.com).
 2. Set **Root Directory** to `frontend`.
-3. Framework Preset: **Other** / **Vite** (build command: `npm run build`).
-   * When deployed on Vercel (`VERCEL=1`), Nitro automatically compiles to **Vercel Build Output API v3** (`.vercel/output`).
-   * Static assets (`/assets/*`) are served directly from the edge network with immutable cache headers.
-   * Direct navigations (`/movie/:id`, `/web-series/:id`, `/recommendation`, `/search`, `/profile`, `/saved`, `/history`) route dynamically to the TanStack Start SSR serverless function (`/__server`).
-4. Set Environment Variables in Vercel Project Settings:
-   - `VITE_API_BASE_URL`: `https://<your-render-backend>.onrender.com/api`
+3. Framework Preset: **Other** or **Vite** (Build Command: `npm run build`, Output Directory: leave default/empty).
+4. Configure Environment Variables in the Vercel Project Settings:
+   - `VITE_API_BASE_URL`: `https://watchman-api.onrender.com/api` (or your custom API domain)
    - `VITE_AUTH_PROVIDER`: `supabase`
    - `VITE_SUPABASE_URL`: `https://<your-project>.supabase.co`
    - `VITE_SUPABASE_PUBLISHABLE_KEY`: `<your-supabase-publishable-key>`
    - `VITE_TMDB_IMAGE_BASE_URL`: `https://image.tmdb.org/t/p`
 
-### 2. Render Deployment (Backend & Celery)
-You can deploy using the included `render.yaml` Blueprint or create 3 separate services manually:
+Direct client-side navigations (`/movie/:id`, `/web-series/:id`, `/recommendation`, `/search`, `/profile`, `/saved`, `/history`) are automatically routed to the TanStack Start SSR serverless function with edge caching for static assets.
 
-1. **API Web Service (`watchman-api`)**:
-   - **Root Directory**: `backend`
-   - **Environment**: `Python 3.11`
-   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-   - **Health Check Path**: `/health`
-   - **Env Vars**: Fill in database, Redis, TMDB, OMDb, Hugging Face, Supabase, and CORS variables.
-2. **Background Worker (`watchman-worker`)**:
-   - **Root Directory**: `backend`
-   - **Environment**: `Python 3.11`
-   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
-   - **Start Command**: `celery -A app.core.celery.celery_app worker --loglevel=info`
-3. **Periodic Beat Scheduler (`watchman-beat`)**:
-   - **Root Directory**: `backend`
-   - **Environment**: `Python 3.11`
-   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
-   - **Start Command**: `celery -A app.core.celery.celery_app beat --loglevel=info`
+#### 2. Backend, Worker & Beat: Render (Docker-Native Blueprint)
+The backend services are provisioned reproducibly using Render's Blueprint specification ([render.yaml](file:///c:/Users/13ver/Desktop/New%20folder/project/WatcheMan/render.yaml)), which uses **Docker as the single source of truth**:
+
+1. In the [Render Dashboard](https://dashboard.render.com), click **New +** $\rightarrow$ **Blueprint**.
+2. Select your repository and point to `render.yaml`.
+3. Render automatically provisions the three Docker-based services from `backend/Dockerfile`:
+   - **`watchman-api`** (Web Service):
+     - Docker Context: `./backend`, Dockerfile: `./backend/Dockerfile`
+     - Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+     - Pre-Deploy Migration: `alembic upgrade head`
+     - Health Check Path: `/health`
+   - **`watchman-worker`** (Background Worker):
+     - Docker Context: `./backend`, Dockerfile: `./backend/Dockerfile`
+     - Command: `celery -A app.core.celery.celery_app worker --loglevel=info`
+   - **`watchman-beat`** (Background Worker):
+     - Docker Context: `./backend`, Dockerfile: `./backend/Dockerfile`
+     - Command: `celery -A app.core.celery.celery_app beat --loglevel=info`
+4. Fill in the sensitive cloud credentials in the shared Render Environment Group (`watchman-shared-env`):
+   - `DATABASE_URL` (Supabase connection pooler URI)
+   - `REDIS_URL`, `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND` (Upstash `rediss://` URI)
+   - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`
+   - `TMDB_API_KEY`, `OMDB_API_KEY`, `HF_API_TOKEN`
+   - `CORS_ORIGINS` (your Vercel production domain, e.g. `https://<your-app>.vercel.app`)
+   - `FRONTEND_URL` (your canonical Vercel URL)
 
 ---
 

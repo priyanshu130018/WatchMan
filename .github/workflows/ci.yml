@@ -100,3 +100,13 @@ jobs:
       - name: Build Application
         working-directory: ./frontend
         run: npm run build
+
+  docker:
+    name: Docker Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Docker Compose Build
+        run: docker compose build
