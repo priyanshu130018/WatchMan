@@ -1,3 +1,4 @@
+import logging
 import time
 from typing import Any
 from uuid import UUID
@@ -14,6 +15,8 @@ from app.ml.candidates.collaborative import CollaborativeCandidateGenerator
 from app.ml.candidates.als_collaborative import ALSCollaborativeCandidateGenerator
 from app.ml.candidates.popularity import PopularityCandidateGenerator
 from app.ml.candidates.freshness import FreshnessCandidateGenerator
+
+logger = logging.getLogger(__name__)
 
 
 class CandidateItem:
@@ -94,6 +97,7 @@ class CandidatePipeline:
         limit_per_channel: int = 50,
         content_type: str | None = None,
         persist_candidates: bool = False,
+        exclude_content_ids: set[int] | None = None,
     ) -> list[CandidateItem]:
         """
         Retrieves, deduplicates, and merges candidates from all 4 generation channels.
@@ -106,6 +110,7 @@ class CandidatePipeline:
                 limit_per_channel=limit_per_channel,
                 content_type=content_type,
                 persist_candidates=persist_candidates,
+                exclude_content_ids=exclude_content_ids,
             )
         finally:
             elapsed = (time.perf_counter() - t0) * 1000
@@ -121,8 +126,13 @@ class CandidatePipeline:
         limit_per_channel: int = 50,
         content_type: str | None = None,
         persist_candidates: bool = False,
+        exclude_content_ids: set[int] | None = None,
     ) -> list[CandidateItem]:
-        seen_ids = cls.get_user_seen_content_ids(db, user_id)
+        seen_ids = (
+            exclude_content_ids
+            if exclude_content_ids is not None
+            else cls.get_user_seen_content_ids(db, user_id)
+        )
 
         # 1. Content-based candidates
         content_candidates = ContentBasedCandidateGenerator.generate_candidates(
@@ -133,26 +143,16 @@ class CandidatePipeline:
             exclude_content_ids=seen_ids,
         )
 
-        # 2. Collaborative candidates.
-        #    Primary source is ALS matrix factorization (precomputed latent
-        #    factors). If the user has no trained factors yet (cold start /
-        #    model not trained), fall back to the memory-based user-user KNN
-        #    generator so the channel still contributes.
-        collab_candidates = ALSCollaborativeCandidateGenerator.generate_candidates(
+        # 2. ALS Collaborative candidates (precomputed latent factors).
+        #    If the user has no persisted factor yet (cold start), returns []
+        #    without blocking or training synchronously.
+        als_candidates = ALSCollaborativeCandidateGenerator.generate_candidates(
             db=db,
             user_id=user_id,
             limit=limit_per_channel,
             content_type=content_type,
             exclude_content_ids=seen_ids,
         )
-        if not collab_candidates:
-            collab_candidates = CollaborativeCandidateGenerator.generate_candidates(
-                db=db,
-                user_id=user_id,
-                limit=limit_per_channel,
-                content_type=content_type,
-                exclude_content_ids=seen_ids,
-            )
 
         # 3. Popularity candidates
         pop_candidates = PopularityCandidateGenerator.generate_candidates(
@@ -178,15 +178,17 @@ class CandidatePipeline:
             if cid not in items_map:
                 items_map[cid] = CandidateItem(content_id=cid, content=c.get("content"))
             items_map[cid].content_score = max(items_map[cid].content_score, c["score"])
-            items_map[cid].sources.append("content_based")
+            if "content_based" not in items_map[cid].sources:
+                items_map[cid].sources.append("content_based")
             items_map[cid].explanations.append(c["explanation"])
 
-        for c in collab_candidates:
+        for c in als_candidates:
             cid = c["content_id"]
             if cid not in items_map:
                 items_map[cid] = CandidateItem(content_id=cid, content=c.get("content"))
             items_map[cid].collaborative_score = max(items_map[cid].collaborative_score, c["score"])
-            items_map[cid].sources.append("collaborative")
+            if "als_collaborative" not in items_map[cid].sources:
+                items_map[cid].sources.append("als_collaborative")
             items_map[cid].explanations.append(c["explanation"])
 
         for c in pop_candidates:
@@ -196,7 +198,7 @@ class CandidatePipeline:
             items_map[cid].popularity_score = max(items_map[cid].popularity_score, c["score"])
             if "popularity" not in items_map[cid].sources:
                 items_map[cid].sources.append("popularity")
-                items_map[cid].explanations.append(c["explanation"])
+            items_map[cid].explanations.append(c["explanation"])
 
         for c in fresh_candidates:
             cid = c["content_id"]
@@ -205,7 +207,7 @@ class CandidatePipeline:
             items_map[cid].freshness_score = max(items_map[cid].freshness_score, c["score"])
             if "freshness" not in items_map[cid].sources:
                 items_map[cid].sources.append("freshness")
-                items_map[cid].explanations.append(c["explanation"])
+            items_map[cid].explanations.append(c["explanation"])
 
         # Batch load Content entities and their genres in a single efficient query
         all_cids = list(items_map.keys())
@@ -226,6 +228,16 @@ class CandidatePipeline:
                     del items_map[cid]
 
         candidate_list = list(items_map.values())
+
+        logger.info(
+            "Candidate retrieval for user_id=%s: content_based=%d, als_collaborative=%d, popularity=%d, freshness=%d, merged_unique=%d",
+            user_id,
+            len(content_candidates),
+            len(als_candidates),
+            len(pop_candidates),
+            len(fresh_candidates),
+            len(candidate_list),
+        )
 
         if persist_candidates and candidate_list:
             try:

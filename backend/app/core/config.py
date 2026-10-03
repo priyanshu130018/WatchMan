@@ -95,11 +95,11 @@ class Settings(BaseSettings):
     # docs/RECOMMENDATION_ARCHITECTURE.md for the meaning of each.
     #
     # Hybrid blend weights (final_score = sum(weight_i * signal_i)).
-    REC_WEIGHT_CONTENT: float = 0.40
-    REC_WEIGHT_COLLABORATIVE: float = 0.30
+    REC_WEIGHT_CONTENT: float = 0.35
+    REC_WEIGHT_COLLABORATIVE: float = 0.25
     REC_WEIGHT_POPULARITY: float = 0.15
-    REC_WEIGHT_FRESHNESS: float = 0.10
-    REC_WEIGHT_PREFERENCE: float = 0.05
+    REC_WEIGHT_FRESHNESS: float = 0.15
+    REC_WEIGHT_PREFERENCE: float = 0.10
 
     # ALS / matrix-factorization hyperparameters (collaborative branch).
     ALS_FACTORS: int = 64

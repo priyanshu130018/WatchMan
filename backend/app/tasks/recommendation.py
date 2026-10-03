@@ -37,7 +37,13 @@ def process_user_interaction_ml(user_id_str: str, content_id: int, db=None) -> d
         try:
             from app.core.redis import cache
             import asyncio
-            asyncio.run(cache.delete_pattern(f"recommendations:user:{user_id}:*"))
+
+            async def _invalidate_user_cache():
+                await cache.delete_pattern(f"recommendations:user:{user_id}:*")
+                await cache.delete_pattern(f"recommendations:home:*:user:{user_id}*")
+                await cache.close()
+
+            asyncio.run(_invalidate_user_cache())
         except Exception:
             pass
 

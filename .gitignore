@@ -60,6 +60,9 @@ backend/ENV/
 backend/env.bak/
 backend/venv.bak/
 
+# Database backups
+backups/
+
 # Checkpoint and partition cache files
 .ingest_checkpoint.json
 .planned_partitions_cache.json

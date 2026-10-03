@@ -57,7 +57,7 @@ class RecommendationGenerator:
         Executes the AI recommendation pipeline for a user and transactionally updates persisted recommendations.
         Uses the latest persisted user taste vector computed asynchronously by the Celery background worker.
         """
-        # 1. Multi-channel candidate retrieval (uses persisted user_embeddings)
+        # 1. Multi-channel candidate retrieval (uses persisted user_embeddings and ALS factors)
         candidates = CandidatePipeline.generate_all_candidates(
             db=db,
             user_id=user_id,
@@ -66,7 +66,7 @@ class RecommendationGenerator:
             persist_candidates=False,
         )
 
-        # 3. Hybrid ranking & diversity filtering
+        # 2. Hybrid ranking & diversity filtering
         ranked = HybridRanker.rank_candidates(
             db=db,
             user_id=user_id,
@@ -76,10 +76,17 @@ class RecommendationGenerator:
             apply_diversity=True,
         )
 
+        logger.info(
+            "HybridRanker produced %d recommendations from %d candidates for user_id=%s",
+            len(ranked),
+            len(candidates),
+            user_id,
+        )
+
         # Convert to dictionary representation while all Content entities & relationships are loaded in session
         formatted_items = [r.to_dict() for r in ranked]
 
-        # 4. Atomic snapshot replacement in recommendations table
+        # 3. Atomic snapshot replacement in recommendations table
         cls._persist_ranked(db, user_id, ranked)
 
         return formatted_items

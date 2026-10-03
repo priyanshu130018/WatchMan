@@ -92,13 +92,41 @@ class HybridRanker:
     def get_user_profile_preferences(cls, db: Session, user_id: UUID) -> tuple[set[str], set[str]]:
         """
         Retrieves user's explicit genre and language preferences.
+        Supports both genre name strings and TMDB/database integer IDs.
         """
         pref = db.query(UserPreference).filter(UserPreference.user_id == user_id).first()
-        if not pref:
+        if not pref or not pref.favorite_genres:
             return set(), set()
 
-        pref_genres = {g.strip().lower() for g in (pref.favorite_genres or []) if g and isinstance(g, str)}
+        from app.models.taxonomy import Genre
+        all_genres = db.query(Genre).all()
+        id_to_name = {g.id: g.name.strip().lower() for g in all_genres if g.name}
+        tmdb_to_name = {g.tmdb_id: g.name.strip().lower() for g in all_genres if g.tmdb_id and g.name}
+
+        pref_genres = set()
+        for g in pref.favorite_genres:
+            if isinstance(g, int):
+                if g in tmdb_to_name:
+                    pref_genres.add(tmdb_to_name[g])
+                elif g in id_to_name:
+                    pref_genres.add(id_to_name[g])
+            elif isinstance(g, str):
+                if g.isdigit():
+                    gid = int(g)
+                    if gid in tmdb_to_name:
+                        pref_genres.add(tmdb_to_name[gid])
+                    elif gid in id_to_name:
+                        pref_genres.add(id_to_name[gid])
+                else:
+                    pref_genres.add(g.strip().lower())
+
         pref_langs = set()
+        if hasattr(pref, "favorite_languages") and pref.favorite_languages:
+            pref_langs = {
+                l.strip().lower()
+                for l in pref.favorite_languages
+                if l and isinstance(l, str)
+            }
         return pref_genres, pref_langs
 
     @classmethod

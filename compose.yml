@@ -13,7 +13,7 @@
 # ALL runtime config lives in ONE root-level file next to this compose.yml:
 #   .env   (copy from .env.example, then fill in your values)
 # Docker Compose auto-loads that root .env, so it serves both roles:
-#   * backend / celery_worker / celery_beat  <- env_file: ./.env
+#   * backend / celery_worker / content_based_worker / als_worker / celery_beat  <- env_file: ./.env
 #   * frontend build  <- ${VITE_*} build-arg interpolation from the same .env
 # No `--env-file` flag is ever needed.
 #
@@ -44,28 +44,55 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Celery worker -> Upstash Redis broker/backend
+  # Celery general worker -> Upstash Redis broker/backend (default queue: catalog, cleanup, etc.)
   celery_worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: watchman_celery_worker
-    command: celery -A app.core.celery.celery_app worker --loglevel=info
+    command: celery -A app.core.celery.celery_app worker -Q default,celery --loglevel=info -n celery_worker@%h
     env_file:
       - ./.env
-    # Override the image's HTTP healthcheck (meant for the API on :8000) with a
-    # Celery-native liveness ping. Two deliberate choices:
-    #   * No `-d celery@$HOSTNAME` destination. That form depends on $HOSTNAME
-    #     being exported into /bin/sh AND matching the worker's node name exactly;
-    #     when it doesn't, the probe targets a non-existent mailbox and Docker
-    #     logs "No nodes replied within time constraint" even though the worker is
-    #     fine. A plain `inspect ping` (the command that verifiably returns pong)
-    #     broadcasts to whatever worker is on the broker — correct here, one node.
-    #   * Explicit `--timeout 10`. Celery's inspect reply wait defaults to just
-    #     1.0s, which is too short for the round-trip through the Upstash broker
-    #     over TLS — the real cause of the intermittent false "unhealthy".
-    # Docker timeout/start_period are raised to cover the celery CLI cold-start
-    # (import + TLS broker connect) plus the up-to-10s reply wait.
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.core.celery.celery_app inspect ping --timeout 10"]
+      interval: 30s
+      timeout: 20s
+      start_period: 45s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Dedicated Celery worker for Content-Based recommendation workload (content_based queue ONLY)
+  content_based_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: watchman_content_based_worker
+    command: celery -A app.core.celery.celery_app worker -Q content_based -c 2 --loglevel=info -n content_based_worker@%h
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.core.celery.celery_app inspect ping --timeout 10"]
+      interval: 30s
+      timeout: 20s
+      start_period: 45s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Dedicated Celery worker for ALS Collaborative-Filtering workload (als queue ONLY)
+  als_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: watchman_als_worker
+    command: celery -A app.core.celery.celery_app worker -Q als -c 2 --loglevel=info -n als_worker@%h
+    env_file:
+      - ./.env
     healthcheck:
       test: ["CMD-SHELL", "celery -A app.core.celery.celery_app inspect ping --timeout 10"]
       interval: 30s
