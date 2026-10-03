@@ -274,7 +274,9 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
   const primaryTrailer =
     content.videos?.find(
       (v) => (v.type === "Trailer" || v.type === "Teaser") && v.site.toLowerCase() === "youtube",
-    ) || content.videos?.find((v) => v.site.toLowerCase() === "youtube") || content.videos?.[0];
+    ) ||
+    content.videos?.find((v) => v.site.toLowerCase() === "youtube") ||
+    content.videos?.[0];
 
   const activeTrailer = selectedVideo || primaryTrailer;
   const youtubeVideos = (content.videos || []).filter(
@@ -844,7 +846,10 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
                     })
                   : null;
                 return (
-                  <li key={review.id} className="overflow-hidden rounded-2xl border border-border bg-card/50 p-4">
+                  <li
+                    key={review.id}
+                    className="overflow-hidden rounded-2xl border border-border bg-card/50 p-4"
+                  >
                     <div className="mb-2 flex items-center gap-3">
                       <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full border border-border bg-secondary text-sm font-semibold text-foreground">
                         {avatar ? (

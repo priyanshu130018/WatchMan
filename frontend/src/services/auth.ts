@@ -8,7 +8,11 @@ export const isSupabaseAuth = false;
 async function fetchCurrentUser(): Promise<User> {
   console.log(`[WatchMan Auth] Fetching /auth/me from ${API_BASE_URL}...`);
   const { data } = await api.get<User>("/auth/me");
-  console.log("[WatchMan Auth] /auth/me response:", { id: data.id, email: data.email, username: data.username });
+  console.log("[WatchMan Auth] /auth/me response:", {
+    id: data.id,
+    email: data.email,
+    username: data.username,
+  });
   return data;
 }
 

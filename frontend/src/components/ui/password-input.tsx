@@ -3,8 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export interface PasswordInputProps
-  extends Omit<React.ComponentProps<"input">, "type"> {}
+export type PasswordInputProps = Omit<React.ComponentProps<"input">, "type">;
 
 const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ className, disabled, ...props }, ref) => {
@@ -34,9 +33,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           ) : (
             <Eye className="h-4 w-4" aria-hidden="true" />
           )}
-          <span className="sr-only">
-            {showPassword ? "Hide password" : "Show password"}
-          </span>
+          <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
         </button>
       </div>
     );

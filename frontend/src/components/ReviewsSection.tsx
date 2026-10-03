@@ -209,7 +209,9 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                 })}
               </div>
               {ratingInput && (
-                <span className="ml-1 text-xs font-bold text-yellow-400 shrink-0">{ratingInput}/10</span>
+                <span className="ml-1 text-xs font-bold text-yellow-400 shrink-0">
+                  {ratingInput}/10
+                </span>
               )}
             </div>
 
@@ -288,7 +290,9 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                       <AvatarFallback className="text-xs">{initial}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-foreground">{authorName}</div>
+                      <div className="truncate text-sm font-semibold text-foreground">
+                        {authorName}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {rev.created_at ? formatTimeAgo(rev.created_at) : "recently"}
                       </div>
@@ -298,7 +302,12 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                   <div className="flex items-center gap-2 shrink-0">
                     {rev.rating !== null && rev.rating !== undefined && (
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-yellow-400/10 px-2.5 py-1 text-xs font-bold text-yellow-400">
-                        <Star size={12} fill="currentColor" aria-hidden="true" className="shrink-0" />
+                        <Star
+                          size={12}
+                          fill="currentColor"
+                          aria-hidden="true"
+                          className="shrink-0"
+                        />
                         {rev.rating}/10
                       </span>
                     )}
@@ -331,7 +340,9 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                 </div>
 
                 {rev.title && (
-                  <h3 className="mb-1.5 text-base font-bold text-foreground break-words [overflow-wrap:anywhere]">{rev.title}</h3>
+                  <h3 className="mb-1.5 text-base font-bold text-foreground break-words [overflow-wrap:anywhere]">
+                    {rev.title}
+                  </h3>
                 )}
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 break-words [overflow-wrap:anywhere]">
                   {rev.content}
