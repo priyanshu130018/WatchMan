@@ -7,6 +7,7 @@ from app.ml.embeddings.eligibility import ContentEmbeddingEligibilityService
 from app.ml.embeddings.user_embeddings import UserEmbeddingService
 from app.models.content import Content
 from app.models.user import User
+from app.models.watchman import WatchmanDecision
 
 logger = logging.getLogger(__name__)
 
@@ -84,21 +85,75 @@ def embed_single_content(content_id: int, force: bool = False) -> dict:
         db.close()
 
 
-@celery_app.task(name="app.tasks.embeddings.update_user_embeddings_batch")
-def update_user_embeddings_batch(user_ids: list[str] | None = None) -> dict:
+@celery_app.task(name="app.tasks.embeddings.refresh_changed_user_embeddings")
+def refresh_changed_user_embeddings() -> dict:
     """
-    Background task to update user preference embeddings.
+    Periodic Celery background task (scheduled every 10 minutes via Celery Beat):
+    1. Detects active users whose interaction data changed after their current user_embeddings.updated_at.
+    2. Rebuilds the user's 384-D preference vector from their current DB interactions.
+    3. L2 normalizes it and UPSERTs into user_embeddings.
+    4. Cleans up obsolete embeddings if a user no longer has positive interactions.
+    5. Skips users whose interaction state has not changed.
     """
     db = SessionLocal()
     try:
-        if user_ids:
-            target_uuids = [UUID(uid) for uid in user_ids]
-        else:
-            target_uuids = [u.id for u in db.query(User.id).all()]
+        all_active_count = db.query(User).filter(User.is_active == True).count()
+        changed_user_ids = UserEmbeddingService.get_users_needing_embedding_update(db)
 
+        successfully_updated = 0
+        failed_users = 0
+        cleaned_up = 0
+
+        for uid in changed_user_ids:
+            try:
+                res = UserEmbeddingService.compute_and_save_user_embedding(db, uid, force=True)
+                if res is not None:
+                    successfully_updated += 1
+                else:
+                    cleaned_up += 1
+            except Exception as exc:
+                logger.error("Failed to compute user embedding for user_id=%s: %s", uid, exc)
+                failed_users += 1
+
+        skipped_users = all_active_count - len(changed_user_ids)
+
+        logger.info(
+            "User embedding refresh cycle completed: total_checked=%d, changed=%d, updated=%d, cleaned_up=%d, skipped=%d, failed=%d",
+            all_active_count,
+            len(changed_user_ids),
+            successfully_updated,
+            cleaned_up,
+            skipped_users,
+            failed_users,
+        )
+
+        return {
+            "status": "success",
+            "total_users_checked": all_active_count,
+            "changed_users_detected": len(changed_user_ids),
+            "successfully_updated": successfully_updated,
+            "cleaned_up": cleaned_up,
+            "skipped_users": skipped_users,
+            "failed_users": failed_users,
+        }
+    finally:
+        db.close()
+
+
+@celery_app.task(name="app.tasks.embeddings.update_user_embeddings_batch")
+def update_user_embeddings_batch(user_ids: list[str] | None = None) -> dict:
+    """
+    Background task to update user preference embeddings for specified users or changed users.
+    """
+    if not user_ids:
+        return refresh_changed_user_embeddings()
+
+    db = SessionLocal()
+    try:
+        target_uuids = [UUID(uid) for uid in user_ids]
         updated_count = 0
         for uid in target_uuids:
-            res = UserEmbeddingService.compute_and_save_user_embedding(db, uid)
+            res = UserEmbeddingService.compute_and_save_user_embedding(db, uid, force=True)
             if res is not None:
                 updated_count += 1
 

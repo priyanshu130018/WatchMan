@@ -10,7 +10,9 @@ import {
   Film,
   Image as ImageIcon,
   Layers,
+  Maximize,
   MessageSquare,
+  Minimize,
   MonitorPlay,
   Play,
   Star,
@@ -23,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { DetailSkeleton } from "@/components/Skeletons";
 import { ErrorState } from "@/components/States";
 import { RatingModal } from "@/components/RatingModal";
-import { VideoModal } from "@/components/VideoModal";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { WatchmanScoreCard } from "@/components/WatchmanScoreCard";
 import { catalogService } from "@/services/catalog";
@@ -60,7 +61,23 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
 
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
+  const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
+  const [isTrailerFullscreen, setIsTrailerFullscreen] = useState(false);
   const [watchRegion, setWatchRegion] = useState("IN");
+
+  const trailerSectionRef = React.useRef<HTMLElement>(null);
+  const videoPlayerContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Monitor native HTML5 fullscreen state
+  React.useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsTrailerFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   const isTv = contentType === "tv";
   // Content-type-aware noun for copy (e.g. the error title). Derived from the
@@ -200,7 +217,6 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
   // "watch" interaction the product supports — we do NOT fabricate a streaming
   // system. Best-effort and silent on failure so playback is never blocked.
   const logTrailerView = (video: VideoItem) => {
-    setSelectedVideo(video);
     if (!token) return;
     userService
       .addHistory({ content_type: contentType, tmdb_id: id, progress: 0 })
@@ -210,6 +226,33 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
       .catch(() => {
         // Non-blocking: watch-history logging must never interrupt playback.
       });
+  };
+
+  const handlePlayTrailer = (video?: VideoItem | null) => {
+    const targetVideo = video || primaryTrailer;
+    if (!targetVideo) return;
+    setSelectedVideo(targetVideo);
+    setIsPlayingTrailer(true);
+    logTrailerView(targetVideo);
+    setTimeout(() => {
+      trailerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 60);
+  };
+
+  const toggleTrailerFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        if (videoPlayerContainerRef.current?.requestFullscreen) {
+          await videoPlayerContainerRef.current.requestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn("Fullscreen toggle unavailable:", err);
+    }
   };
 
   if (detailQuery.isLoading) {
@@ -231,7 +274,12 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
   const primaryTrailer =
     content.videos?.find(
       (v) => (v.type === "Trailer" || v.type === "Teaser") && v.site.toLowerCase() === "youtube",
-    ) || content.videos?.[0];
+    ) || content.videos?.find((v) => v.site.toLowerCase() === "youtube") || content.videos?.[0];
+
+  const activeTrailer = selectedVideo || primaryTrailer;
+  const youtubeVideos = (content.videos || []).filter(
+    (v) => v.site && v.site.toLowerCase() === "youtube",
+  );
 
   const releaseYear = formatYear(content.release_date || content.first_air_date);
   const ratingScore = content.vote_average ? formatRating(content.vote_average) : null;
@@ -380,7 +428,7 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
                   <Button
                     type="button"
                     variant="brand"
-                    onClick={() => logTrailerView(primaryTrailer)}
+                    onClick={() => handlePlayTrailer(primaryTrailer)}
                   >
                     <Play size={16} fill="currentColor" aria-hidden="true" /> Watch Trailer
                   </Button>
@@ -447,6 +495,143 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
 
       {/* Detail Body Content */}
       <div className="mx-auto max-w-[1400px] space-y-12 px-4 py-8 sm:px-7">
+        {/* Embedded Trailer Player Section */}
+        {activeTrailer && (
+          <section
+            ref={trailerSectionRef}
+            id="trailer-player"
+            aria-labelledby="trailer-heading"
+            className="scroll-mt-24"
+          >
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary/80">
+                  Watch Trailer
+                </span>
+                <h2
+                  id="trailer-heading"
+                  className="mt-1 flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground"
+                >
+                  <Play size={22} className="text-primary fill-primary" aria-hidden="true" />
+                  {activeTrailer.name || `${content.title} — Official Trailer`}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="border-border/80 bg-secondary/50 text-xs">
+                  {activeTrailer.type || "Trailer"} • {activeTrailer.site}
+                </Badge>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleTrailerFullscreen}
+                  className="gap-1.5"
+                  title={isTrailerFullscreen ? "Exit full screen" : "Full screen"}
+                >
+                  {isTrailerFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+                  <span className="hidden sm:inline">
+                    {isTrailerFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                  </span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Large Responsive 16:9 Video Canvas */}
+            <div
+              ref={videoPlayerContainerRef}
+              className="group relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black border border-border"
+            >
+              {isPlayingTrailer && activeTrailer.site.toLowerCase() === "youtube" ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${activeTrailer.key}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`}
+                  title={activeTrailer.name || `${content.title} — Trailer`}
+                  className="h-full w-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="relative h-full w-full flex items-center justify-center">
+                  {content.backdrop_url ? (
+                    <img
+                      src={content.backdrop_url}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover object-center opacity-65 transition-transform duration-700 group-hover:scale-105"
+                      aria-hidden="true"
+                    />
+                  ) : content.poster_url ? (
+                    <img
+                      src={content.poster_url}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover object-center opacity-40 blur-sm"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-neutral-900" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/30" />
+
+                  {/* Prominent Play Overlay */}
+                  <div className="relative z-10 flex flex-col items-center gap-3.5 text-center p-4">
+                    <button
+                      type="button"
+                      onClick={() => handlePlayTrailer(activeTrailer)}
+                      className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-watchman-yellow text-watchman-black shadow-[0_0_35px_rgba(255,199,44,0.55)] transition-all duration-300 hover:scale-110 hover:bg-watchman-yellow-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-watchman-yellow/50 cursor-pointer"
+                      aria-label={`Play ${activeTrailer.name || "Trailer"}`}
+                    >
+                      <Play size={30} fill="currentColor" className="ml-1" aria-hidden="true" />
+                    </button>
+                    <div>
+                      <p className="text-sm sm:text-base md:text-lg font-bold text-white drop-shadow-md">
+                        {activeTrailer.name || `${content.title} — Official Trailer`}
+                      </p>
+                      <p className="mt-0.5 text-xs sm:text-sm text-white/75">
+                        Click to start embedded video playback
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Multiple Clips / Trailers Carousel (if 2+ videos available) */}
+            {youtubeVideos.length > 1 && (
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  More Trailers &amp; Clips ({youtubeVideos.length})
+                </p>
+                <ul className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {youtubeVideos.map((v) => {
+                    const isSelected = activeTrailer?.key === v.key;
+                    return (
+                      <li key={v.key} className="shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handlePlayTrailer(v)}
+                          className={`flex items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
+                              : "border-border bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                          }`}
+                        >
+                          <Play
+                            size={13}
+                            fill={isSelected ? "currentColor" : "none"}
+                            className={isSelected ? "text-primary" : ""}
+                          />
+                          <div className="max-w-[220px] min-w-0">
+                            <p className="truncate text-xs font-medium text-foreground">{v.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{v.type || "Clip"}</p>
+                          </div>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Cast Carousel */}
         {topCast.length > 0 && (
           <section aria-labelledby="cast-heading">
@@ -659,7 +844,7 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
                     })
                   : null;
                 return (
-                  <li key={review.id} className="rounded-2xl border border-border bg-card/50 p-4">
+                  <li key={review.id} className="overflow-hidden rounded-2xl border border-border bg-card/50 p-4">
                     <div className="mb-2 flex items-center gap-3">
                       <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full border border-border bg-secondary text-sm font-semibold text-foreground">
                         {avatar ? (
@@ -681,12 +866,12 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
                       </div>
                       {typeof rating === "number" && rating > 0 && (
                         <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-foreground">
-                          <Star size={12} aria-hidden="true" className="text-amber-400" />
+                          <Star size={12} aria-hidden="true" className="text-amber-400 shrink-0" />
                           {rating}/10
                         </span>
                       )}
                     </div>
-                    <p className="line-clamp-6 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                    <p className="line-clamp-6 whitespace-pre-line text-sm leading-relaxed text-muted-foreground break-words [overflow-wrap:anywhere]">
                       {review.content}
                     </p>
                     {review.url && (
@@ -743,14 +928,6 @@ export function ContentDetails({ contentType, id }: ContentDetailsProps) {
         title={content.title}
         initialRating={userRating || 0}
         onRate={handleRate}
-      />
-
-      {/* Video Trailer Modal */}
-      <VideoModal
-        isOpen={Boolean(selectedVideo)}
-        onClose={() => setSelectedVideo(null)}
-        video={selectedVideo}
-        title={content.title}
       />
     </div>
   );

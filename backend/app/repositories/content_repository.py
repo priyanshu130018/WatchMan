@@ -136,7 +136,6 @@ class ContentRepository:
         items = (
             query.options(
                 selectinload(Content.genres).joinedload(ContentGenre.genre),
-                selectinload(Content.languages).joinedload(ContentLanguage.language),
             )
             .offset(skip)
             .limit(effective_limit)
@@ -213,7 +212,6 @@ class ContentRepository:
         items = (
             query.options(
                 selectinload(Content.genres).joinedload(ContentGenre.genre),
-                selectinload(Content.languages).joinedload(ContentLanguage.language),
             )
             .offset(skip)
             .limit(limit)

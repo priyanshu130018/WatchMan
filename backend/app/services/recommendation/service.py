@@ -1,12 +1,15 @@
 import logging
+import time
 from datetime import datetime
 from math import ceil
 from typing import Any
 from uuid import UUID
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
+from app.models.taxonomy import ContentGenre
 
 from app.core.redis import cache
 from app.core.telemetry import telemetry
+from app.core.timing import start_timing_ctx, get_current_timing_ctx
 from app.models.content import Content
 from app.models.recommendation import Recommendation
 from app.ml.recommendations.generator import RecommendationGenerator
@@ -85,130 +88,133 @@ class UnifiedRecommendationService:
         Retrieves ranked recommendations for a user.
         Uses Redis cache -> PostgreSQL recommendations table -> on-the-fly generation -> cold-start fallback.
         """
-        # Cold start verification: if user has no genuine activity, return clean cold start
-        if not self.user_has_activity(db, user_id):
-            try:
-                db.query(Recommendation).filter(Recommendation.user_id == user_id).delete()
-                db.commit()
-            except Exception:
-                db.rollback()
-            telemetry.record_recommendation_run(duration_ms=0.0, success=True, is_cold_start=True)
-            return {
-                "items": [],
-                "total": 0,
-                "page": page,
-                "page_size": limit,
-                "total_pages": 1,
-                "is_cold_start": True,
-            }
+        ctx = get_current_timing_ctx()
+        is_root_ctx = False
+        if ctx is None:
+            ctx = start_timing_ctx("/api/recommendations")
+            is_root_ctx = True
 
-        cache_key = f"recommendations:user:{user_id}:type:{content_type or 'all'}:v:1.0.0"
-
-        # 1. Check Redis cache unless force_refresh
-        if not force_refresh:
-            cached_data = await cache.get(cache_key)
-            if cached_data and isinstance(cached_data, list) and len(cached_data) > 0:
-                all_items = cached_data
-                total = len(all_items)
-                start_idx = (page - 1) * limit
-                end_idx = start_idx + limit
-                paginated_items = all_items[start_idx:end_idx]
+        try:
+            # Cold start verification: if user has no genuine activity, return clean cold start
+            if not self.user_has_activity(db, user_id):
+                try:
+                    db.query(Recommendation).filter(Recommendation.user_id == user_id).delete()
+                    db.commit()
+                except Exception:
+                    db.rollback()
+                telemetry.record_recommendation_run(duration_ms=0.0, success=True, is_cold_start=True)
                 return {
-                    "items": paginated_items,
-                    "total": total,
+                    "items": [],
+                    "total": 0,
                     "page": page,
                     "page_size": limit,
-                    "total_pages": max(1, ceil(total / limit)),
-                    "is_cold_start": False,
+                    "total_pages": 1,
+                    "is_cold_start": True,
                 }
 
-        # 2. Query persisted recommendations from DB
-        db_query = (
-            db.query(Recommendation, Content)
-            .join(Content, Recommendation.content_id == Content.id)
-            .filter(Recommendation.user_id == user_id)
-        )
-        if content_type and content_type.lower() in ("movie", "tv"):
-            db_query = db_query.filter(Content.content_type == content_type.lower())
+            cache_key = f"recommendations:user:{user_id}:type:{content_type or 'all'}:v:1.0.0"
 
-        persisted_records = db_query.order_by(Recommendation.rank.asc()).all()
+            # 1. Check Redis cache unless force_refresh
+            if not force_refresh:
+                cached_data = await cache.get(cache_key)
+                if cached_data and isinstance(cached_data, list) and len(cached_data) > 0:
+                    t_ser = time.perf_counter()
+                    all_items = cached_data
+                    total = len(all_items)
+                    start_idx = (page - 1) * limit
+                    end_idx = start_idx + limit
+                    paginated_items = all_items[start_idx:end_idx]
+                    res = {
+                        "items": paginated_items,
+                        "total": total,
+                        "page": page,
+                        "page_size": limit,
+                        "total_pages": max(1, ceil(total / limit)),
+                        "is_cold_start": False,
+                    }
+                    ctx.serialization_ms += (time.perf_counter() - t_ser) * 1000
+                    return res
 
-        all_ranked_items: list[dict[str, Any]] = []
-
-        if persisted_records and not force_refresh:
-            for rec, content in persisted_records:
-                all_ranked_items.append(
-                    self._format_content_item(
-                        content=content,
-                        score=rec.score,
-                        rank=rec.rank,
-                        explanation=rec.explanation,
-                        sources=["persisted_hybrid"],
-                    )
-                )
-        else:
-            # 3. Generate on-the-fly via RecommendationGenerator
-            generated = RecommendationGenerator.generate_and_persist_for_user(
-                db=db,
-                user_id=user_id,
-                limit=max(limit * 2, 50),
-                content_type=content_type,
+            # 2. Query persisted recommendations from DB
+            db_query = (
+                db.query(Recommendation, Content)
+                .join(Content, Recommendation.content_id == Content.id)
+                .options(selectinload(Content.genres).joinedload(ContentGenre.genre))
+                .filter(Recommendation.user_id == user_id)
             )
-            for r in generated:
-                item_dict = self._format_content_item(
-                    content=r.content,
-                    score=r.score,
-                    rank=r.rank,
-                    explanation=r.explanation,
-                    sources=r.sources,
-                )
-                item_dict["content_score"] = round(r.content_score, 4)
-                item_dict["collaborative_score"] = round(r.collaborative_score, 4)
-                item_dict["popularity_score"] = round(r.popularity_score, 4)
-                item_dict["freshness_score"] = round(r.freshness_score, 4)
-                item_dict["preference_score"] = round(r.preference_score, 4)
-                all_ranked_items.append(item_dict)
-
-        # 4. Cold-start fallback if still empty (catalog items matching preferences or highest popularity)
-        if not all_ranked_items:
-            fallback_query = db.query(Content)
             if content_type and content_type.lower() in ("movie", "tv"):
-                fallback_query = fallback_query.filter(Content.content_type == content_type.lower())
+                db_query = db_query.filter(Content.content_type == content_type.lower())
 
-            fallback_items = fallback_query.order_by(Content.popularity.desc().nullslast()).limit(limit * 2).all()
-            for idx, item in enumerate(fallback_items, start=1):
-                all_ranked_items.append(
-                    self._format_content_item(
-                        content=item,
-                        score=0.8 - (idx * 0.01),
-                        rank=idx,
-                        explanation="Popular in the catalog with high audience interest",
-                        sources=["cold_start_popularity"],
+            persisted_records = db_query.order_by(Recommendation.rank.asc()).all()
+
+            all_ranked_items: list[dict[str, Any]] = []
+
+            if persisted_records and not force_refresh:
+                for rec, content in persisted_records:
+                    all_ranked_items.append(
+                        self._format_content_item(
+                            content=content,
+                            score=rec.score,
+                            rank=rec.rank,
+                            explanation=rec.explanation,
+                            sources=["persisted_hybrid"],
+                        )
                     )
+            else:
+                # 3. Generate on-the-fly via RecommendationGenerator
+                all_ranked_items = RecommendationGenerator.generate_and_persist_for_user(
+                    db=db,
+                    user_id=user_id,
+                    limit=max(limit * 2, 50),
+                    content_type=content_type,
                 )
 
-        # 5. Store in Redis cache
-        if all_ranked_items:
-            await cache.set(cache_key, all_ranked_items, ttl=self.CACHE_TTL)
+            # 4. Cold-start fallback if still empty (catalog items matching preferences or highest popularity)
+            if not all_ranked_items:
+                fallback_query = db.query(Content)
+                if content_type and content_type.lower() in ("movie", "tv"):
+                    fallback_query = fallback_query.filter(Content.content_type == content_type.lower())
 
-        # Record recommendation pipeline execution metrics
-        is_cold_start = any("cold_start" in (item.get("sources") or []) for item in all_ranked_items)
-        telemetry.record_recommendation_run(duration_ms=0.0, success=True, is_cold_start=is_cold_start)
+                fallback_items = fallback_query.order_by(Content.popularity.desc().nullslast()).limit(limit * 2).all()
+                for idx, item in enumerate(fallback_items, start=1):
+                    all_ranked_items.append(
+                        self._format_content_item(
+                            content=item,
+                            score=0.8 - (idx * 0.01),
+                            rank=idx,
+                            explanation="Popular in the catalog with high audience interest",
+                            sources=["cold_start_popularity"],
+                        )
+                    )
 
-        # Paginate results
-        total = len(all_ranked_items)
-        start_idx = (page - 1) * limit
-        end_idx = start_idx + limit
-        paginated_items = all_ranked_items[start_idx:end_idx]
+            # 5. Store in Redis cache
+            if all_ranked_items:
+                await cache.set(cache_key, all_ranked_items, ttl=self.CACHE_TTL)
 
-        return {
-            "items": paginated_items,
-            "total": total,
-            "page": page,
-            "page_size": limit,
-            "total_pages": max(1, ceil(total / limit)),
-            "is_cold_start": is_cold_start,
-        }
+            # Record recommendation pipeline execution metrics
+            is_cold_start = any("cold_start" in (item.get("sources") or []) for item in all_ranked_items)
+            telemetry.record_recommendation_run(duration_ms=0.0, success=True, is_cold_start=is_cold_start)
+
+            # Paginate results
+            t_ser = time.perf_counter()
+            total = len(all_ranked_items)
+            start_idx = (page - 1) * limit
+            end_idx = start_idx + limit
+            paginated_items = all_ranked_items[start_idx:end_idx]
+
+            res = {
+                "items": paginated_items,
+                "total": total,
+                "page": page,
+                "page_size": limit,
+                "total_pages": max(1, ceil(total / limit)),
+                "is_cold_start": is_cold_start,
+            }
+            ctx.serialization_ms += (time.perf_counter() - t_ser) * 1000
+            return res
+        finally:
+            if is_root_ctx:
+                ctx.log_recommendations()
 
     async def get_similar_content(
         self,
@@ -343,6 +349,7 @@ class UnifiedRecommendationService:
         rows = (
             db.query(WatchHistory, Content)
             .join(Content, WatchHistory.content_id == Content.id)
+            .options(selectinload(Content.genres).joinedload(ContentGenre.genre))
             .filter(
                 WatchHistory.user_id == user_id,
                 WatchHistory.completed.is_(False),
@@ -398,6 +405,7 @@ class UnifiedRecommendationService:
         watched_rows = (
             db.query(WatchHistory, Content)
             .join(Content, WatchHistory.content_id == Content.id)
+            .options(selectinload(Content.genres).joinedload(ContentGenre.genre))
             .filter(WatchHistory.user_id == user_id)
             .order_by(WatchHistory.watched_at.desc())
             .all()

@@ -31,7 +31,7 @@ class FreshnessCandidateGenerator:
         Retrieves newest candidates with recency decay scores.
         """
         exclude_ids = exclude_content_ids or set()
-        query = db.query(Content).filter(Content.release_date.isnot(None))
+        query = db.query(Content.id, Content.release_date, Content.vote_average).filter(Content.release_date.isnot(None))
 
         if exclude_ids:
             query = query.filter(Content.id.notin_(exclude_ids))
@@ -45,8 +45,8 @@ class FreshnessCandidateGenerator:
         today = date.today()
         candidates = []
 
-        for c in items:
-            rdate = cls._parse_release_date(c.release_date)
+        for cid, release_date_str, vote_val_raw in items:
+            rdate = cls._parse_release_date(release_date_str)
             if not rdate:
                 continue
 
@@ -55,13 +55,12 @@ class FreshnessCandidateGenerator:
             freshness_score = exp(-0.693 * days_old / 180.0)
 
             # Boost slightly with vote quality to avoid poor newly-released items
-            vote_val = float(c.vote_average or 0.0)
+            vote_val = float(vote_val_raw or 0.0)
             quality_factor = max(0.4, min(1.0, vote_val / 10.0)) if vote_val > 0 else 0.5
             final_score = 0.7 * freshness_score + 0.3 * quality_factor
 
             candidates.append({
-                "content_id": c.id,
-                "content": c,
+                "content_id": cid,
                 "score": round(min(1.0, max(0.0, final_score)), 4),
                 "source": "freshness",
                 "explanation": "Newly released title freshly added to the catalog",

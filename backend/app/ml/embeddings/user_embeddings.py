@@ -10,6 +10,7 @@ from app.models.content import Content
 from app.models.embedding import ContentEmbedding, UserEmbedding
 from app.models.interaction import InteractionEvent, SavedContent, WatchHistory
 from app.models.review import Rating
+from app.models.watchman import WatchmanDecision
 from app.ml.embeddings.content_embeddings import ContentEmbeddingService
 
 logger = logging.getLogger(__name__)
@@ -214,17 +215,74 @@ class UserEmbeddingService:
                 raise
 
     @classmethod
+    def get_stored_user_embedding(
+        cls,
+        db: Session,
+        user_id: UUID,
+    ) -> list[float] | None:
+        """
+        Retrieves the persisted user taste embedding directly from PostgreSQL user_embeddings.
+        Does NOT block HTTP API requests with synchronous recomputation.
+        Returns None if user is cold-start or pending background worker calculation.
+        """
+        record = db.query(UserEmbedding).filter(UserEmbedding.user_id == user_id).first()
+        if record and record.embedding is not None and len(record.embedding) == settings.VECTOR_DIMENSION:
+            return record.embedding
+        return None
+
+    @classmethod
     def get_or_compute_user_embedding(
         cls,
         db: Session,
         user_id: UUID,
     ) -> list[float] | None:
         """
-        Retrieves user embedding from DB or computes it dynamically if missing/stale.
+        Retrieves user embedding from DB without blocking on expensive calculation.
         """
-        record = db.query(UserEmbedding).filter(UserEmbedding.user_id == user_id).first()
-        if record and record.embedding is not None:
-            return record.embedding
+        return cls.get_stored_user_embedding(db, user_id)
 
-        computed = cls.compute_and_save_user_embedding(db, user_id)
-        return computed.embedding if computed else None
+    @classmethod
+    def get_users_needing_embedding_update(cls, db: Session) -> list[UUID]:
+        """
+        Identifies users whose interaction state has changed since their user_embedding was last updated,
+        or users who have interactions but no user_embedding, or users whose embeddings need cleanup.
+        Uses single aggregated database queries for maximum performance.
+        """
+        from sqlalchemy import func
+        from app.models.user import User
+        from app.models.watchman import WatchmanDecision
+
+        # Fetch max interaction timestamps per user across all positive interaction channels
+        max_saved = dict(db.query(SavedContent.user_id, func.max(SavedContent.created_at)).group_by(SavedContent.user_id).all())
+        max_rating = dict(db.query(Rating.user_id, func.max(func.coalesce(Rating.updated_at, Rating.created_at))).group_by(Rating.user_id).all())
+        max_wh = dict(db.query(WatchHistory.user_id, func.max(WatchHistory.watched_at)).group_by(WatchHistory.user_id).all())
+        max_ev = dict(db.query(InteractionEvent.user_id, func.max(InteractionEvent.created_at)).filter(InteractionEvent.user_id.isnot(None)).group_by(InteractionEvent.user_id).all())
+        max_wm = dict(db.query(WatchmanDecision.user_id, func.max(func.coalesce(WatchmanDecision.updated_at, WatchmanDecision.created_at))).group_by(WatchmanDecision.user_id).all())
+
+        all_interacted_user_ids = set(max_saved.keys()) | set(max_rating.keys()) | set(max_wh.keys()) | set(max_ev.keys()) | set(max_wm.keys())
+        existing_embs = {e.user_id: e for e in db.query(UserEmbedding).all()}
+        all_active_users = db.query(User.id).filter(User.is_active == True).all()
+
+        changed_user_ids: list[UUID] = []
+        for (uid,) in all_active_users:
+            emb = existing_embs.get(uid)
+            ts_list = [
+                ts for ts in [
+                    max_saved.get(uid),
+                    max_rating.get(uid),
+                    max_wh.get(uid),
+                    max_ev.get(uid),
+                    max_wm.get(uid),
+                ] if ts is not None
+            ]
+
+            if uid in all_interacted_user_ids and ts_list:
+                latest_ts = max(ts_list)
+                if emb is None or emb.embedding is None or emb.updated_at is None or latest_ts > emb.updated_at:
+                    changed_user_ids.append(uid)
+            else:
+                # User has no interactions currently. If they have an existing embedding, clean it up
+                if emb is not None and emb.embedding is not None:
+                    changed_user_ids.append(uid)
+
+        return changed_user_ids

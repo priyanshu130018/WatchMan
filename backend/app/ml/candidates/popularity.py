@@ -20,7 +20,7 @@ class PopularityCandidateGenerator:
         Retrieves candidates sorted by popularity and quality metrics.
         """
         exclude_ids = exclude_content_ids or set()
-        query = db.query(Content)
+        query = db.query(Content.id, Content.popularity, Content.vote_average)
 
         if exclude_ids:
             query = query.filter(Content.id.notin_(exclude_ids))
@@ -31,13 +31,13 @@ class PopularityCandidateGenerator:
         if not items:
             return []
 
-        max_pop = max((float(c.popularity or 0.0) for c in items), default=1.0)
+        max_pop = max((float(c[1] or 0.0) for c in items), default=1.0)
         max_pop = max(1.0, max_pop)
 
         candidates = []
-        for c in items:
-            pop_val = float(c.popularity or 0.0)
-            vote_val = float(c.vote_average or 0.0)
+        for cid, pop_val_raw, vote_val_raw in items:
+            pop_val = float(pop_val_raw or 0.0)
+            vote_val = float(vote_val_raw or 0.0)
 
             # Score combining log-scaled popularity (60%) and normalized vote average (40%)
             pop_norm = log1p(max(0.0, pop_val)) / log1p(max_pop)
@@ -45,8 +45,7 @@ class PopularityCandidateGenerator:
 
             score = 0.6 * pop_norm + 0.4 * vote_norm
             candidates.append({
-                "content_id": c.id,
-                "content": c,
+                "content_id": cid,
                 "score": round(min(1.0, max(0.0, score)), 4),
                 "source": "popularity",
                 "explanation": "Trending and widely acclaimed by audiences",

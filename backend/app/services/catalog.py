@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.constants import CONTENT_PAGE_SIZE
 from app.core.exceptions import DatabaseException, TMDBInvalidResponseException, ContentNotFoundException
+from app.core.timing import get_current_timing_ctx
 from app.models.content import Content, ContentType
 from app.repositories.content_repository import ContentRepository
 from app.schemas.content import (
@@ -213,7 +215,11 @@ class ContentCatalogService:
         if not imdb_id:
             return detail
 
+        t0 = time.perf_counter()
         ratings = await self.omdb.ratings_by_imdb_id(imdb_id)
+        ctx = get_current_timing_ctx()
+        if ctx:
+            ctx.omdb_ms += (time.perf_counter() - t0) * 1000
         if ratings:
             detail.imdb_rating = ratings.get("imdb_rating")
             detail.imdb_votes = ratings.get("imdb_votes")

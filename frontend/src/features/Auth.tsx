@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
-import { authService, isSupabaseAuth } from "@/services/auth";
+import { authService } from "@/services/auth";
 import { useAuthStore } from "@/store/authStore";
 import { getApiErrorMessage } from "@/lib/api";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ export function Auth({ mode }: { mode: "login" | "signup" }) {
     setIsSubmitting(true);
 
     try {
+      console.log(`[WatchMan Auth UI] Submitting ${mode} form for ${email.trim()}...`);
       const resp =
         mode === "login"
           ? await authService.login(email.trim(), password)
@@ -36,20 +37,15 @@ export function Auth({ mode }: { mode: "login" | "signup" }) {
               username.trim() || undefined,
             );
 
-      // Supabase signup with email confirmation returns no session yet — there
-      // is nothing to authenticate against, so guide the user to verify first.
-      if (!resp.access_token) {
-        toast.success("Account created. Check your email to confirm your address, then sign in.");
-        nav({ to: "/login" });
-        return;
-      }
-
+      console.log(`[WatchMan Auth UI] ${mode} succeeded. Storing session...`);
       const currentUser = resp.user || (await authService.me());
       setSession(resp.access_token, currentUser, resp.refresh_token);
       toast.success(mode === "login" ? "Signed in." : "Welcome to WatchMan!");
       nav({ to: "/" });
     } catch (err: unknown) {
+      console.error(`[WatchMan Auth UI] ${mode} failed with error:`, err);
       const message = getApiErrorMessage(err);
+      console.error(`[WatchMan Auth UI] Parsed error message: ${message}`);
       setError(message);
       toast.error(message);
     } finally {
@@ -168,14 +164,6 @@ export function Auth({ mode }: { mode: "login" | "signup" }) {
                   : "Create account"}
             </Button>
           </form>
-
-          {mode === "login" && isSupabaseAuth && (
-            <p className="mt-4 text-center text-sm">
-              <Link to="/forgot-password" className="font-medium text-primary hover:underline">
-                Forgot your password?
-              </Link>
-            </p>
-          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {mode === "login" ? (

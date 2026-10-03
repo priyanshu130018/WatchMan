@@ -91,17 +91,7 @@ async def get_current_user(
 ) -> User:
     """
     Resolve the current authenticated user from the bearer token.
-
-    The verification strategy is selected by ``settings.AUTH_PROVIDER``:
-
-    * ``"supabase"`` (production) — the token is a Supabase Auth access token,
-      validated in :mod:`app.core.supabase_auth` and mapped to a WatchMan user
-      by its ``sub`` UUID. No local JWT/bcrypt is involved.
-    * ``"local"`` (development) — the legacy local HS256 JWT minted by this
-      service is decoded and validated below.
-
-    There is no fallback between the two: a production deployment configured for
-    Supabase never accepts a locally minted token, and vice-versa.
+    Decodes and validates WatchMan's HS256 JWT access token and loads the user from PostgreSQL.
     """
     if not credentials or not credentials.credentials:
         raise AuthenticationException(
@@ -111,14 +101,7 @@ async def get_current_user(
 
     token = credentials.credentials
 
-    if settings.AUTH_PROVIDER == "supabase":
-        # Production path: validate the Supabase access token and map identity.
-        from app.core.supabase_auth import verify_supabase_token, resolve_user_from_claims
-
-        claims = verify_supabase_token(token)
-        return resolve_user_from_claims(db, claims)
-
-    # Local development path: this service's own JWT.
+    # Decode and validate WatchMan JWT token
     payload = decode_token(token)
 
     token_type = payload.get("type", "access")

@@ -45,6 +45,10 @@ celery_app.conf.update(
     result_backend_transport_options={"visibility_timeout": 3600},
     # Periodic Celery Beat Schedule
     beat_schedule={
+        "refresh-user-embeddings-10min": {
+            "task": "app.tasks.embeddings.refresh_changed_user_embeddings",
+            "schedule": 600.0,  # Run every 10 minutes (testing schedule)
+        },
         "sync-trending-catalog-hourly": {
             "task": "app.tasks.fetch_tmdb.sync_trending_catalog",
             "schedule": 3600.0,  # Run every hour

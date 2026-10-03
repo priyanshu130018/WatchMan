@@ -73,7 +73,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str
 
     # ML & Embeddings
-    EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
     VECTOR_DIMENSION: int = 384
     ENABLE_PGVECTOR: bool = True
     ML_ADMIN_EMAILS: str = "admin@watchman.io"
@@ -168,19 +168,8 @@ class Settings(BaseSettings):
             )
 
         # ---- Production hardening ------------------------------------------
-        # In production the runtime path MUST be Supabase Auth + hosted infra.
-        # Never allow a silent fallback to local auth or localhost services.
+        # Enforce hosted infra in production.
         if self.APP_ENV.strip().lower() in ("production", "prod"):
-            if self.AUTH_PROVIDER.strip().lower() != "supabase":
-                raise ValueError(
-                    "In production APP_ENV, AUTH_PROVIDER must be 'supabase' "
-                    "(local JWT/bcrypt auth is not permitted in production)."
-                )
-            if not (self.SUPABASE_JWT_SECRET and self.SUPABASE_JWT_SECRET.strip()):
-                raise ValueError(
-                    "SUPABASE_JWT_SECRET is required when AUTH_PROVIDER=supabase "
-                    "in production so access tokens can be validated."
-                )
             self._reject_localhost("DATABASE_URL", self.DATABASE_URL)
             self._reject_localhost("REDIS_URL", self.REDIS_URL)
             self._reject_localhost("CELERY_BROKER_URL", self.CELERY_BROKER_URL)

@@ -61,32 +61,12 @@ from app.api.auth.schemas import (
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
-def _reject_if_supabase() -> None:
-    """
-    Local password endpoints (register/login/refresh) are development-only.
-
-    When AUTH_PROVIDER=supabase (production), authentication is owned entirely by
-    Supabase Auth: the browser signs in against Supabase and sends the resulting
-    access token to the API. These local-credential endpoints are therefore
-    disabled so there is exactly one identity system and no local passwords.
-    """
-    if settings.AUTH_PROVIDER.strip().lower() == "supabase":
-        raise AuthorizationException(
-            message=(
-                "Local credential authentication is disabled. This deployment "
-                "uses Supabase Auth; obtain an access token from Supabase."
-            ),
-            code="FORBIDDEN",
-        )
-
-
 @router.post("/register", response_model=Token)
 async def register(
     payload: UserRegister,
     db: Session = Depends(get_db),
 ):
     """Register a new user account and initialize profile/preferences."""
-    _reject_if_supabase()
     email = payload.email.strip().lower()
     
     # Check if user already exists
@@ -154,7 +134,6 @@ async def login(
     db: Session = Depends(get_db),
 ):
     """Authenticate with email and password and issue access and refresh tokens."""
-    _reject_if_supabase()
     email = payload.email.strip().lower()
     user = db.query(User).filter(User.email == email).first()
 
@@ -190,7 +169,6 @@ async def refresh_token(
     db: Session = Depends(get_db),
 ):
     """Validate refresh token and issue a fresh access token and rotated refresh token."""
-    _reject_if_supabase()
     token_payload = decode_token(payload.refresh_token)
     
     token_type = token_payload.get("type")

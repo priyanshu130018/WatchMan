@@ -1,0 +1,1004 @@
+content_id,content_type,title,original_title,original_language,release_year,genres,embedding_model,embedding_dimension,embedding_exists
+1211,Movie,12 Angry Men,12 Angry Men,en,1957,Drama,BAAI/bge-small-en-v1.5,384,YES
+1571,Movie,2001: A Space Odyssey,2001: A Space Odyssey,en,1968,"Adventure, Mystery, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3554,Movie,28 Days Later,28 Days Later,en,2002,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9015,Movie,28 Years Later,28 Years Later,en,2025,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9321,Movie,28 Years Later: The Bone Temple,28 Years Later: The Bone Temple,en,2026,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7513,Movie,365 Days: This Day,365 dni: Ten dzień,pl,2022,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+3196,Movie,A Bug's Life,A Bug's Life,en,1998,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+1753,Movie,A Clockwork Orange,A Clockwork Orange,en,1971,"Crime, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8892,Movie,A Minecraft Movie,A Minecraft Movie,en,2025,"Adventure, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+2353,Movie,A Nightmare on Elm Street,A Nightmare on Elm Street,en,1984,Horror,BAAI/bge-small-en-v1.5,384,YES
+6253,Movie,A Quiet Place,A Quiet Place,en,2018,"Drama, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4514,Movie,A Serbian Film,Srpski film,sr,2010,"Crime, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6372,Movie,A Star Is Born,A Star Is Born,en,2018,"Drama, Music, Romance",BAAI/bge-small-en-v1.5,384,YES
+8895,Movie,A Working Man,A Working Man,en,2025,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5178,Movie,About Time,About Time,en,2013,"Drama, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+224,Movie,Above & Below,Above & Below,en,2026,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6492,Movie,Adultery Alumni Association 2,불륜 동창회 2,ko,2019,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+123,Movie,After Impact,After Impact,en,2026,"Drama, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7753,Movie,Aftersun,Aftersun,en,2022,Drama,BAAI/bge-small-en-v1.5,384,YES
+2535,Movie,Akira,AKIRA,ja,1988,"Action, Animation, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2833,Movie,Aladdin,Aladdin,en,1992,"Adventure, Animation, Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+4512,Movie,Alice in Wonderland,Alice in Wonderland,en,2010,"Adventure, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+2112,Movie,Alien,Alien,en,1979,"Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6011,Movie,Alien: Covenant,Alien: Covenant,en,2017,"Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8593,Movie,Alien: Romulus,Alien: Romulus,en,2024,"Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2473,Movie,Aliens,Aliens,en,1986,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3258,Movie,American Beauty,American Beauty,en,1999,Drama,BAAI/bge-small-en-v1.5,384,YES
+3141,Movie,American History X,American History X,en,1998,Drama,BAAI/bge-small-en-v1.5,384,YES
+3256,Movie,American Pie,American Pie,en,1999,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+3312,Movie,American Psycho,American Psycho,en,2000,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3435,Movie,Amélie,Le Fabuleux Destin d'Amélie Poulain,fr,2001,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+6676,Movie,Angel Has Fallen,Angel Has Fallen,en,2019,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+164,Movie,Animals,Animales,es,2026,"Comedy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+458,Movie,Animated Cotton,Animated Cotton,en,1909,Animation,BAAI/bge-small-en-v1.5,384,YES
+8716,Movie,Anora,Anora,en,2024,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+5595,Movie,Ant-Man,Ant-Man,en,2015,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6313,Movie,Ant-Man and the Wasp,Ant-Man and the Wasp,en,2018,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7871,Movie,Ant-Man and the Wasp: Quantumania,Ant-Man and the Wasp: Quantumania,en,2023,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8294,Movie,Anyone but You,Anyone but You,en,2023,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+9445,Movie,Apex,Apex,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2113,Movie,Apocalypse Now,Apocalypse Now,en,1979,"Drama, War",BAAI/bge-small-en-v1.5,384,YES
+4033,Movie,Apocalypto,Apocalypto,en,2006,"Action, Drama, History",BAAI/bge-small-en-v1.5,384,YES
+8292,Movie,Aquaman and the Lost Kingdom,Aquaman and the Lost Kingdom,en,2023,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5833,Movie,Arrival,Arrival,en,2016,"Drama, Mystery, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+221,Movie,Avatar,Avatar,en,2009,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+161,Movie,Avatar Aang: The Last Airbender,Avatar Aang: The Last Airbender,en,2026,"Action, Adventure, Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+162,Movie,Avatar: Fire and Ash,Avatar: Fire and Ash,en,2025,"Adventure, Fantasy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7811,Movie,Avatar: The Way of Water,Avatar: The Way of Water,en,2022,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5531,Movie,Avengers: Age of Ultron,Avengers: Age of Ultron,en,2015,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+10,Movie,Avengers: Doomsday,Avengers: Doomsday,en,2026,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+133,Movie,Avengers: Endgame,Avengers: Endgame,en,2019,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+144,Movie,Avengers: Infinity War,Avengers: Infinity War,en,2018,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6020,Movie,Baby Driver,Baby Driver,en,2017,"Action, Crime",BAAI/bge-small-en-v1.5,384,YES
+791,Movie,Baby Face,Baby Face,en,1933,Drama,BAAI/bge-small-en-v1.5,384,YES
+7813,Movie,Babylon,Babylon,en,2022,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+2411,Movie,Back to the Future,Back to the Future,en,1985,"Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2591,Movie,Back to the Future Part II,Back to the Future Part II,en,1989,"Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+17,Movie,Backrooms,Backrooms,en,2026,"Horror, Mystery, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6855,Movie,Bad Boys for Life,Bad Boys for Life,en,2020,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8535,Movie,Bad Boys: Ride or Die,Bad Boys: Ride or Die,en,2024,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+9016,Movie,Ballerina,Ballerina,en,2025,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9454,Movie,Balls Up,Balls Up,en,2026,"Action, Adventure, Comedy",BAAI/bge-small-en-v1.5,384,YES
+7691,Movie,Barbarian,Barbarian,en,2022,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8112,Movie,Barbie,Barbie,en,2023,"Adventure, Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+2774,Movie,Basic Instinct,Basic Instinct,en,1992,"Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3792,Movie,Batman Begins,Batman Begins,en,2005,"Action, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+2776,Movie,Batman Returns,Batman Returns,en,1992,"Action, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5714,Movie,Batman v Superman: Dawn of Justice,Batman v Superman: Dawn of Justice,en,2016,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+181,Movie,Batman: Knightfall Part 1: Knightfall,Batman: Knightfall Part 1: Knightfall,en,2026,"Action, Adventure, Animation, Drama",BAAI/bge-small-en-v1.5,384,YES
+2773,Movie,Beauty and the Beast,Beauty and the Beast,en,1991,"Animation, Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+6016,Movie,Beauty and the Beast,Beauty and the Beast,en,2017,"Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+8654,Movie,Beetlejuice Beetlejuice,Beetlejuice Beetlejuice,en,2024,"Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9604,Movie,Best of the Best,Best of the Best,en,2026,Comedy,BAAI/bge-small-en-v1.5,384,YES
+2356,Movie,Beverly Hills Cop,Beverly Hills Cop,en,1984,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+5477,Movie,Big Hero 6,Big Hero 6,en,2014,"Action, Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+7751,Movie,Black Adam,Black Adam,en,2022,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8897,Movie,Black Bag,Black Bag,en,2025,"Drama, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9513,Movie,Black Box,Black Box,en,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+219,Movie,Black Gold,Oro negro,es,2024,Horror,BAAI/bge-small-en-v1.5,384,YES
+3497,Movie,Black Hawk Down,Black Hawk Down,en,2001,"Action, History, War",BAAI/bge-small-en-v1.5,384,YES
+6191,Movie,Black Panther,Black Panther,en,2018,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7752,Movie,Black Panther: Wakanda Forever,Black Panther: Wakanda Forever,en,2022,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4634,Movie,Black Swan,Black Swan,en,2010,"Drama, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7274,Movie,Black Widow,Black Widow,en,2021,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2233,Movie,Blade Runner,Blade Runner,en,1982,"Drama, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+154,Movie,Blade Runner 2049,Blade Runner 2049,en,2017,"Drama, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9384,Movie,Blades of the Guardians,镖人：风起大漠,zh,2026,"Action, Adventure",BAAI/bge-small-en-v1.5,384,YES
+176,Movie,Blaze of Love,性迷宮,en,1994,Unknown,BAAI/bge-small-en-v1.5,384,YES
+9195,Movie,Blue Moon,Blue Moon,en,2025,"Comedy, Drama, History, Music",BAAI/bge-small-en-v1.5,384,YES
+6373,Movie,Bohemian Rhapsody,Bohemian Rhapsody,en,2018,"Drama, Music",BAAI/bge-small-en-v1.5,384,YES
+9610,Movie,Borderline,Borderline,en,2026,Thriller,BAAI/bge-small-en-v1.5,384,YES
+4933,Movie,Brave,Brave,en,2012,"Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+2951,Movie,Braveheart,Braveheart,en,1995,"Drama, History, War",BAAI/bge-small-en-v1.5,384,YES
+4031,Movie,Bridge to Terabithia,Bridge to Terabithia,en,2007,"Adventure, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+9017,Movie,Bring Her Back,Bring Her Back,en,2025,Horror,BAAI/bge-small-en-v1.5,384,YES
+9606,Movie,Buddy,Buddy,en,2026,"Comedy, Fantasy, Horror",BAAI/bge-small-en-v1.5,384,YES
+7633,Movie,Bullet Train,Bullet Train,en,2022,"Action, Comedy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9383,Movie,Bury the Devil,Bury the Devil,en,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6074,Movie,Call Me by Your Name,Call Me by Your Name,en,2017,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+8833,Movie,Captain America: Brave New World,Captain America: Brave New World,en,2025,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5771,Movie,Captain America: Civil War,Captain America: Civil War,en,2016,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4757,Movie,Captain America: The First Avenger,Captain America: The First Avenger,en,2011,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5356,Movie,Captain America: The Winter Soldier,Captain America: The Winter Soldier,en,2014,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6491,Movie,Captain Marvel,Captain Marvel,en,2019,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3973,Movie,Cars,Cars,en,2006,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+4751,Movie,Cars 2,Cars 2,en,2011,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+6013,Movie,Cars 3,Cars 3,en,2017,"Adventure, Animation, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+3980,Movie,Casino Royale,Casino Royale,en,2006,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3553,Movie,Catch Me If You Can,Catch Me If You Can,en,2002,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9132,Movie,Chainsaw Man - The Movie: Reze Arc,劇場版 チェンソーマン レゼ篇,ja,2025,"Action, Animation, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+5711,Movie,Chapo: El Escape Del Siglo,Chapo: El Escape Del Siglo,es,2016,"Action, Adventure, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5536,Movie,Chappie,Chappie,en,2015,"Action, Crime, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3793,Movie,Charlie and the Chocolate Factory,Charlie and the Chocolate Factory,en,2005,"Adventure, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+461,Movie,Childish Dreams,Rêves enfantins,fr,1910,Animation,BAAI/bge-small-en-v1.5,384,YES
+9509,Movie,Citizen Vigilante,Citizen Vigilante,en,2026,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3556,Movie,City of God,Cidade de Deus,pt,2002,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+8473,Movie,Civil War,Civil War,en,2024,"Action, Drama, War",BAAI/bge-small-en-v1.5,384,YES
+194,Movie,Clash of the Thundermans,Clash of the Thundermans,en,2026,"Action, Family, TV Movie",BAAI/bge-small-en-v1.5,384,YES
+9613,Movie,Clayface,Clayface,en,2026,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4461,Movie,Cloudy with a Chance of Meatballs,Cloudy with a Chance of Meatballs,en,2009,"Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+6131,Movie,Coco,Coco,en,2017,"Adventure, Animation, Family, Music",BAAI/bge-small-en-v1.5,384,YES
+122,Movie,Colony,군체,ko,2026,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8835,Movie,Companion,Companion,en,2025,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4391,Movie,Coraline,Coraline,en,2009,"Animation, Family, Fantasy, Horror",BAAI/bge-small-en-v1.5,384,YES
+3852,Movie,Corpse Bride,Corpse Bride,en,2005,"Animation, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+117,Movie,Coyote vs. Acme,Coyote vs. Acme,en,2026,"Adventure, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+9317,Movie,Crime 101,Crime 101,en,2026,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+139,Movie,Dark Nuns,검은 수녀들,ko,2025,"Drama, Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6616,Movie,Dark Phoenix,Dark Phoenix,en,2019,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5412,Movie,Dawn of the Planet of the Apes,Dawn of the Planet of the Apes,en,2014,"Action, Drama, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2592,Movie,Dead Poets Society,Dead Poets Society,en,1989,Drama,BAAI/bge-small-en-v1.5,384,YES
+5712,Movie,Deadpool,Deadpool,en,2016,"Action, Adventure, Comedy",BAAI/bge-small-en-v1.5,384,YES
+196,Movie,Deadpool & Wolverine,Deadpool & Wolverine,en,2024,"Action, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6252,Movie,Deadpool 2,Deadpool 2,en,2018,"Action, Adventure, Comedy",BAAI/bge-small-en-v1.5,384,YES
+8773,Movie,Debtor’s Wife,채무자의 아내,ko,2024,Unknown,BAAI/bge-small-en-v1.5,384,YES
+9021,Movie,Deep Cover,Deep Cover,en,2025,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+178,Movie,Deep Water,Deep Water,en,2026,"Adventure, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+192,Movie,Demon Slayer: Kimetsu no Yaiba Infinity Castle,劇場版「鬼滅の刃」無限城編 第一章 猗窩座再来,ja,2025,"Action, Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9449,Movie,Desire,Deseo,es,2026,"Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+3735,Movie,Desnudos,Desnudos,es,2004,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9385,Movie,Desperada,Desperada,tl,2026,Drama,BAAI/bge-small-en-v1.5,384,YES
+191,Movie,Despicable Me,Despicable Me,en,2010,"Animation, Comedy, Crime, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5175,Movie,Despicable Me 2,Despicable Me 2,en,2013,"Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6019,Movie,Despicable Me 3,Despicable Me 3,en,2017,"Action, Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+8532,Movie,Despicable Me 4,Despicable Me 4,en,2024,"Action, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9455,Movie,Detective Conan: Fallen Angel of the Highway,名探偵コナン ハイウェイの堕天使,ja,2026,"Action, Animation, Crime, Mystery",BAAI/bge-small-en-v1.5,384,YES
+2532,Movie,Die Hard,Die Hard,en,1988,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+18,Movie,Digger,Digger,en,2026,Comedy,BAAI/bge-small-en-v1.5,384,YES
+156,Movie,Disclosure Day,Disclosure Day,en,2026,"Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5051,Movie,Django Unchained,Django Unchained,en,2012,"Drama, Western",BAAI/bge-small-en-v1.5,384,YES
+5832,Movie,Doctor Strange,Doctor Strange,en,2016,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+7511,Movie,Doctor Strange in the Multiverse of Madness,Doctor Strange in the Multiverse of Madness,en,2022,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+199,Movie,Don't Look Down,No mires para abajo,es,2008,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+7395,Movie,Don't Look Up,Don't Look Up,en,2021,"Comedy, Drama, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9083,Movie,Dracula,Dracula,fr,2025,"Fantasy, Horror, Romance",BAAI/bge-small-en-v1.5,384,YES
+134,Movie,Drawn Together,Enfrentados: Marfil,es,2026,"Romance, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2899,Movie,Dumb and Dumber,Dumb and Dumber,en,1994,Comedy,BAAI/bge-small-en-v1.5,384,YES
+7271,Movie,Dune,Dune,en,2021,"Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+206,Movie,Dune: Part Two,Dune: Part Two,en,2024,"Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7932,Movie,Dungeons & Dragons: Honor Among Thieves,Dungeons & Dragons: Honor Among Thieves,en,2023,"Adventure, Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5413,Movie,Edge of Tomorrow,Edge of Tomorrow,en,2014,"Action, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2713,Movie,Edward Scissorhands,Edward Scissorhands,en,1990,"Drama, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+9019,Movie,Elio,Elio,en,2025,"Adventure, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7331,Movie,Encanto,Encanto,en,2021,"Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3676,Movie,Eternal Sunshine of the Spotless Mind,Eternal Sunshine of the Spotless Mind,en,2004,"Drama, Romance, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7332,Movie,Eternals,Eternals,en,2021,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+205,Movie,Eternity and a Day,Μια αιωνιότητα και μια μέρα,el,1998,Drama,BAAI/bge-small-en-v1.5,384,YES
+7452,Movie,Everything Everywhere All at Once,Everything Everywhere All at Once,en,2022,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+207,Movie,Evil Dead Burn,Evil Dead Burn,en,2026,Horror,BAAI/bge-small-en-v1.5,384,YES
+7994,Movie,Evil Dead Rise,Evil Dead Rise,en,2023,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7872,Movie,Exchange Wife 2,교환아내 2,ko,2023,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9081,Movie,Exit 8,８番出口,ja,2025,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2477,Movie,Exploits of a Young Don Juan,Les Exploits d'un jeune Don Juan,fr,1986,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+8056,Movie,Extraction 2,Extraction 2,en,2023,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3254,Movie,Eyes Wide Shut,Eyes Wide Shut,en,1999,"Drama, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9012,Movie,F1,F1,en,2025,"Action, Drama",BAAI/bge-small-en-v1.5,384,YES
+155,Movie,Facing El Chapo,La captura,es,2026,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7631,Movie,Fall,Fall,en,2022,Thriller,BAAI/bge-small-en-v1.5,384,YES
+172,Movie,Fall 2: Deadpoint,Fall 2: Deadpoint,en,2026,Thriller,BAAI/bge-small-en-v1.5,384,YES
+169,Movie,False Positive,False Positive,en,2021,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5893,Movie,Fantastic Beasts and Where to Find Them,Fantastic Beasts and Where to Find Them,en,2016,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+7512,Movie,Fantastic Beasts: The Secrets of Dumbledore,Fantastic Beasts: The Secrets of Dumbledore,en,2022,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6672,Movie,Fast & Furious Presents: Hobbs & Shaw,Fast & Furious Presents: Hobbs & Shaw,en,2019,"Action, Adventure, Comedy",BAAI/bge-small-en-v1.5,384,YES
+9671,Movie,Fast Forever,Fast Forever,en,2028,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7992,Movie,Fast X,Fast X,en,2023,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6192,Movie,Fifty Shades Freed,Fifty Shades Freed,en,2018,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+5532,Movie,Fifty Shades of Grey,Fifty Shades of Grey,en,2015,"Drama, Romance, Thriller",BAAI/bge-small-en-v1.5,384,YES
+550,Movie,Fight Club,Fight Club,en,1999,"Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8956,Movie,Final Destination Bloodlines,Final Destination Bloodlines,en,2025,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9508,Movie,Finding Emily,Finding Emily,en,2026,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+3611,Movie,Finding Nemo,Finding Nemo,en,2003,"Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+2291,Movie,First Blood,First Blood,en,1982,"Action, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8235,Movie,Five Nights at Freddy's,Five Nights at Freddy's,en,2023,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6795,Movie,Ford v Ferrari,Ford v Ferrari,en,2019,"Action, Drama, History",BAAI/bge-small-en-v1.5,384,YES
+3,Movie,Forgotten Island,Forgotten Island,en,2026,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+2895,Movie,Forrest Gump,Forrest Gump,en,1994,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9197,Movie,Frankenstein,Frankenstein,en,2025,"Drama, Fantasy, Horror",BAAI/bge-small-en-v1.5,384,YES
+7276,Movie,Free Guy,Free Guy,en,2021,"Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3016,Movie,From Dusk Till Dawn,From Dusk Till Dawn,en,1996,"Action, Crime, Horror",BAAI/bge-small-en-v1.5,384,YES
+5233,Movie,Frozen,Frozen,en,2013,"Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6791,Movie,Frozen II,Frozen II,en,2019,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8534,Movie,Furiosa: A Mad Max Saga,Furiosa: A Mad Max Saga,en,2024,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5534,Movie,Furious 7,Furious 7,en,2015,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5479,Movie,Fury,Fury,en,2014,"Action, Drama, War",BAAI/bge-small-en-v1.5,384,YES
+5951,Movie,Get Out,Get Out,en,2017,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+185,Movie,Ghost in the Cell,Ghost in the Cell,id,2026,"Comedy, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3015,Movie,Ghost in the Shell,GHOST IN THE SHELL / 攻殻機動隊,ja,1995,"Action, Animation, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4036,Movie,Ghost Rider,Ghost Rider,en,2007,"Action, Fantasy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2231,Movie,Ghost Stories,镜花风月三之螺女挑情,zh,1982,Horror,BAAI/bge-small-en-v1.5,384,YES
+7397,Movie,Ghostbusters: Afterlife,Ghostbusters: Afterlife,en,2021,"Adventure, Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3311,Movie,Gladiator,Gladiator,en,2000,"Action, Adventure, Drama",BAAI/bge-small-en-v1.5,384,YES
+8714,Movie,Gladiator II,Gladiator II,en,2024,"Action, Adventure, Drama",BAAI/bge-small-en-v1.5,384,YES
+7814,Movie,Glass Onion: A Knives Out Mystery,Glass Onion: A Knives Out Mystery,en,2022,"Comedy, Crime, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9315,Movie,GOAT,GOAT,en,2026,"Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+8236,Movie,Godzilla Minus One,ゴジラ-1.0,ja,2023,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8412,Movie,Godzilla x Kong: The New Empire,Godzilla x Kong: The New Empire,en,2024,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5474,Movie,Gone Girl,Gone Girl,en,2014,"Drama, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9389,Movie,Good Boy,Good Boy,en,2026,"Drama, Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9448,Movie,Good Vibes Only,Pour le plaisir,fr,2026,Comedy,BAAI/bge-small-en-v1.5,384,YES
+3135,Movie,Good Will Hunting,Good Will Hunting,en,1997,Drama,BAAI/bge-small-en-v1.5,384,YES
+2712,Movie,GoodFellas,GoodFellas,en,1990,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+8172,Movie,Graphic Desires,Graphic Desires,en,2023,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6371,Movie,Green Book,Green Book,en,2018,"Comedy, Drama, History",BAAI/bge-small-en-v1.5,384,YES
+4756,Movie,Green Lantern,Green Lantern,en,2011,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9318,Movie,Greenland 2: Migration,Greenland 2: Migration,en,2026,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2834,Movie,Groundhog Day,Groundhog Day,en,1993,"Comedy, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+4576,Movie,Grown Ups,Grown Ups,en,2010,Comedy,BAAI/bge-small-en-v1.5,384,YES
+5176,Movie,Grown Ups 2,Grown Ups 2,en,2013,Comedy,BAAI/bge-small-en-v1.5,384,YES
+5417,Movie,Guardians of the Galaxy,Guardians of the Galaxy,en,2014,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6014,Movie,Guardians of the Galaxy Vol. 2,Guardians of the Galaxy Vol. 2,en,2017,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7991,Movie,Guardians of the Galaxy Vol. 3,Guardians of the Galaxy Vol. 3,en,2023,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7996,Movie,Guy Ritchie's The Covenant,Guy Ritchie's The Covenant,en,2023,"Action, Thriller, War",BAAI/bge-small-en-v1.5,384,YES
+5831,Movie,Hacksaw Ridge,Hacksaw Ridge,en,2016,"Drama, History, War",BAAI/bge-small-en-v1.5,384,YES
+2111,Movie,Halloween,Halloween,en,1978,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3551,Movie,Harry Potter and the Chamber of Secrets,Harry Potter and the Chamber of Secrets,en,2002,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4631,Movie,Harry Potter and the Deathly Hallows: Part 1,Harry Potter and the Deathly Hallows: Part 1,en,2010,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4752,Movie,Harry Potter and the Deathly Hallows: Part 2,Harry Potter and the Deathly Hallows: Part 2,en,2011,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3851,Movie,Harry Potter and the Goblet of Fire,Harry Potter and the Goblet of Fire,en,2005,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4452,Movie,Harry Potter and the Half-Blood Prince,Harry Potter and the Half-Blood Prince,en,2009,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4151,Movie,Harry Potter and the Order of the Phoenix,Harry Potter and the Order of the Phoenix,en,2007,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+203,Movie,Harry Potter and the Philosopher's Stone,Harry Potter and the Philosopher's Stone,en,2001,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3732,Movie,Harry Potter and the Prisoner of Azkaban,Harry Potter and the Prisoner of Azkaban,en,2004,"Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9018,Movie,Heads of State,Heads of State,en,2025,"Action, Comedy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+1,Movie,Heart of the Beast,Heart of the Beast,en,2026,"Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3014,Movie,Heat,Heat,en,1995,"Action, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9503,Movie,Hibla 2,Hibla 2,tl,2026,Drama,BAAI/bge-small-en-v1.5,384,YES
+5892,Movie,Hidden Figures,Hidden Figures,en,2016,"Drama, History",BAAI/bge-small-en-v1.5,384,YES
+9452,Movie,Hokum,Hokum,en,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+197,Movie,Hold the Fort,Hold the Fort,en,2025,"Comedy, Horror",BAAI/bge-small-en-v1.5,384,YES
+2832,Movie,Home Alone 2: Lost in New York,Home Alone 2: Lost in New York,en,1992,"Adventure, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+9597,Movie,Hope,호프,ko,2026,"Action, Mystery, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+231,Movie,Hoppers,Hoppers,en,2026,"Adventure, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5485,Movie,Horrible Bosses 2,Horrible Bosses 2,en,2014,Comedy,BAAI/bge-small-en-v1.5,384,YES
+177,Movie,Hot Spot,Hot Spot,en,2026,"Action, Crime, Fantasy, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4992,Movie,Hotel Transylvania,Hotel Transylvania,en,2012,"Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9388,Movie,How to Make a Killing,How to Make a Killing,en,2026,"Comedy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4513,Movie,How to Train Your Dragon,How to Train Your Dragon,en,2010,"Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9014,Movie,How to Train Your Dragon,How to Train Your Dragon,en,2025,"Action, Adventure, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5411,Movie,How to Train Your Dragon 2,How to Train Your Dragon 2,en,2014,"Action, Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+215,Movie,Howl's Moving Castle,ハウルの動く城,ja,2004,"Adventure, Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4212,Movie,I Am Legend,I Am Legend,en,2007,"Drama, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9601,Movie,I Want Your Sex,I Want Your Sex,en,2026,Comedy,BAAI/bge-small-en-v1.5,384,YES
+3738,Movie,"I, Robot","I, Robot",en,2004,"Action, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3495,Movie,Ice Age,Ice Age,en,2002,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+5775,Movie,Ice Age: Collision Course,Ice Age: Collision Course,en,2016,"Adventure, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4934,Movie,Ice Age: Continental Drift,Ice Age: Continental Drift,en,2012,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+4457,Movie,Ice Age: Dawn of the Dinosaurs,Ice Age: Dawn of the Dinosaurs,en,2009,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+3911,Movie,Ice Age: The Meltdown,Ice Age: The Meltdown,en,2006,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+11,Movie,Ice Cream Man,Ice Cream Man,en,2026,"Comedy, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9020,Movie,Ice Road: Vengeance,Ice Road: Vengeance,en,2025,"Action, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+40,Movie,Idiots,Idiots,en,2026,"Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+9453,Movie,Immortal Combat,Immortal Combat,en,2026,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9441,Movie,In the Grey,In the Grey,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+200,Movie,Inception,Inception,en,2010,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6311,Movie,Incredibles 2,Incredibles 2,en,2018,"Action, Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+2354,Movie,Indiana Jones and the Temple of Doom,Indiana Jones and the Temple of Doom,en,1984,"Action, Adventure",BAAI/bge-small-en-v1.5,384,YES
+4454,Movie,Inglourious Basterds,Inglourious Basterds,en,2009,"Drama, Thriller, War",BAAI/bge-small-en-v1.5,384,YES
+186,Movie,Inside Out,Inside Out,en,2015,"Adventure, Animation, Comedy, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+8531,Movie,Inside Out 2,Inside Out 2,en,2024,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+4692,Movie,Insidious,Insidious,en,2011,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5179,Movie,Insidious: Chapter 2,Insidious: Chapter 2,en,2013,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5600,Movie,Insidious: Chapter 3,Insidious: Chapter 3,en,2015,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+212,Movie,Insidious: Out of the Further,Insidious: Out of the Further,en,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6193,Movie,Insidious: The Last Key,Insidious: The Last Key,en,2018,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8115,Movie,Insidious: The Red Door,Insidious: The Red Door,en,2023,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+165,Movie,Interstellar,Interstellar,en,2014,"Adventure, Drama, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4272,Movie,Iron Man,Iron Man,en,2008,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+208,Movie,Iron Man 2,Iron Man 2,en,2010,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5111,Movie,Iron Man 3,Iron Man 3,en,2013,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6077,Movie,It,It,en,2017,"Drama, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6674,Movie,It Chapter Two,It Chapter Two,en,2019,"Drama, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9599,Movie,It Ends,It Ends,en,2026,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+5535,Movie,It Follows,It Follows,en,2015,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+5054,Movie,Jack Reacher,Jack Reacher,en,2012,"Action, Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9511,Movie,Jackass: Best and Last,Jackass: Best and Last,en,2026,"Action, Comedy, Documentary",BAAI/bge-small-en-v1.5,384,YES
+1931,Movie,Jaws,Jaws,en,1975,"Adventure, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5482,Movie,John Wick,John Wick,en,2014,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5952,Movie,John Wick: Chapter 2,John Wick: Chapter 2,en,2017,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6552,Movie,John Wick: Chapter 3 - Parabellum,John Wick: Chapter 3 - Parabellum,en,2019,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7931,Movie,John Wick: Chapter 4,John Wick: Chapter 4,en,2023,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+49,Movie,Joker,Joker,en,2019,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8655,Movie,Joker: Folie à Deux,Joker: Folie à Deux,en,2024,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6796,Movie,Jumanji: The Next Level,Jumanji: The Next Level,en,2019,"Adventure, Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6012,Movie,Jungle,Jungle,en,2017,"Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5596,Movie,Jurassic World,Jurassic World,en,2015,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7572,Movie,Jurassic World Dominion,Jurassic World Dominion,en,2022,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+214,Movie,Jurassic World Rebirth,Jurassic World Rebirth,en,2025,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6254,Movie,Jurassic World: Fallen Kingdom,Jurassic World: Fallen Kingdom,en,2018,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6133,Movie,Justice League,Justice League,en,2017,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9136,Movie,Kangaroo,Kangaroo,el,2025,"Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+8957,Movie,Karate Kid: Legends,Karate Kid: Legends,en,2025,"Action, Adventure, Drama",BAAI/bge-small-en-v1.5,384,YES
+9451,Movie,Kesong Puti,Kesong puti,tl,2026,Drama,BAAI/bge-small-en-v1.5,384,YES
+3673,Movie,Kill Bill: Vol. 1,Kill Bill: Vol. 1,en,2003,"Action, Crime",BAAI/bge-small-en-v1.5,384,YES
+8232,Movie,Killers of the Flower Moon,Killers of the Flower Moon,en,2023,"Crime, Drama, History",BAAI/bge-small-en-v1.5,384,YES
+3791,Movie,Kingdom of Heaven,Kingdom of Heaven,en,2005,"Action, Adventure, Drama, History, War",BAAI/bge-small-en-v1.5,384,YES
+8471,Movie,Kingdom of the Planet of the Apes,Kingdom of the Planet of the Apes,en,2024,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6076,Movie,Kingsman: The Golden Circle,Kingsman: The Golden Circle,en,2017,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+5533,Movie,Kingsman: The Secret Service,Kingsman: The Secret Service,en,2015,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+6792,Movie,Knives Out,Knives Out,en,2019,"Comedy, Crime, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9013,Movie,KPop Demon Hunters,KPop Demon Hunters,en,2025,"Animation, Comedy, Fantasy, Music",BAAI/bge-small-en-v1.5,384,YES
+9312,Movie,Kraken,Kraken,no,2026,"Action, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8776,Movie,Kraven the Hunter,Kraven the Hunter,en,2024,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4275,Movie,Kung Fu Panda,Kung Fu Panda,en,2008,"Action, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+4755,Movie,Kung Fu Panda 2,Kung Fu Panda 2,en,2011,"Action, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+8413,Movie,Kung Fu Panda 4,Kung Fu Panda 4,en,2024,"Action, Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+2482,Movie,L'été en pente douce,L'été en pente douce,fr,1987,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+5891,Movie,La La Land,La La Land,en,2016,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9442,Movie,Lee Cronin's The Mummy,Lee Cronin's The Mummy,en,2026,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+3438,Movie,Legally Blonde,Legally Blonde,en,2001,Comedy,BAAI/bge-small-en-v1.5,384,YES
+9603,Movie,Legend of the White Dragon,Legend of the White Dragon,en,2026,"Action, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+170,Movie,Let Us Prey,Let Us Prey,en,2014,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2478,Movie,Lethal Weapon,Lethal Weapon,en,1987,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9510,Movie,Leviticus,Leviticus,en,2026,"Horror, Romance",BAAI/bge-small-en-v1.5,384,YES
+3137,Movie,Life Is Beautiful,La vita è bella,it,1997,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+3494,Movie,Lilo & Stitch,Lilo & Stitch,en,2002,"Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8954,Movie,Lilo & Stitch,Lilo & Stitch,en,2025,"Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6794,Movie,Little Women,Little Women,en,2019,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+5953,Movie,Logan,Logan,en,2017,"Action, Drama, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8533,Movie,Look Back,ルックバック,ja,2024,"Animation, Drama",BAAI/bge-small-en-v1.5,384,YES
+2292,Movie,Lost Youth,버려진 청춘,ko,1982,Romance,BAAI/bge-small-en-v1.5,384,YES
+9504,Movie,Lucky Strike,Lucky Strike,en,2026,"Action, War",BAAI/bge-small-en-v1.5,384,YES
+9607,Movie,Lust Stories 3,लस्ट स्टोरीज़ ३,hi,2026,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+2898,Movie,Léon: The Professional,Léon,fr,1994,"Action, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+222,Movie,Mad Max: Fury Road,Mad Max: Fury Road,en,2015,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3795,Movie,Madagascar,Madagascar,en,2005,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+4936,Movie,Madagascar 3: Europe's Most Wanted,Madagascar 3: Europe's Most Wanted,en,2012,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+2172,Movie,Madness,Vacanze per un massacro,it,1980,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5174,Movie,Man of Steel,Man of Steel,en,2013,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9255,Movie,Marty Supreme,Marty Supreme,en,2025,"Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9517,Movie,Master of the Universe,Master of the Universe,en,2026,"Action, Fantasy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+225,Movie,Masters of the Universe,Masters of the Universe,en,2026,"Action, Fantasy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+50,Movie,Mayday,Mayday,en,2026,"Action, Comedy",BAAI/bge-small-en-v1.5,384,YES
+5778,Movie,Me Before You,Me Before You,en,2016,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+3675,Movie,Mean Girls,Mean Girls,en,2004,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+216,Movie,Meesaya Murukku 2,மீசைய முருக்கு 2,ta,2026,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+3199,Movie,Meet Joe Black,Meet Joe Black,en,1998,"Drama, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+8113,Movie,Meg 2: The Trench,Meg 2: The Trench,en,2023,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4636,Movie,Megamind,Megamind,en,2010,"Action, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3139,Movie,Men in Black,Men in Black,en,1997,"Action, Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3555,Movie,Men in Black II,Men in Black II,en,2002,"Action, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9325,Movie,Mercy,Mercy,en,2026,"Crime, Mystery, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+480,Movie,Metamorphoses,Métamorphoses,fr,1912,"Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+220,Movie,Michael,Michael,en,2026,"Drama, Music",BAAI/bge-small-en-v1.5,384,YES
+8896,Movie,Mickey 17,Mickey 17,en,2025,"Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2599,Movie,Midnight Matinee,Midnight Matinee,en,1988,"Horror, Mystery, TV Movie, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6617,Movie,Midsommar,Midsommar,en,2019,"Drama, Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+8291,Movie,Migration,Migration,en,2023,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+138,Movie,Minions & Monsters,Minions & Monsters,en,2026,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+7573,Movie,Minions: The Rise of Gru,Minions: The Rise of Gru,en,2022,"Animation, Comedy, Crime, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8712,Movie,"Miraculous World: London, at the Edge of Time","Miraculous World : Londres, la course contre le temps",fr,2024,"Action, Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3072,Movie,Mission: Impossible,Mission: Impossible,en,1996,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8114,Movie,Mission: Impossible - Dead Reckoning Part One,Mission: Impossible - Dead Reckoning Part One,en,2023,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6316,Movie,Mission: Impossible - Fallout,Mission: Impossible - Fallout,en,2018,"Action, Adventure",BAAI/bge-small-en-v1.5,384,YES
+4872,Movie,Mission: Impossible - Ghost Protocol,Mission: Impossible - Ghost Protocol,en,2011,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5597,Movie,Mission: Impossible - Rogue Nation,Mission: Impossible - Rogue Nation,en,2015,"Action, Adventure",BAAI/bge-small-en-v1.5,384,YES
+8951,Movie,Mission: Impossible - The Final Reckoning,Mission: Impossible - The Final Reckoning,en,2025,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3979,Movie,Mission: Impossible III,Mission: Impossible III,en,2006,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+12,Movie,Moana,Moana,en,2026,"Adventure, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8772,Movie,Moana 2,Moana 2,en,2024,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+198,Movie,Modha Rathri,மொத ராத்திரி,ta,2026,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+3981,Movie,Monster House,Monster House,en,2006,"Animation, Comedy, Family, Fantasy, Horror",BAAI/bge-small-en-v1.5,384,YES
+4392,Movie,Monsters vs Aliens,Monsters vs Aliens,en,2009,"Adventure, Animation, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3433,Movie,"Monsters, Inc.","Monsters, Inc.",en,2001,"Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9440,Movie,Mortal Kombat II,Mortal Kombat II,en,2026,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6911,Movie,Movida,Movida,en,2020,Unknown,BAAI/bge-small-en-v1.5,384,YES
+8777,Movie,Mufasa: The Lion King,Mufasa: The Lion King,en,2024,"Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+3136,Movie,Mulan,Mulan,en,1998,"Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+3436,Movie,Mulholland Drive,Mulholland Drive,en,2001,"Drama, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+121,Movie,Mutiny,Mutiny,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8052,Movie,My Fault,Culpa mía,es,2023,"Drama, Romance, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2534,Movie,My Neighbor Totoro,となりのトトロ,ja,1988,"Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3740,Movie,National Treasure,National Treasure,en,2004,"Action, Adventure, Mystery",BAAI/bge-small-en-v1.5,384,YES
+6675,Movie,Ne Zha,哪吒之魔童降世,zh,2019,"Adventure, Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8834,Movie,Ne Zha 2,哪吒之魔童闹海,zh,2025,"Action, Adventure, Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4034,Movie,Night at the Museum,Night at the Museum,en,2006,"Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+1631,Movie,Night of the Living Dead,Night of the Living Dead,en,1968,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5483,Movie,Nightcrawler,Nightcrawler,en,2014,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9334,Movie,Nirvanna the Band the Show the Movie,Nirvanna the Band the Show the Movie,en,2026,"Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4211,Movie,No Country for Old Men,No Country for Old Men,en,2007,"Crime, Thriller, Western",BAAI/bge-small-en-v1.5,384,YES
+4691,Movie,No Strings Attached,No Strings Attached,en,2011,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+7273,Movie,No Time to Die,No Time to Die,en,2021,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7153,Movie,Nobody,Nobody,en,2021,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9080,Movie,Nobody 2,Nobody 2,en,2025,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8779,Movie,Nosferatu,Nosferatu,en,2024,"Fantasy, Horror",BAAI/bge-small-en-v1.5,384,YES
+5112,Movie,Now You See Me,Now You See Me,en,2013,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5779,Movie,Now You See Me 2,Now You See Me 2,en,2016,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9193,Movie,Now You See Me: Now You Don't,Now You See Me: Now You Don't,en,2025,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5355,Movie,Obsessed,인간중독,ko,2014,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+39,Movie,Obsession,Obsession,en,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3492,Movie,Ocean's Eleven,Ocean's Eleven,en,2001,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3682,Movie,Oldboy,올드보이,ko,2003,"Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2412,Movie,On the Beach,令嬢肉奴隷,ja,1985,Drama,BAAI/bge-small-en-v1.5,384,YES
+2355,Movie,Once Upon a Time in America,Once Upon a Time in America,en,1984,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+6671,Movie,Once Upon a Time... in Hollywood,Once Upon a Time... in Hollywood,en,2019,"Comedy, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9133,Movie,One Battle After Another,One Battle After Another,en,2025,"Comedy, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+1933,Movie,One Flew Over the Cuckoo's Nest,One Flew Over the Cuckoo's Nest,en,1975,Drama,BAAI/bge-small-en-v1.5,384,YES
+2,Movie,One Last Shot,One Last Shot,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9608,Movie,One Night Only,One Night Only,en,2026,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+8111,Movie,Oppenheimer,Oppenheimer,en,2023,"Drama, History",BAAI/bge-small-en-v1.5,384,YES
+9614,Movie,Other Mommy,Other Mommy,en,2026,Horror,BAAI/bge-small-en-v1.5,384,YES
+9194,Movie,Our Fault,Culpa nuestra,es,2025,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+3976,Movie,Over the Hedge,Over the Hedge,en,2006,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+9386,Movie,Over Your Dead Body,Over Your Dead Body,en,2026,"Action, Comedy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5173,Movie,Pacific Rim,Pacific Rim,en,2013,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3977,Movie,Pan's Labyrinth,El laberinto del fauno,es,2006,"Drama, Fantasy, War",BAAI/bge-small-en-v1.5,384,YES
+6611,Movie,Parasite,기생충,ko,2019,"Comedy, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9515,Movie,Passenger,Passenger,en,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+153,Movie,PAW Patrol: The Dino Movie,PAW Patrol: The Dino Movie,en,2026,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8171,Movie,PAW Patrol: The Mighty Movie,PAW Patrol: The Mighty Movie,en,2023,"Adventure, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5481,Movie,Penguins of Madagascar,Penguins of Madagascar,en,2014,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+8231,Movie,Perfect Days,PERFECT DAYS,ja,2023,Drama,BAAI/bge-small-en-v1.5,384,YES
+132,Movie,Pinocchio: Unstrung,Pinocchio: Unstrung,en,2026,"Fantasy, Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+4091,Movie,Pirates of the Caribbean: At World's End,Pirates of the Caribbean: At World's End,en,2007,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3971,Movie,Pirates of the Caribbean: Dead Man's Chest,Pirates of the Caribbean: Dead Man's Chest,en,2006,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6015,Movie,Pirates of the Caribbean: Dead Men Tell No Tales,Pirates of the Caribbean: Dead Men Tell No Tales,en,2017,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4753,Movie,Pirates of the Caribbean: On Stranger Tides,Pirates of the Caribbean: On Stranger Tides,en,2011,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3612,Movie,Pirates of the Caribbean: The Curse of the Black Pearl,Pirates of the Caribbean: The Curse of the Black Pearl,en,2003,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5598,Movie,Pixels,Pixels,en,2015,"Action, Adventure, Comedy, Fantasy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9135,Movie,Play Dirty,Play Dirty,en,2025,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8293,Movie,Poor Things,Poor Things,en,2023,"Comedy, Romance, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+190,Movie,Portal to Hell,Portal to Hell,en,2025,"Comedy, Horror",BAAI/bge-small-en-v1.5,384,YES
+3193,Movie,Practical Magic,Practical Magic,en,1998,"Comedy, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+211,Movie,Practical Magic 2,Practical Magic 2,en,2026,"Comedy, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+2476,Movie,Predator,Predator,en,1987,"Action, Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9191,Movie,Predator: Badlands,Predator: Badlands,en,2025,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9514,Movie,Pressure,Pressure,en,2026,"History, Thriller, War",BAAI/bge-small-en-v1.5,384,YES
+9380,Movie,Pretty Lethal,Pretty Lethal,en,2026,"Action, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2651,Movie,Pretty Woman,Pretty Woman,en,1990,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+3854,Movie,Pride & Prejudice,Pride & Prejudice,en,2005,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+13,Movie,Primetime,Primetime,en,2026,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3138,Movie,Princess Mononoke,もののけ姫,ja,1997,"Adventure, Animation, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5177,Movie,Prisoners,Prisoners,en,2013,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+140,Movie,Project Hail Mary,Project Hail Mary,en,2026,"Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+151,Movie,Project Sacrifice,Tumbal Proyek,id,2026,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+1331,Movie,Psycho,Psycho,en,1960,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+228,Movie,Pulp Fiction,Pulp Fiction,en,1994,"Comedy, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4813,Movie,Puss in Boots,Puss in Boots,en,2011,"Action, Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+7812,Movie,Puss in Boots: The Last Wish,Puss in Boots: The Last Wish,en,2022,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9381,Movie,Quantum Supremacy,Quantum Supremacy,en,2026,"Action, Adventure, Animation, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+173,Movie,Rabbit Trap,Rabbit Trap,en,2025,"Drama, Fantasy, Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+149,Movie,Rage of Stars,Rage of Stars,en,2026,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2232,Movie,Raiders of the Lost Ark,Raiders of the Lost Ark,en,1981,"Action, Adventure",BAAI/bge-small-en-v1.5,384,YES
+4093,Movie,Ratatouille,Ratatouille,en,2007,"Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6673,Movie,Ready or Not,Ready or Not,en,2019,"Comedy, Horror",BAAI/bge-small-en-v1.5,384,YES
+9378,Movie,Ready or Not: Here I Come,Ready or Not: Here I Come,en,2026,"Comedy, Horror",BAAI/bge-small-en-v1.5,384,YES
+6255,Movie,Ready Player One,Ready Player One,en,2018,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4811,Movie,Real Steel,Real Steel,en,2011,"Action, Drama, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8713,Movie,Red One,Red One,en,2024,"Action, Adventure, Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8116,Movie,"Red, White & Royal Blue","Red, White & Royal Blue",en,2023,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+2831,Movie,Reservoir Dogs,Reservoir Dogs,en,1992,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3496,Movie,Resident Evil,Resident Evil,en,2002,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7,Movie,Resident Evil,Resident Evil,en,2026,"Adventure, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8059,Movie,Resident Evil: Death Island,バイオハザード：デスアイランド,ja,2023,"Action, Animation, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+136,Movie,Resident Evil: Welcome to Raccoon City,Resident Evil: Welcome to Raccoon City,en,2021,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9323,Movie,Return to Silent Hill,Return to Silent Hill,en,2026,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+8898,Movie,Revenge of the Boogeyman,Revenge of the Boogeyman,en,2025,"Comedy, Horror",BAAI/bge-small-en-v1.5,384,YES
+5055,Movie,Rise of the Guardians,Rise of the Guardians,en,2012,"Action, Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4814,Movie,Rise of the Planet of the Apes,Rise of the Planet of the Apes,en,2011,"Action, Drama, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8414,Movie,Road House,Road House,en,2024,"Action, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4579,Movie,Room in Rome,Habitación en Roma,es,2010,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+158,Movie,Rosebush Pruning,Rosebush Pruning,en,2026,"Comedy, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6851,Movie,Run Sweetheart Run,Run Sweetheart Run,en,2020,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+55,Movie,Runner,Runner,en,2026,"Action, Comedy",BAAI/bge-small-en-v1.5,384,YES
+9443,Movie,Sacrifice,Sacrifice,en,2026,"Action, Adventure, Comedy",BAAI/bge-small-en-v1.5,384,YES
+5599,Movie,San Andreas,San Andreas,en,2015,"Action, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3133,Movie,Saving Private Ryan,Saving Private Ryan,en,1998,"Drama, History, War",BAAI/bge-small-en-v1.5,384,YES
+3739,Movie,Saw,Saw,en,2004,"Crime, Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+2352,Movie,Scarface,Scarface,en,1983,"Action, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+218,Movie,Scary Movie,Scary Movie,en,2026,Comedy,BAAI/bge-small-en-v1.5,384,YES
+3313,Movie,Scary Movie,Scary Movie,en,2000,Comedy,BAAI/bge-small-en-v1.5,384,YES
+3439,Movie,Scary Movie 2,Scary Movie 2,en,2001,Comedy,BAAI/bge-small-en-v1.5,384,YES
+2896,Movie,Schindler's List,Schindler's List,en,1993,"Drama, History, War",BAAI/bge-small-en-v1.5,384,YES
+3073,Movie,Scream,Scream,en,1996,"Crime, Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9375,Movie,Scream 7,Scream 7,en,2026,"Crime, Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+7933,Movie,Scream VI,Scream VI,en,2023,"Crime, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3012,Movie,Se7en,Se7en,en,1995,"Crime, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9319,Movie,Send Help,Send Help,en,2026,"Comedy, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9450,Movie,Seven Snipers,Seven Snipers,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+202,Movie,Sex Rider: Wet Highway,セックス・ライダー　濡れたハイウェイ,ja,1971,Thriller,BAAI/bge-small-en-v1.5,384,YES
+5416,Movie,Sex Tape,Sex Tape,en,2014,Comedy,BAAI/bge-small-en-v1.5,384,YES
+7275,Movie,Shang-Chi and the Legend of the Ten Rings,Shang-Chi and the Legend of the Ten Rings,en,2021,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3441,Movie,Shaolin Soccer,少林足球,cn,2001,"Action, Comedy",BAAI/bge-small-en-v1.5,384,YES
+159,Movie,Shape of My Heart,愛のぬくもり,ja,2024,Romance,BAAI/bge-small-en-v1.5,384,YES
+9313,Movie,Shelter,Shelter,en,2026,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3434,Movie,Shrek,Shrek,en,2001,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3737,Movie,Shrek 2,Shrek 2,en,2004,"Animation, Comedy, Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+4575,Movie,Shrek Forever After,Shrek Forever After,en,2010,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4094,Movie,Shrek the Third,Shrek the Third,en,2007,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4511,Movie,Shutter Island,Shutter Island,en,2010,"Drama, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5654,Movie,Sicario,Sicario,en,2015,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7394,Movie,Sing 2,Sing 2,en,2021,"Animation, Comedy, Family, Music",BAAI/bge-small-en-v1.5,384,YES
+8953,Movie,Sinners,Sinners,en,2025,"Action, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+1271,Movie,Sleeping Beauty,Sleeping Beauty,en,1959,"Animation, Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+8717,Movie,Smile 2,Smile 2,en,2024,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+8894,Movie,Snow White,Snow White,en,2025,"Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6971,Movie,Solitary,Solitary,en,2020,Science Fiction,BAAI/bge-small-en-v1.5,384,YES
+6853,Movie,Sonic the Hedgehog,Sonic the Hedgehog,en,2020,"Action, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8774,Movie,Sonic the Hedgehog 3,Sonic the Hedgehog 3,en,2024,"Action, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7091,Movie,Soul,Soul,en,2020,"Animation, Drama, Family, Fantasy, Music",BAAI/bge-small-en-v1.5,384,YES
+195,Movie,Spa Weekend,Spa Weekend,en,2026,Comedy,BAAI/bge-small-en-v1.5,384,YES
+7278,Movie,Space Jam: A New Legacy,Space Jam: A New Legacy,en,2021,"Adventure, Animation, Comedy, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2472,Movie,Spaceballs,Spaceballs,en,1987,"Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3493,Movie,Spider-Man,Spider-Man,en,2002,"Action, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4092,Movie,Spider-Man 3,Spider-Man 3,en,2007,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+213,Movie,Spider-Man: Across the Spider-Verse,Spider-Man: Across the Spider-Verse,en,2023,"Action, Adventure, Animation, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+4,Movie,Spider-Man: Brand New Day,Spider-Man: Brand New Day,en,2026,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6612,Movie,Spider-Man: Far From Home,Spider-Man: Far From Home,en,2019,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6072,Movie,Spider-Man: Homecoming,Spider-Man: Homecoming,en,2017,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6431,Movie,Spider-Man: Into the Spider-Verse,Spider-Man: Into the Spider-Verse,en,2018,"Action, Adventure, Animation, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+187,Movie,Spider-Man: No Way Home,Spider-Man: No Way Home,en,2021,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3432,Movie,Spirited Away,千と千尋の神隠し,ja,2001,"Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+1991,Movie,Star Wars,Star Wars,en,1977,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3257,Movie,Star Wars: Episode I - The Phantom Menace,Star Wars: Episode I - The Phantom Menace,en,1999,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5716,Movie,Star Wars: The Force Awakens,Star Wars: The Force Awakens,en,2015,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6132,Movie,Star Wars: The Last Jedi,Star Wars: The Last Jedi,en,2017,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6793,Movie,Star Wars: The Rise of Skywalker,Star Wars: The Rise of Skywalker,en,2019,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5293,Movie,Still Life,Still Life,en,2013,Drama,BAAI/bge-small-en-v1.5,384,YES
+9615,Movie,Street Fighter,Street Fighter,en,2026,"Action, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8594,Movie,Subservience,Subservience,en,2024,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5836,Movie,Suicide Squad,Suicide Squad,en,2016,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9446,Movie,Sultana,Sultana,tr,2026,"Drama, Music",BAAI/bge-small-en-v1.5,384,YES
+217,Movie,Super Troopers 3,Super Troopers 3,en,2026,"Comedy, Crime, Mystery",BAAI/bge-small-en-v1.5,384,YES
+180,Movie,Supergirl,Supergirl,en,2026,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9075,Movie,Superman,Superman,en,2025,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+9439,Movie,Swapped,Swapped,en,2026,"Adventure, Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5484,Movie,Taken 3,Taken 3,en,2014,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8117,Movie,Talk to Me,Talk to Me,en,2023,Horror,BAAI/bge-small-en-v1.5,384,YES
+7393,Movie,Tamil Rockers,தமிழ் ராக்கர்ஸ்,ta,2021,"Comedy, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4632,Movie,Tangled,Tangled,en,2010,"Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+1932,Movie,Taxi Driver,Taxi Driver,en,1976,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+4935,Movie,Ted,Ted,en,2012,"Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5593,Movie,Ted 2,Ted 2,en,2015,"Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+16,Movie,Teenage Sex and Death at Camp Miasma,Teenage Sex and Death at Camp Miasma,en,2026,"Comedy, Horror, Romance",BAAI/bge-small-en-v1.5,384,YES
+6972,Movie,Tenet,Tenet,en,2020,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2771,Movie,Terminator 2: Judgment Day,Terminator 2: Judgment Day,en,1991,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5594,Movie,Terminator Genisys,Terminator Genisys,en,2015,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6732,Movie,Terminator: Dark Fate,Terminator: Dark Fate,en,2019,"Action, Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8718,Movie,Terrifier 3,Terrifier 3,en,2024,Horror,BAAI/bge-small-en-v1.5,384,YES
+5834,Movie,The Accountant,The Accountant,en,2016,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8958,Movie,The Accountant²,The Accountant²,en,2025,"Crime, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8955,Movie,The Amateur,The Amateur,en,2025,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4932,Movie,The Amazing Spider-Man,The Amazing Spider-Man,en,2012,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5353,Movie,The Amazing Spider-Man 2,The Amazing Spider-Man 2,en,2014,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+1391,Movie,The Ape Woman,La donna scimmia,it,1964,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+171,Movie,The Avengers,The Avengers,en,2012,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7453,Movie,The Bad Guys,The Bad Guys,en,2022,"Action, Adventure, Animation, Comedy, Crime, Family",BAAI/bge-small-en-v1.5,384,YES
+9078,Movie,The Bad Guys 2,The Bad Guys 2,en,2025,"Action, Adventure, Animation, Comedy, Crime, Family",BAAI/bge-small-en-v1.5,384,YES
+7451,Movie,The Batman,The Batman,en,2022,"Crime, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8351,Movie,The Beekeeper,The Beekeeper,en,2024,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5718,Movie,The Big Short,The Big Short,en,2015,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+3498,Movie,The Bourne Identity,The Bourne Identity,en,2002,"Action, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9382,Movie,The Bride!,The Bride!,en,2026,"Fantasy, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8775,Movie,The Brutalist,The Brutalist,en,2024,Drama,BAAI/bge-small-en-v1.5,384,YES
+3672,Movie,The Cat in the Hat,The Cat in the Hat,en,2003,"Adventure, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3853,Movie,"The Chronicles of Narnia: The Lion, the Witch and the Wardrobe","The Chronicles of Narnia: The Lion, the Witch and the Wardrobe",en,2005,"Adventure, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5171,Movie,The Conjuring,The Conjuring,en,2013,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5772,Movie,The Conjuring 2,The Conjuring 2,en,2016,Horror,BAAI/bge-small-en-v1.5,384,YES
+9134,Movie,The Conjuring: Last Rites,The Conjuring: Last Rites,en,2025,Horror,BAAI/bge-small-en-v1.5,384,YES
+7213,Movie,The Conjuring: The Devil Made Me Do It,The Conjuring: The Devil Made Me Do It,en,2021,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8174,Movie,The Creator,The Creator,en,2023,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5113,Movie,The Croods,The Croods,en,2013,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+3978,Movie,The Da Vinci Code,The Da Vinci Code,en,2006,"Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+182,Movie,The Dark Knight,The Dark Knight,en,2008,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4991,Movie,The Dark Knight Rises,The Dark Knight Rises,en,2012,"Action, Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5,Movie,The Death of Robin Hood,The Death of Robin Hood,en,2026,"Action, Adventure, Drama",BAAI/bge-small-en-v1.5,384,YES
+3974,Movie,The Departed,The Departed,en,2006,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9447,Movie,The Desert Child,L'enfant du désert,fr,2026,"Adventure, Family",BAAI/bge-small-en-v1.5,384,YES
+3972,Movie,The Devil Wears Prada,The Devil Wears Prada,en,2006,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+9438,Movie,The Devil Wears Prada 2,The Devil Wears Prada 2,en,2026,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+4937,Movie,The Dictator,The Dictator,en,2012,Comedy,BAAI/bge-small-en-v1.5,384,YES
+9596,Movie,The Dog Stars,The Dog Stars,en,2026,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9376,Movie,The Drama,The Drama,en,2026,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+3371,Movie,The Emperor's New Groove,The Emperor's New Groove,en,2000,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+14,Movie,The End of Oak Street,The End of Oak Street,en,2026,"Mystery, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5480,Movie,The Equalizer,The Equalizer,en,2014,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6312,Movie,The Equalizer 2,The Equalizer 2,en,2018,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8173,Movie,The Equalizer 3,The Equalizer 3,en,2023,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+1872,Movie,The Exorcist,The Exorcist,en,1973,Horror,BAAI/bge-small-en-v1.5,384,YES
+4577,Movie,The Expendables,The Expendables,en,2010,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8474,Movie,The Fall Guy,The Fall Guy,en,2024,"Action, Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+9201,Movie,The Family Plan 2,The Family Plan 2,en,2025,"Action, Comedy",BAAI/bge-small-en-v1.5,384,YES
+9077,Movie,The Fantastic 4: First Steps,The Fantastic 4: First Steps,en,2025,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3071,Movie,The Fifth Element,Le Cinquième Élément,fr,1997,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+124,Movie,The Fix,The Fix,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8054,Movie,The Flash,The Flash,en,2023,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2471,Movie,The Fly,The Fly,en,1986,"Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+179,Movie,The Furious,火遮眼,zh,2026,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6557,Movie,"The Gangster, the Cop, the Devil",악인전,ko,2019,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6852,Movie,The Gentlemen,The Gentlemen,en,2020,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+9507,Movie,The Get Out,The Get Out,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3678,Movie,The Girl Next Door,The Girl Next Door,en,2004,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+183,Movie,The Godfather,The Godfather,en,1972,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+1871,Movie,The Godfather Part II,The Godfather Part II,en,1974,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+232,Movie,The Godfather Part III,The Godfather Part III,en,1990,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5651,Movie,The Good Dinosaur,The Good Dinosaur,en,2015,"Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+1511,Movie,"The Good, the Bad and the Ugly","Il buono, il brutto, il cattivo",it,1966,Western,BAAI/bge-small-en-v1.5,384,YES
+8832,Movie,The Gorge,The Gorge,en,2025,"Romance, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5354,Movie,The Grand Budapest Hotel,The Grand Budapest Hotel,en,2014,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+6134,Movie,The Greatest Showman,The Greatest Showman,en,2017,Drama,BAAI/bge-small-en-v1.5,384,YES
+3253,Movie,The Green Mile,The Green Mile,en,1999,"Crime, Drama, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5776,Movie,The Handmaiden,아가씨,ko,2016,"Drama, Romance, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4455,Movie,The Hangover,The Hangover,en,2009,Comedy,BAAI/bge-small-en-v1.5,384,YES
+5717,Movie,The Hateful Eight,The Hateful Eight,en,2015,"Drama, Mystery, Western",BAAI/bge-small-en-v1.5,384,YES
+5052,Movie,The Hobbit: An Unexpected Journey,The Hobbit: An Unexpected Journey,en,2012,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5478,Movie,The Hobbit: The Battle of the Five Armies,The Hobbit: The Battle of the Five Armies,en,2014,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5292,Movie,The Hobbit: The Desolation of Smaug,The Hobbit: The Desolation of Smaug,en,2013,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9253,Movie,The Housemaid,The Housemaid,en,2025,"Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5231,Movie,The Hunger Games: Catching Fire,The Hunger Games: Catching Fire,en,2013,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5473,Movie,The Hunger Games: Mockingjay - Part 1,The Hunger Games: Mockingjay - Part 1,en,2014,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5653,Movie,The Hunger Games: Mockingjay - Part 2,The Hunger Games: Mockingjay - Part 2,en,2015,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8233,Movie,The Hunger Games: The Ballad of Songbirds & Snakes,The Hunger Games: The Ballad of Songbirds & Snakes,en,2023,"Action, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8475,Movie,The Idea of You,The Idea of You,en,2024,"Comedy, Drama, Music, Romance",BAAI/bge-small-en-v1.5,384,YES
+189,Movie,The Imitation Game,The Imitation Game,en,2014,"Drama, History, Thriller, War",BAAI/bge-small-en-v1.5,384,YES
+4274,Movie,The Incredible Hulk,The Incredible Hulk,en,2008,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3733,Movie,The Incredibles,The Incredibles,en,2004,"Action, Adventure, Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+5656,Movie,The Intern,The Intern,en,2015,Comedy,BAAI/bge-small-en-v1.5,384,YES
+4812,Movie,The Intouchables,Intouchables,fr,2011,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+9505,Movie,The Invite,The Invite,en,2026,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+4578,Movie,The Karate Kid,The Karate Kid,en,2010,"Action, Adventure, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+7396,Movie,The King's Man,The King's Man,en,2021,"Action, Adventure, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4633,Movie,The King's Speech,The King's Speech,en,2010,"Drama, History",BAAI/bge-small-en-v1.5,384,YES
+9598,Movie,The Last Assassins,The Last Assassins,en,2026,"Action, Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9602,Movie,The Last Kiss,The Last Kiss,en,2026,"Horror, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3677,Movie,The Last Samurai,The Last Samurai,en,2003,"Action, Drama, War",BAAI/bge-small-en-v1.5,384,YES
+168,Movie,The Last Sunrise,The Last Sunrise,en,2026,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+2894,Movie,The Lion King,The Lion King,en,1994,"Animation, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+6615,Movie,The Lion King,The Lion King,en,2019,"Adventure, Animation, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+2593,Movie,The Little Mermaid,The Little Mermaid,en,1989,"Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+7995,Movie,The Little Mermaid,The Little Mermaid,en,2023,"Adventure, Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+2901,Movie,The Little Rascals,The Little Rascals,en,1994,"Comedy, Family, Romance",BAAI/bge-small-en-v1.5,384,YES
+9137,Movie,The Long Walk,The Long Walk,en,2025,"Horror, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4871,Movie,The Lorax,The Lorax,en,2012,"Animation, Family",BAAI/bge-small-en-v1.5,384,YES
+209,Movie,The Lord of the Rings: The Fellowship of the Ring,The Lord of the Rings: The Fellowship of the Ring,en,2001,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+229,Movie,The Lord of the Rings: The Return of the King,The Lord of the Rings: The Return of the King,en,2003,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3552,Movie,The Lord of the Rings: The Two Towers,The Lord of the Rings: The Two Towers,en,2002,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+38,Movie,The Love Hypothesis,The Love Hypothesis,en,2026,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+157,Movie,The Mandalorian and Grogu,The Mandalorian and Grogu,en,2026,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5652,Movie,The Martian,The Martian,en,2015,"Adventure, Drama, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8234,Movie,The Marvels,The Marvels,en,2023,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2900,Movie,The Mask,The Mask,en,1994,"Comedy, Crime, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+8352,Movie,The Master and Margarita,Мастер и Маргарита,ru,2024,"Drama, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+223,Movie,The Matrix,The Matrix,en,1999,"Action, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3613,Movie,The Matrix Reloaded,The Matrix Reloaded,en,2003,"Action, Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3681,Movie,The Matrix Revolutions,The Matrix Revolutions,en,2003,"Action, Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5476,Movie,The Maze Runner,The Maze Runner,en,2014,"Action, Mystery, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6314,Movie,The Meg,The Meg,en,2018,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8472,Movie,The Ministry of Ungentlemanly Warfare,The Ministry of Ungentlemanly Warfare,en,2024,"Action, Comedy, War",BAAI/bge-small-en-v1.5,384,YES
+120,Movie,The Mongoose,The Mongoose,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8836,Movie,The Monkey,The Monkey,en,2025,"Comedy, Horror",BAAI/bge-small-en-v1.5,384,YES
+3195,Movie,The Mummy,The Mummy,en,1999,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6017,Movie,The Mummy,The Mummy,en,2017,"Action, Adventure, Fantasy, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3440,Movie,The Mummy Returns,The Mummy Returns,en,2001,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9079,Movie,The Naked Gun,The Naked Gun,en,2025,"Action, Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+2897,Movie,The Nightmare Before Christmas,The Nightmare Before Christmas,en,1993,"Animation, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+7514,Movie,The Northman,The Northman,en,2022,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3734,Movie,The Notebook,The Notebook,en,2004,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+142,Movie,The Novices,Les Novices,fr,1970,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+6315,Movie,The Nun,The Nun,en,2018,Horror,BAAI/bge-small-en-v1.5,384,YES
+8175,Movie,The Nun II,The Nun II,en,2023,Horror,BAAI/bge-small-en-v1.5,384,YES
+9,Movie,The Odyssey,The Odyssey,en,2026,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3134,Movie,The Parent Trap,The Parent Trap,en,1998,"Comedy, Family, Romance",BAAI/bge-small-en-v1.5,384,YES
+3680,Movie,The Passion of the Christ,The Passion of the Christ,en,2004,Drama,BAAI/bge-small-en-v1.5,384,YES
+3557,Movie,The Pianist,The Pianist,en,2002,"Drama, War",BAAI/bge-small-en-v1.5,384,YES
+3975,Movie,The Prestige,The Prestige,en,2006,"Drama, Mystery, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3197,Movie,The Prince of Egypt,The Prince of Egypt,en,1998,"Adventure, Animation, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+4460,Movie,The Princess and the Frog,The Princess and the Frog,en,2009,"Animation, Family, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+2536,Movie,The Princess Bride,The Princess Bride,en,1987,"Adventure, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3437,Movie,The Princess Diaries,The Princess Diaries,en,2001,"Comedy, Family, Romance",BAAI/bge-small-en-v1.5,384,YES
+4456,Movie,The Proposal,The Proposal,en,2009,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9437,Movie,The Punisher: One Last Kill,The Punisher: One Last Kill,en,2026,"Action, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+4032,Movie,The Pursuit of Happyness,The Pursuit of Happyness,en,2006,Drama,BAAI/bge-small-en-v1.5,384,YES
+5715,Movie,The Revenant,The Revenant,en,2015,"Adventure, Drama, Western",BAAI/bge-small-en-v1.5,384,YES
+9320,Movie,The Rip,The Rip,en,2026,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9609,Movie,The Rivals of Amziah King,The Rivals of Amziah King,en,2026,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+150,Movie,The Runner,The Runner,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9192,Movie,The Running Man,The Running Man,en,2025,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8960,Movie,The Salt Path,The Salt Path,en,2025,Drama,BAAI/bge-small-en-v1.5,384,YES
+147,Movie,The Scavenger,除暴之路,zh,2026,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+6614,Movie,The Secret Life of Pets 2,The Secret Life of Pets 2,en,2019,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+167,Movie,The Shadow's Edge,捕风追影,zh,2025,"Action, Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+175,Movie,The Shawshank Redemption,The Shawshank Redemption,en,1994,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9444,Movie,The Sheep Detectives,The Sheep Detectives,en,2026,"Comedy, Family, Mystery",BAAI/bge-small-en-v1.5,384,YES
+2171,Movie,The Shining,The Shining,en,1980,"Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3255,Movie,The Sixth Sense,The Sixth Sense,en,1999,"Drama, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4816,Movie,The Smurfs,The Smurfs,en,2011,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4635,Movie,The Social Network,The Social Network,en,2010,Drama,BAAI/bge-small-en-v1.5,384,YES
+8652,Movie,The Substance,The Substance,en,2024,"Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7272,Movie,The Suicide Squad,The Suicide Squad,en,2021,"Action, Adventure, Comedy",BAAI/bge-small-en-v1.5,384,YES
+7993,Movie,The Super Mario Bros. Movie,The Super Mario Bros. Movie,en,2023,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+204,Movie,The Super Mario Galaxy Movie,The Super Mario Galaxy Movie,en,2026,"Adventure, Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+2351,Movie,The Terminator,The Terminator,en,1984,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2234,Movie,The Thing,The Thing,en,1982,"Horror, Mystery, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+2475,Movie,The Transformers: The Movie,The Transformers: The Movie,en,1986,"Action, Adventure, Animation, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3562,Movie,The Transporter,The Transporter,en,2002,"Action, Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3132,Movie,The Truman Show,The Truman Show,en,1998,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+4815,Movie,The Twilight Saga: Breaking Dawn - Part 1,The Twilight Saga: Breaking Dawn - Part 1,en,2011,"Adventure, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+4458,Movie,The Twilight Saga: New Moon,The Twilight Saga: New Moon,en,2009,"Adventure, Drama, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+9605,Movie,The Uprising,The Uprising,en,2026,"Action, Drama, History",BAAI/bge-small-en-v1.5,384,YES
+2952,Movie,The Usual Suspects,The Usual Suspects,en,1995,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9600,Movie,The Weight,The Weight,pt,2026,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+226,Movie,The Whisper Man,The Whisper Man,en,2026,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+201,Movie,The Wild Robot,The Wild Robot,en,2024,"Adventure, Animation, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+911,Movie,The Wizard of Oz,The Wizard of Oz,en,1939,"Adventure, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5291,Movie,The Wolf of Wall Street,The Wolf of Wall Street,en,2013,"Comedy, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9316,Movie,The Wrecking Crew,The Wrecking Crew,en,2026,"Action, Comedy, Crime, Mystery",BAAI/bge-small-en-v1.5,384,YES
+4754,Movie,Thor,Thor,en,2011,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+7632,Movie,Thor: Love and Thunder,Thor: Love and Thunder,en,2022,"Action, Comedy, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+6073,Movie,Thor: Ragnarok,Thor: Ragnarok,en,2017,"Action, Adventure, Comedy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5232,Movie,Thor: The Dark World,Thor: The Dark World,en,2013,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+8952,Movie,Thunderbolts*,Thunderbolts*,en,2025,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3131,Movie,Titanic,Titanic,en,1997,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9506,Movie,Tom Clancy's Jack Ryan: Ghost War,Tom Clancy's Jack Ryan: Ghost War,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2474,Movie,Top Gun,Top Gun,en,1986,"Action, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+7571,Movie,Top Gun: Maverick,Top Gun: Maverick,en,2022,"Action, Drama",BAAI/bge-small-en-v1.5,384,YES
+4994,Movie,Total Recall,Total Recall,en,2012,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+8893,Movie,Toxic,Akiplėša,lt,2025,Drama,BAAI/bge-small-en-v1.5,384,YES
+3011,Movie,Toy Story,Toy Story,en,1995,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+230,Movie,Toy Story 2,Toy Story 2,en,1999,"Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+4574,Movie,Toy Story 3,Toy Story 3,en,2010,"Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+6613,Movie,Toy Story 4,Toy Story 4,en,2019,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+8,Movie,Toy Story 5,Toy Story 5,en,2026,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+5774,Movie,Train to Busan,부산행,ko,2016,"Action, Adventure, Horror, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3442,Movie,Training Day,Training Day,en,2001,"Action, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+8653,Movie,Transformers One,Transformers One,en,2024,"Adventure, Animation, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5414,Movie,Transformers: Age of Extinction,Transformers: Age of Extinction,en,2014,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8053,Movie,Transformers: Rise of the Beasts,Transformers: Rise of the Beasts,en,2023,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3559,Movie,Treasure Planet,Treasure Planet,en,2002,"Adventure, Animation, Family, Fantasy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6854,Movie,Trolls World Tour,Trolls World Tour,en,2020,"Adventure, Animation, Comedy, Family, Fantasy, Music",BAAI/bge-small-en-v1.5,384,YES
+4693,Movie,TRON: Legacy,TRON: Legacy,en,2010,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+3674,Movie,Troy,Troy,en,2004,"Action, Adventure",BAAI/bge-small-en-v1.5,384,YES
+9512,Movie,Tuner,Tuner,en,2026,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7454,Movie,Turning Red,Turning Red,en,2022,"Animation, Comedy, Family, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+4332,Movie,Twilight,Twilight,en,2008,"Drama, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+6,Movie,UNABOMBER,UNABOMBER,en,2026,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+7455,Movie,Uncharted,Uncharted,en,2022,"Action, Adventure, Mystery",BAAI/bge-small-en-v1.5,384,YES
+2772,Movie,Under Suspicion,Under Suspicion,en,1991,"Crime, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9379,Movie,Under Your Feet,Bajo tus pies,es,2026,Horror,BAAI/bge-small-en-v1.5,384,YES
+4453,Movie,Up,Up,en,2009,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+3912,Movie,V for Vendetta,V for Vendetta,en,2006,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+2533,Movie,Vampire Princess Miyu,吸血姫美夕,ja,1988,"Animation, Fantasy, Horror",BAAI/bge-small-en-v1.5,384,YES
+3691,Movie,Van Helsing,Van Helsing,en,2004,"Action, Adventure, Horror",BAAI/bge-small-en-v1.5,384,YES
+9377,Movie,Vengeance,Venganza,es,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+6317,Movie,Venom,Venom,en,2018,"Action, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+8711,Movie,Venom: The Last Dance,Venom: The Last Dance,en,2024,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+11645,Movie,Verity,Verity,en,2026,"Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+188,Movie,Vishwanath & Sons,விஸ்வநாத் & சன்ஸ்,ta,2026,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9516,Movie,Voicemails for Isabelle,Voicemails for Isabelle,en,2026,"Comedy, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+9256,Movie,Wake Up Dead Man: A Knives Out Mystery,Wake Up Dead Man: A Knives Out Mystery,en,2025,"Comedy, Mystery, Thriller",BAAI/bge-small-en-v1.5,384,YES
+4273,Movie,WALL·E,WALL·E,en,2008,"Animation, Family, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+6075,Movie,War for the Planet of the Apes,War for the Planet of the Apes,en,2017,"Drama, Science Fiction, War",BAAI/bge-small-en-v1.5,384,YES
+9314,Movie,War Machine,War Machine,en,2026,"Action, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+145,Movie,War of the Worlds,War of the Worlds,en,2025,"Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3794,Movie,War of the Worlds,War of the Worlds,en,2005,"Adventure, Science Fiction, Thriller",BAAI/bge-small-en-v1.5,384,YES
+9076,Movie,Weapons,Weapons,en,2025,"Horror, Mystery",BAAI/bge-small-en-v1.5,384,YES
+5475,Movie,Whiplash,Whiplash,en,2014,"Drama, Music, Thriller",BAAI/bge-small-en-v1.5,384,YES
+3736,Movie,White Chicks,White Chicks,en,2004,"Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+233,Movie,Who's That Girl,Who's That Girl,en,1987,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+8715,Movie,Wicked,Wicked,en,2024,"Drama, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+9254,Movie,Wicked: For Good,Wicked: For Good,en,2025,"Adventure, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+6018,Movie,Wonder Woman,Wonder Woman,en,2017,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+5172,Movie,World War Z,World War Z,en,2013,"Action, Horror, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+7212,Movie,Wrath of Man,Wrath of Man,en,2021,"Crime, Drama, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5053,Movie,Wreck-It Ralph,Wreck-It Ralph,en,2012,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+7456,Movie,X,X,en,2022,Horror,BAAI/bge-small-en-v1.5,384,YES
+5777,Movie,X-Men: Apocalypse,X-Men: Apocalypse,en,2016,"Action, Fantasy, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5352,Movie,X-Men: Days of Future Past,X-Men: Days of Future Past,en,2014,"Action, Adventure, Science Fiction",BAAI/bge-small-en-v1.5,384,YES
+5954,Movie,xXx: Return of Xander Cage,xXx: Return of Xander Cage,en,2017,"Action, Adventure, Crime",BAAI/bge-small-en-v1.5,384,YES
+9196,Movie,You Drive Me Crazy,Сводишь с ума,ru,2025,"Comedy, Fantasy, Romance",BAAI/bge-small-en-v1.5,384,YES
+3194,Movie,You've Got Mail,You've Got Mail,en,1998,"Comedy, Romance",BAAI/bge-small-en-v1.5,384,YES
+19,Movie,You+Me - Against the World,Toi+Moi - Seuls contre tous,fr,2026,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+1873,Movie,Younger Sister,妹,ja,1974,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+6912,Movie,Youngest Sister Class,막장자매 클라쓰,ko,2020,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+8778,Movie,Your Fault,Culpa tuya,es,2024,"Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+227,Movie,Your Heart Will Be Broken,Твоё сердце будет разбито,ru,2026,Romance,BAAI/bge-small-en-v1.5,384,YES
+5773,Movie,Your Name.,君の名は。,ja,2016,"Animation, Drama, Romance",BAAI/bge-small-en-v1.5,384,YES
+7152,Movie,Zack Snyder's Justice League,Zack Snyder's Justice League,en,2021,"Action, Adventure, Fantasy",BAAI/bge-small-en-v1.5,384,YES
+3013,Movie,Zero Woman 2,Zero WOMAN ＩＩ　警視庁０課の女,ja,1995,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+128,Movie,Zip Wire,Zip Wire,en,2026,"Action, Thriller",BAAI/bge-small-en-v1.5,384,YES
+5713,Movie,Zootopia,Zootopia,en,2016,"Adventure, Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+163,Movie,Zootopia 2,Zootopia 2,en,2025,"Adventure, Animation, Comedy, Family, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9322,Movie,“Wuthering Heights”,“Wuthering Heights”,en,2026,"Drama, History, Romance",BAAI/bge-small-en-v1.5,384,YES
+7151,Movie,母女汽车中心,莫尼卡中心,ko,2021,Romance,BAAI/bge-small-en-v1.5,384,YES
+8780,Movie,누나 친구 4,누나 친구 4,ko,2024,Romance,BAAI/bge-small-en-v1.5,384,YES
+319,TV/Web-Series,24,24,en,2001,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+10035,TV/Web-Series,7de Laan,7de Laan,af,2000,Soap,BAAI/bge-small-en-v1.5,384,YES
+10634,TV/Web-Series,9-1-1,9-1-1,en,2018,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+11287,TV/Web-Series,Adam's Sweet Agony,悶えてよ、アダムくん,ja,2024,Animation,BAAI/bge-small-en-v1.5,384,YES
+10279,TV/Web-Series,Adventure Time,Adventure Time,en,2010,"Animation, Comedy, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+43,TV/Web-Series,Against the Current,兰香如故,zh,2026,"Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+339,TV/Web-Series,AIBOU: Tokyo Detective Duo,相棒,ja,2002,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+11527,TV/Web-Series,Alıkara,Alıkara,tr,2026,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+315,TV/Web-Series,Amazing Saturday,놀라운 토요일,ko,2018,"Comedy, Reality",BAAI/bge-small-en-v1.5,384,YES
+264,TV/Web-Series,American Dad!,American Dad!,en,2005,"Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+26,TV/Web-Series,American Horror Story,American Horror Story,en,2011,"Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+292,TV/Web-Series,Among Friends,Barátok közt,hu,1998,"Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+11109,TV/Web-Series,Arknights,明日方舟,ja,2022,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+342,TV/Web-Series,Arrow,Arrow,en,2012,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+10516,TV/Web-Series,Better Call Saul,Better Call Saul,en,2015,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+277,TV/Web-Series,Binnelanders,Binnelanders,af,2005,Soap,BAAI/bge-small-en-v1.5,384,YES
+10339,TV/Web-Series,Black Mirror,Black Mirror,en,2011,"Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+46,TV/Web-Series,Bleach,BLEACH,ja,2004,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+335,TV/Web-Series,Blue Bloods,Blue Bloods,en,2010,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+10278,TV/Web-Series,Bob's Burgers,Bob's Burgers,en,2011,"Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+283,TV/Web-Series,Bones,Bones,en,2005,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+289,TV/Web-Series,Breaking Bad,Breaking Bad,en,2008,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+10399,TV/Web-Series,Brooklyn Nine-Nine,Brooklyn Nine-Nine,en,2013,"Comedy, Crime",BAAI/bge-small-en-v1.5,384,YES
+281,TV/Web-Series,C.I.D.,सीआईडी,hi,1998,"Action & Adventure, Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+326,TV/Web-Series,Capitão Furacão,Capitão Furacão,pt,1965,Kids,BAAI/bge-small-en-v1.5,384,YES
+311,TV/Web-Series,Castle,Castle,en,2009,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9985,TV/Web-Series,Charmed,Charmed,en,1998,"Comedy, Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+351,TV/Web-Series,Chibi Maruko-chan,ちびまる子ちゃん,ja,1990,"Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+318,TV/Web-Series,Chicago Fire,Chicago Fire,en,2012,Drama,BAAI/bge-small-en-v1.5,384,YES
+10514,TV/Web-Series,Chicago Med,Chicago Med,en,2015,Drama,BAAI/bge-small-en-v1.5,384,YES
+321,TV/Web-Series,Chicago P.D.,Chicago P.D.,en,2014,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+348,TV/Web-Series,Columbo,Columbo,en,1971,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+235,TV/Web-Series,Come Home Love: Lo and Behold,愛·回家之開心速遞,cn,2017,"Comedy, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+296,TV/Web-Series,Conan,Conan,en,2010,"Comedy, News, Talk",BAAI/bge-small-en-v1.5,384,YES
+312,TV/Web-Series,Coronation Street,Coronation Street,en,1960,Soap,BAAI/bge-small-en-v1.5,384,YES
+262,TV/Web-Series,Criminal Minds,Criminal Minds,en,2005,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+258,TV/Web-Series,CSI: Crime Scene Investigation,CSI: Crime Scene Investigation,en,2000,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+294,TV/Web-Series,CSI: Miami,CSI: Miami,en,2002,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+10169,TV/Web-Series,Dancing with the Stars,Dancing with the Stars,en,2005,"Family, Reality",BAAI/bge-small-en-v1.5,384,YES
+9919,TV/Web-Series,DAS!,DAS!,de,1991,"News, Talk",BAAI/bge-small-en-v1.5,384,YES
+317,TV/Web-Series,Desperate Housewives,Desperate Housewives,en,2004,"Comedy, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+51,TV/Web-Series,Detective Conan,名探偵コナン,ja,1996,"Animation, Comedy, Crime, Mystery",BAAI/bge-small-en-v1.5,384,YES
+329,TV/Web-Series,Dexter,Dexter,en,2006,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9924,TV/Web-Series,Diagnosis: Murder,Diagnosis: Murder,en,1993,"Crime, Drama, Family, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9987,TV/Web-Series,Die Harald Schmidt Show,Die Harald Schmidt Show,de,1995,Reality,BAAI/bge-small-en-v1.5,384,YES
+332,TV/Web-Series,Doctor Who,Doctor Who,en,2005,"Action & Adventure, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10151,TV/Web-Series,Doraemon,ドラえもん,ja,2005,"Action & Adventure, Animation, Comedy, Family, Kids, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9854,TV/Web-Series,EastEnders,EastEnders,en,1985,"Crime, Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+10398,TV/Web-Series,Elementary,Elementary,en,2012,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9925,TV/Web-Series,ER,ER,en,1994,Drama,BAAI/bge-small-en-v1.5,384,YES
+254,TV/Web-Series,Family Guy,Family Guy,en,1999,"Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+10633,TV/Web-Series,FBI,FBI,en,2018,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9921,TV/Web-Series,Frasier,Frasier,en,1993,"Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+314,TV/Web-Series,Friends,Friends,en,1994,Comedy,BAAI/bge-small-en-v1.5,384,YES
+11228,TV/Web-Series,Frieren: Beyond Journey's End,葬送のフリーレン,ja,2023,"Action & Adventure, Animation, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+11048,TV/Web-Series,FROM,FROM,en,2022,"Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+266,TV/Web-Series,Game of Thrones,Game of Thrones,en,2011,"Action & Adventure, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+349,TV/Web-Series,Gilmore Girls,Gilmore Girls,en,2000,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+259,TV/Web-Series,"Goede Tijden, Slechte Tijden","Goede Tijden, Slechte Tijden",nl,1990,Soap,BAAI/bge-small-en-v1.5,384,YES
+345,TV/Web-Series,Good Mythical Morning,Good Mythical Morning,en,2012,Comedy,BAAI/bge-small-en-v1.5,384,YES
+250,TV/Web-Series,Grey's Anatomy,Grey's Anatomy,en,2005,Drama,BAAI/bge-small-en-v1.5,384,YES
+10337,TV/Web-Series,Grimm,Grimm,en,2011,"Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+301,TV/Web-Series,"Gute Zeiten, schlechte Zeiten","Gute Zeiten, schlechte Zeiten",de,1992,"Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+304,TV/Web-Series,Hawaii Five-0,Hawaii Five-0,en,2010,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+11047,TV/Web-Series,Hello Saturday,你好，星期六,zh,2022,Reality,BAAI/bge-small-en-v1.5,384,YES
+306,TV/Web-Series,Hollywood Squares,Hollywood Squares,en,1998,Unknown,BAAI/bge-small-en-v1.5,384,YES
+280,TV/Web-Series,Home Alone,나 혼자 산다,ko,2013,Reality,BAAI/bge-small-en-v1.5,384,YES
+10340,TV/Web-Series,Homeland,Homeland,en,2011,"Crime, Drama, War & Politics",BAAI/bge-small-en-v1.5,384,YES
+9916,TV/Web-Series,Homework,ホームワーク,ja,1992,Drama,BAAI/bge-small-en-v1.5,384,YES
+287,TV/Web-Series,House,House,en,2004,Drama,BAAI/bge-small-en-v1.5,384,YES
+11108,TV/Web-Series,House of the Dragon,House of the Dragon,en,2022,"Action & Adventure, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10168,TV/Web-Series,How I Met Your Mother,How I Met Your Mother,en,2005,Comedy,BAAI/bge-small-en-v1.5,384,YES
+10338,TV/Web-Series,Hunter x Hunter,HUNTER×HUNTER,ja,2011,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10866,TV/Web-Series,Ici tout commence,Ici tout commence,fr,2020,"Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+285,TV/Web-Series,Infinite Challenge,무한도전,ko,2005,"Comedy, Reality",BAAI/bge-small-en-v1.5,384,YES
+327,TV/Web-Series,JAG,JAG,en,1995,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+279,TV/Web-Series,Jeopardy!,Jeopardy!,en,1984,"Family, Reality",BAAI/bge-small-en-v1.5,384,YES
+11226,TV/Web-Series,Jhanak,Jhanak,hi,2023,Drama,BAAI/bge-small-en-v1.5,384,YES
+340,TV/Web-Series,Jimmy Kimmel Live!,Jimmy Kimmel Live!,en,2003,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+47,TV/Web-Series,JoJo's Bizarre Adventure,ジョジョの奇妙な冒険,ja,2012,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10867,TV/Web-Series,JUJUTSU KAISEN,呪術廻戦,ja,2020,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+263,TV/Web-Series,Kamen Rider,仮面ライダー,ja,1971,"Action & Adventure, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9989,TV/Web-Series,King of the Hill,King of the Hill,en,1997,"Animation, Comedy, Family",BAAI/bge-small-en-v1.5,384,YES
+10396,TV/Web-Series,Köln 50667,Köln 50667,de,2013,"Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+41,TV/Web-Series,Lanterns,Lanterns,en,2026,"Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+246,TV/Web-Series,Late Night with Seth Meyers,Late Night with Seth Meyers,en,2014,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+248,TV/Web-Series,Late Show with David Letterman,Late Show with David Letterman,en,1993,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+239,TV/Web-Series,Law & Order,Law & Order,en,1990,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+290,TV/Web-Series,Law & Order: Criminal Intent,Law & Order: Criminal Intent,en,2001,Drama,BAAI/bge-small-en-v1.5,384,YES
+238,TV/Web-Series,Law & Order: Special Victims Unit,Law & Order: Special Victims Unit,en,1999,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+316,TV/Web-Series,Law of the Jungle,김병만의 정글의 법칙,ko,2011,Reality,BAAI/bge-small-en-v1.5,384,YES
+23,TV/Web-Series,Lioness,Lioness,en,2023,"Drama, War & Politics",BAAI/bge-small-en-v1.5,384,YES
+350,TV/Web-Series,LIVE with Kelly and Mark,LIVE with Kelly and Mark,en,1988,Talk,BAAI/bge-small-en-v1.5,384,YES
+10098,TV/Web-Series,Lost,Lost,en,2004,"Action & Adventure, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+10515,TV/Web-Series,Lucifer,Lucifer,en,2016,"Crime, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10217,TV/Web-Series,Markus Lanz,Markus Lanz,de,2008,Talk,BAAI/bge-small-en-v1.5,384,YES
+271,TV/Web-Series,Men on a Mission,아는 형님,ko,2015,"Comedy, Reality",BAAI/bge-small-en-v1.5,384,YES
+295,TV/Web-Series,Midsomer Murders,Midsomer Murders,en,1997,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+325,TV/Web-Series,Miraculous: Tales of Ladybug & Cat Noir,"Miraculous, les aventures de Ladybug et Chat Noir",fr,2015,"Action & Adventure, Animation, Kids",BAAI/bge-small-en-v1.5,384,YES
+21,TV/Web-Series,MobLand,MobLand,en,2025,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+293,TV/Web-Series,Modern Family,Modern Family,en,2009,Comedy,BAAI/bge-small-en-v1.5,384,YES
+10101,TV/Web-Series,Monk,Monk,en,2002,"Comedy, Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+20,TV/Web-Series,Monster: The Lizzie Borden Story,Monster: The Lizzie Borden Story,en,2026,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+9923,TV/Web-Series,Morgenmagazin,Morgenmagazin,de,1992,"News, Talk",BAAI/bge-small-en-v1.5,384,YES
+44,TV/Web-Series,Mushoku Tensei: Jobless Reincarnation,無職転生 ～異世界行ったら本気だす～,ja,2021,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+249,TV/Web-Series,NCIS,NCIS,en,2003,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+328,TV/Web-Series,NCIS: Los Angeles,NCIS: Los Angeles,en,2009,"Action & Adventure, Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+22,TV/Web-Series,Neagley,Neagley,en,2026,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+9920,TV/Web-Series,Ninja Boy Rantaro,忍たま乱太郎,ja,1993,"Action & Adventure, Animation, Comedy, Family, Kids",BAAI/bge-small-en-v1.5,384,YES
+10334,TV/Web-Series,Ninjago: Masters of Spinjitzu,Ninjago: Masters of Spinjitzu,en,2012,"Action & Adventure, Animation, Comedy, Family, Kids, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10104,TV/Web-Series,One Tree Hill,One Tree Hill,en,2003,Drama,BAAI/bge-small-en-v1.5,384,YES
+10805,TV/Web-Series,Overflow,おーばーふろぉ,ja,2020,Animation,BAAI/bge-small-en-v1.5,384,YES
+305,TV/Web-Series,Paaru,Paaru,mr,2024,Drama,BAAI/bge-small-en-v1.5,384,YES
+10395,TV/Web-Series,PAW Patrol,PAW Patrol,en,2013,"Animation, Kids",BAAI/bge-small-en-v1.5,384,YES
+9737,TV/Web-Series,Perry Mason,Perry Mason,en,1957,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+10336,TV/Web-Series,Person of Interest,Person of Interest,en,2011,"Action & Adventure, Crime, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+269,TV/Web-Series,Pherari Mon,Pherari Mon,bn,2022,Drama,BAAI/bge-small-en-v1.5,384,YES
+334,TV/Web-Series,Pokémon,ポケットモンスター,ja,1997,"Action & Adventure, Animation, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10166,TV/Web-Series,Prison Break,Prison Break,en,2005,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+276,TV/Web-Series,Radio Star,라디오스타,ko,2007,Talk,BAAI/bge-small-en-v1.5,384,YES
+267,TV/Web-Series,Raw,Raw,en,1993,Reality,BAAI/bge-small-en-v1.5,384,YES
+29,TV/Web-Series,Re:ZERO -Starting Life in Another World-,Re:ゼロから始める異世界生活,ja,2016,"Action & Adventure, Animation, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+24,TV/Web-Series,Reacher,Reacher,en,2022,"Action & Adventure, Crime",BAAI/bge-small-en-v1.5,384,YES
+10099,TV/Web-Series,Real Time with Bill Maher,Real Time with Bill Maher,en,2003,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+10167,TV/Web-Series,REBORN!,家庭教師ヒットマン REBORN!,ja,2006,"Action & Adventure, Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+10277,TV/Web-Series,Regular Show,Regular Show,en,2010,"Action & Adventure, Animation, Comedy, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+11227,TV/Web-Series,Renegade Immortal,仙逆,zh,2023,"Action & Adventure, Animation, Drama",BAAI/bge-small-en-v1.5,384,YES
+300,TV/Web-Series,Rick and Morty,Rick and Morty,en,2013,"Action & Adventure, Animation, Comedy, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+11464,TV/Web-Series,Rififi,Ριφιφί,el,2025,"Comedy, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+256,TV/Web-Series,Running Man,런닝맨,ko,2010,"Comedy, Reality",BAAI/bge-small-en-v1.5,384,YES
+303,TV/Web-Series,RuPaul's Drag Race,RuPaul's Drag Race,en,2009,Reality,BAAI/bge-small-en-v1.5,384,YES
+330,TV/Web-Series,S.W.A.T.,S.W.A.T.,en,2017,"Action & Adventure, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+282,TV/Web-Series,Saturday Night Live,Saturday Night Live,en,1975,"Comedy, News",BAAI/bge-small-en-v1.5,384,YES
+291,TV/Web-Series,Scene of the Crime,Tatort,de,1970,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+10635,TV/Web-Series,SEAL Team,SEAL Team,en,2017,"Action & Adventure, Drama, War & Politics",BAAI/bge-small-en-v1.5,384,YES
+324,TV/Web-Series,Seinfeld,Seinfeld,en,1989,Comedy,BAAI/bge-small-en-v1.5,384,YES
+288,TV/Web-Series,Sesame Street,Sesame Street,en,1969,"Comedy, Kids",BAAI/bge-small-en-v1.5,384,YES
+308,TV/Web-Series,Shameless,Shameless,en,2011,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+11107,TV/Web-Series,Sherri,Sherri,en,2022,Talk,BAAI/bge-small-en-v1.5,384,YES
+299,TV/Web-Series,Silo,Silo,en,2023,"Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10640,TV/Web-Series,SKAM NL,SKAM NL,nl,2018,Drama,BAAI/bge-small-en-v1.5,384,YES
+27,TV/Web-Series,Slow Horses,Slow Horses,en,2022,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+310,TV/Web-Series,Smallville,Smallville,en,2001,"Action & Adventure, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+253,TV/Web-Series,Souryo to Majiwaru Shikiyoku no Yoru ni...,僧侶と交わる色欲の夜に…,ja,2017,"Animation, Drama",BAAI/bge-small-en-v1.5,384,YES
+42,TV/Web-Series,South Park,South Park,en,1997,"Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+9855,TV/Web-Series,Star Trek: The Next Generation,Star Trek: The Next Generation,en,1987,"Action & Adventure, Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9986,TV/Web-Series,Stargate SG-1,Stargate SG-1,en,1997,"Action & Adventure, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+273,TV/Web-Series,Storm of Love,Sturm der Liebe,de,2005,"Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+10573,TV/Web-Series,Stranger Things,Stranger Things,en,2016,"Action & Adventure, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10335,TV/Web-Series,Suits,Suits,en,2011,Drama,BAAI/bge-small-en-v1.5,384,YES
+255,TV/Web-Series,Supernatural,Supernatural,en,2005,"Drama, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+10985,TV/Web-Series,Swarna Palace,Swarna Palace,te,2021,Drama,BAAI/bge-small-en-v1.5,384,YES
+247,TV/Web-Series,Tagesschau,Tagesschau,de,1952,News,BAAI/bge-small-en-v1.5,384,YES
+30,TV/Web-Series,Ted Lasso,Ted Lasso,en,2020,"Comedy, Drama",BAAI/bge-small-en-v1.5,384,YES
+10400,TV/Web-Series,Teen Titans Go!,Teen Titans Go!,en,2013,"Action & Adventure, Animation, Comedy, Family, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+298,TV/Web-Series,The Blacklist,The Blacklist,en,2013,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+10746,TV/Web-Series,The Boys,The Boys,en,2019,"Action & Adventure, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+337,TV/Web-Series,The Colbert Report,The Colbert Report,en,2005,"Comedy, News",BAAI/bge-small-en-v1.5,384,YES
+252,TV/Web-Series,The Daily Show,The Daily Show,en,1996,"Comedy, News",BAAI/bge-small-en-v1.5,384,YES
+302,TV/Web-Series,The Flash,The Flash,en,2014,"Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+37,TV/Web-Series,The Gentlemen,The Gentlemen,en,2024,"Comedy, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+10636,TV/Web-Series,The Good Doctor,The Good Doctor,en,2017,Drama,BAAI/bge-small-en-v1.5,384,YES
+10218,TV/Web-Series,The Good Wife,The Good Wife,en,2009,Drama,BAAI/bge-small-en-v1.5,384,YES
+322,TV/Web-Series,The Graham Norton Show,The Graham Norton Show,en,2007,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+320,TV/Web-Series,The Jennifer Hudson Show,The Jennifer Hudson Show,en,2022,Talk,BAAI/bge-small-en-v1.5,384,YES
+10575,TV/Web-Series,The Kapil Sharma Show,The Kapil Sharma Show,hi,2016,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+260,TV/Web-Series,The Kelly Clarkson Show,The Kelly Clarkson Show,en,2019,Talk,BAAI/bge-small-en-v1.5,384,YES
+346,TV/Web-Series,The Late Late Show with Craig Ferguson,The Late Late Show with Craig Ferguson,en,2005,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+309,TV/Web-Series,The Late Late Show with James Corden,The Late Late Show with James Corden,en,2015,Talk,BAAI/bge-small-en-v1.5,384,YES
+245,TV/Web-Series,The Late Show with Stephen Colbert,The Late Show with Stephen Colbert,en,2015,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+244,TV/Web-Series,The Mentalist,The Mentalist,en,2008,"Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+284,TV/Web-Series,The Mike Douglas Show,The Mike Douglas Show,en,1961,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+251,TV/Web-Series,The Office,The Office,en,2005,Comedy,BAAI/bge-small-en-v1.5,384,YES
+352,TV/Web-Series,The Old Fox,Der Alte,de,1977,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+11406,TV/Web-Series,The Pitt,The Pitt,en,2025,Drama,BAAI/bge-small-en-v1.5,384,YES
+265,TV/Web-Series,The Rookie,The Rookie,en,2018,"Comedy, Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+25,TV/Web-Series,The Scandal,스캔들,ko,2026,Drama,BAAI/bge-small-en-v1.5,384,YES
+52,TV/Web-Series,The Simpsons,The Simpsons,en,1989,"Animation, Comedy",BAAI/bge-small-en-v1.5,384,YES
+9982,TV/Web-Series,The Sopranos,The Sopranos,en,1999,"Crime, Drama",BAAI/bge-small-en-v1.5,384,YES
+240,TV/Web-Series,The Tonight Show Starring Jimmy Fallon,The Tonight Show Starring Jimmy Fallon,en,2014,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+241,TV/Web-Series,The Tonight Show Starring Johnny Carson,The Tonight Show Starring Johnny Carson,en,1962,Talk,BAAI/bge-small-en-v1.5,384,YES
+10219,TV/Web-Series,The Vampire Diaries,The Vampire Diaries,en,2009,"Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+297,TV/Web-Series,The View,The View,en,1997,Talk,BAAI/bge-small-en-v1.5,384,YES
+347,TV/Web-Series,The Walking Dead,The Walking Dead,en,2010,"Action & Adventure, Drama, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+9988,TV/Web-Series,The West Wing,The West Wing,en,1999,Drama,BAAI/bge-small-en-v1.5,384,YES
+9918,TV/Web-Series,The X-Files,The X-Files,en,1993,"Crime, Mystery, Sci-Fi & Fantasy",BAAI/bge-small-en-v1.5,384,YES
+268,TV/Web-Series,Tomorrow Is Ours,Demain nous appartient,fr,2017,"Crime, Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+9738,TV/Web-Series,Top of the Pops,Top of the Pops,en,1964,Reality,BAAI/bge-small-en-v1.5,384,YES
+9922,TV/Web-Series,Twin Peaks,Twin Peaks,en,1990,"Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+341,TV/Web-Series,Two and a Half Men,Two and a Half Men,en,2003,Comedy,BAAI/bge-small-en-v1.5,384,YES
+331,TV/Web-Series,Uusi Päivä,Uusi Päivä,fi,2010,"Comedy, Drama, Family",BAAI/bge-small-en-v1.5,384,YES
+10397,TV/Web-Series,Vikings,Vikings,en,2013,"Action & Adventure, Drama, War & Politics",BAAI/bge-small-en-v1.5,384,YES
+343,TV/Web-Series,Volle Kanne,Volle Kanne,de,1999,News,BAAI/bge-small-en-v1.5,384,YES
+237,TV/Web-Series,Watch What Happens Live with Andy Cohen,Watch What Happens Live with Andy Cohen,en,2009,"Comedy, Talk",BAAI/bge-small-en-v1.5,384,YES
+10574,TV/Web-Series,Westworld,Westworld,en,2016,"Sci-Fi & Fantasy, Western",BAAI/bge-small-en-v1.5,384,YES
+10103,TV/Web-Series,Without a Trace,Without a Trace,en,2002,"Action & Adventure, Crime, Drama, Mystery",BAAI/bge-small-en-v1.5,384,YES
+338,TV/Web-Series,Xplay,Xplay,en,2003,Unknown,BAAI/bge-small-en-v1.5,384,YES
+10637,TV/Web-Series,Yellowstone,Yellowstone,en,2018,"Drama, Western",BAAI/bge-small-en-v1.5,384,YES
+270,TV/Web-Series,Young Hearts,Malhação,pt,1995,"Comedy, Drama, Soap",BAAI/bge-small-en-v1.5,384,YES
+344,TV/Web-Series,ZIBB,ZIBB,de,2003,"News, Talk",BAAI/bge-small-en-v1.5,384,YES

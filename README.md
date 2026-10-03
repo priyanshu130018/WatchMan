@@ -1,69 +1,183 @@
 # WatchMan - Movie & Web Series Discovery & Recommendation Platform
 
-A production-ready, full-stack movie and web-series discovery platform built with React (TypeScript), FastAPI, PostgreSQL (+pgvector), Upstash Redis, and Supabase Auth, powered by a hybrid recommendation engine.
+A production-ready, full-stack movie and web-series discovery platform built with React (TypeScript), FastAPI, PostgreSQL (+pgvector), Upstash Redis, and Celery, powered by a hybrid recommendation engine.
 
 ---
 
-## Architecture Overview
+## High-Level Architecture
 
 ```
-                      +-----------------------------+
-                      |       Vercel (Frontend)     |
-                      |  React 19 / TanStack Router |
-                      +--------------+--------------+
-                                     |
-                                     | HTTPS / REST
-                                     v
-                      +-----------------------------+
-                      |     Render (Backend API)    |
-                      |        FastAPI Python       |
-                      +--------------+--------------+
-                                     |
-               +---------------------+---------------------+
-               |                     |                     |
-               v                     v                     v
-+-------------------------+ +-----------------+ +-------------------------+
-|   Supabase PostgreSQL   | |  Upstash Redis  | |  Render (Celery Worker) |
-|  pgvector 384-D vectors | | TLS Broker/Cache| | Background ML & Ingest  |
-|  11K+ Catalog Items     | +-----------------+ +-------------------------+
-+-------------------------+                                |
-                                                           v
-                                                +-------------------------+
-                                                |   Render (Celery Beat)  |
-                                                | Periodic Task Scheduler |
-                                                +-------------------------+
+                                  +-------------------+
+                                  |   User / Browser  |
+                                  +---------+---------+
+                                            |
+                                            v
+                                  +-------------------+
+                                  |   React Frontend  |
+                                  | (TypeScript/Vite) |
+                                  +---------+---------+
+                                            | HTTPS / REST
+                                            v
+                                  +-------------------+
+                                  |  FastAPI Backend  |
+                                  |  (Python Service) |
+                                  +----+----+----+----+
+                                       |    |    |
+                     +-----------------+    |    +-----------------+
+                     |                      |                      |
+                     v                      v                      v
+          +--------------------+  +-------------------+  +--------------------+
+          |    PostgreSQL      |  |   Upstash Redis   |  |   Celery Worker    |
+          | (Supabase+pgvector)|  | (Cache & Broker)  |  | (Async Background) |
+          +--------------------+  +---------+---------+  +---------+----------+
+                     ^                      ^                      ^
+                     |                      |                      |
+                     |                      +----------------------+
+                     |                                             |
+                     |            +-------------------+            |
+                     +------------+    Celery Beat    +------------+
+                                  | (Periodic Worker) |
+                                  +-------------------+
 ```
 
-### Production Deployment Target
-- **Frontend**: [Vercel](https://vercel.com) (SPA with client-side rewrites and direct route handling)
-- **Backend / API**: [Render](https://render.com) (FastAPI Web Service)
-- **Celery Worker**: [Render](https://render.com) (Background Worker for ML and catalog sync)
-- **Celery Beat**: [Render](https://render.com) (Periodic Scheduler)
-- **Database**: [Supabase](https://supabase.com) PostgreSQL with `pgvector`
-- **Cache & Message Broker**: [Upstash](https://upstash.com) Redis (`rediss://` TLS)
-- **Authentication**: Supabase Auth (JWT validation in FastAPI)
-- **Embeddings**: Hugging Face Inference API (`sentence-transformers/all-MiniLM-L6-v2`, 384-D)
-- **Catalog Metadata**: TMDB API & OMDb API
+### Component Roles & Responsibilities
+- **React Frontend**: Single-page application rendering the catalog browsing interface, search bar, personalized shelves, movie detail views, and user feedback controls (*Must Watch*, *Time Pass*, *Skip*).
+- **FastAPI Backend**: High-performance asynchronous REST API handling authentication, catalog filtering, paginated content delivery, and recommendation requests.
+- **PostgreSQL (Supabase)**: Relational database storing the primary content catalog (11K+ items), user profiles, ratings, saved content, watch history, WatchMan decisions, and vector embeddings using the `pgvector` extension.
+- **Upstash Redis**: In-memory data store used as a TLS-encrypted Celery message broker and a sub-second response cache for personalized recommendations and external metadata.
+- **Celery Worker & Celery Beat**: Distributed background processing system responsible for periodically refreshing stale user embeddings, computing offline ALS collaborative factors, and syncing catalog metadata without blocking user-facing API endpoints.
 
 ---
 
-## Features
+## Core System Architecture
 
-- **Authentication-Aware Experience**:
-  - Unauthenticated guests see public catalogue, search, and clean login/signup prompts.
-  - Authenticated users access *"Recommend for You"*, personal watchlists, watch history, star ratings, and WatchMan decisions.
-  - Sticky global search bar is accessible across all public and authenticated routes.
-- **Selective & On-Demand Content Embeddings**:
-  - Embeddings are generated strategically for initial high-value content (~500 popular movies + ~500 popular TV series) and on-demand when real users interact.
-  - Never forces a full 11K-item batch embed. Recommendations continue to work seamlessly when items lack vectors.
-- **Hybrid Recommendation Engine**:
-  - Blends content vector similarity (pgvector cosine distance), collaborative filtering (ALS latent factors / KNN), catalog popularity, freshness, and personal taste preferences.
-  - Transparent explanations and match scores on every card.
-  - Sub-second cached delivery via Upstash Redis.
-- **Honest Cold-Start Handling**:
-  - Guests and new users with zero interactions receive an educational cold-start state with links to explore trending titles. Popular items are never falsely labeled as personalized.
-- **WatchMan Decision System**:
-  - One-click feedback: *"Must Watch"*, *"Time Pass"*, or *"Skip"*, immediately tuning user taste vectors.
+### 1. Authentication
+WatchMan implements stateless JSON Web Token (JWT) authentication directly in FastAPI:
+
+```
+[ User Login / Signup ]
+           |
+           v
+FastAPI generates signed HS256 JWT Access Token
+(Contains `sub`: user_id, `exp`: expiration timestamp)
+           |
+           v
+Frontend stores token & attaches Authorization: Bearer <token>
+           |
+           v
+FastAPI `get_current_user` dependency:
+  1. Decodes & validates JWT signature and expiry.
+  2. Resolves user UUID from token `sub` claim.
+  3. Loads authenticated `User` record from PostgreSQL.
+```
+
+- **JWT Access Token**: Cryptographically signed access token containing user identity claims (`sub` = user UUID).
+- **Identity Resolution**: The FastAPI backend decodes the token on protected routes and queries the PostgreSQL `users` table to load the active account.
+- **Database Authority**: PostgreSQL is the single source of truth for user identities and permissions. Supabase Auth is not responsible for internal application session management.
+
+---
+
+### 2. Movie & Series Catalog
+WatchMan maintains a normalized catalog of over 11,000 movies and web series stored locally in PostgreSQL:
+
+- **Local Storage**: Content metadata is indexed in PostgreSQL for instantaneous sorting, multi-attribute filtering (genres, release year, language), and full-text search.
+- **External Data Source (TMDB)**: The Movie Database (TMDB) API serves as the external ingestion and synchronization source for new titles, official trailers, and poster assets.
+- **Two Distinct API Patterns**:
+  1. **Movie Listing (`GET /api/movies`)**: Optimized for high-throughput pagination. Returns lightweight summary records and eagerly loads only genre associations (`Content.genres`), omitting heavy relationship graphs.
+  2. **Movie Detail (`GET /api/movies/{id}`)**: Designed for deep inspection of a single title. Explicitly loads rich relationships including `genres`, spoken `languages`, `cast` (ordered by billing), `crew` (directors/writers), `videos` (trailers), and `external_ids` (IMDb, Wikidata).
+
+---
+
+### 3. Recommendation System
+WatchMan uses an asynchronous, multi-channel hybrid recommendation architecture:
+
+```
+User Interactions (Rate, Save, Watch, Decision)
+                     |
+                     v
+             PostgreSQL Tables
+                     |
+                     v
+   Asynchronous Celery Worker Refresh
+                     |
+                     v
+        `user_embeddings` Table
+                     |
+                     v
+    Multi-Channel Candidate Generation
+   (Content-Based, ALS Collaborative, Popularity, Freshness)
+                     |
+                     v
+         Hybrid Scoring & Ranking
+   (Preference Matching + Diversity Guards)
+                     |
+                     v
+    Persisted Recommendations / Redis Cache
+                     |
+                     v
+            FastAPI GET Response
+                     |
+                     v
+               React Frontend
+```
+
+- **Asynchronous Taste Vector Generation**: User embeddings are generated in the background by Celery workers. Normal `GET /api/recommendations` requests read the precomputed vector from the `user_embeddings` table and **never** calculate or write embeddings synchronously.
+- **Deterministic Delivery**: Recommendation responses are cached in Redis and backed by persistent database snapshots in the `recommendations` table.
+
+For an in-depth breakdown of candidate generation, seen-content filtering, and performance optimizations, see [Content Filtering and Performance Guide](file:///c:/Users/13ver/Desktop/New%20folder/project/WatcheMan/docs/content-filtering-and-performance.md).
+
+---
+
+### 4. Vector Embeddings
+WatchMan employs dense semantic vectors to understand content themes and user preferences:
+
+- **Model**: `BAAI/bge-small-en-v1.5`
+- **Vector Dimension**: 384 dimensions
+- **Content Embeddings**: Computed from title, overview, tagline, genres, cast, and crew. Stored in the `content_embeddings` table with an indexed `pgvector` column.
+- **User Embeddings**: Mathematical summary of a user's positive interactions (high star ratings, watchlist saves, completed watch history, and *"Must Watch"* decisions). Stored in the `user_embeddings` table.
+- **Similarity Search**: Content-based candidates are retrieved using native `pgvector` cosine distance queries:
+  $$\text{Cosine Similarity}(\vec{u}, \vec{c}) = \frac{\vec{u} \cdot \vec{c}}{\|\vec{u}\|_2 \|\vec{c}\|_2}$$
+
+---
+
+### 5. Background Processing (Celery & Celery Beat)
+All expensive ML computations, embedding generation, and catalog sync routines are offloaded to background workers:
+
+```
+Celery Beat (Scheduler)
+       |
+       | Periodic Trigger (Every 10 minutes)
+       v
+  Upstash Redis (Task Queue)
+       |
+       v
+Celery Worker Process
+       |
+       +---> `refresh_changed_user_embeddings`: Recomputes taste vectors for active users
+       +---> `train_als_model`: Retrains collaborative matrix factorization
+       +---> `sync_catalog`: Pulls fresh updates from TMDB
+       |
+       v
+Updates `user_embeddings` in PostgreSQL
+```
+
+#### What Happens When a User Interacts:
+1. When a user rates, saves, watches, or classifies a movie (*Must Watch*, *Time Pass*, *Skip*), the interaction is recorded immediately in PostgreSQL.
+2. The user's taste vector is flagged as stale.
+3. On the next worker run (scheduled every 10 minutes or triggered via event), Celery loads the latest interaction weights and updates the user's 384-D vector in `user_embeddings`.
+4. Subsequent recommendation requests immediately benefit from the refreshed taste profile.
+
+---
+
+### 6. Redis Caching & Connection Lifecycle
+Upstash Redis serves two primary roles:
+1. **Celery Message Broker & Result Backend**: Manages task queuing and execution state.
+2. **Response Cache**: Caches personalized recommendation lists (1-hour TTL) and OMDb external rating lookups (24-hour TTL).
+
+#### Cache Invalidation & Event Loop Notice:
+When a user updates their preferences or explicitly requests a refresh, the backend clears cached keys (`recommendations:user:<id>:*`). 
+> [!NOTE]
+> In asynchronous Python environments, if an async Redis client is shared across event loop boundaries during task execution, a warning such as `"Event loop is closed"` may be logged during pattern deletion. This represents an internal connection pool cleanup notification rather than a failure of Redis or Celery task execution.
 
 ---
 
@@ -75,42 +189,37 @@ WatcheMan/
 │   └── workflows/
 │       └── ci.yml               # Automated CI for Backend (pytest) and Frontend (lint & build)
 ├── backend/
-│   ├── alembic/                 # Linear database migrations (head: d4e5f6a7b8c9)
+│   ├── alembic/                 # Linear database migrations
 │   ├── app/
 │   │   ├── api/                 # FastAPI modular routers (/api/...)
-│   │   ├── core/                # Config, security, telemetry, Redis cache, Celery app
+│   │   ├── core/                # Config, security, timing, telemetry, Redis cache, Celery
 │   │   ├── db/                  # Database session and base models
 │   │   ├── ml/                  # Recommendation pipeline, embeddings, ALS, hybrid ranker
-│   │   ├── models/              # SQLAlchemy schema models
-│   │   ├── repositories/        # Database access layer
-│   │   ├── schemas/             # Pydantic validation models
-│   │   ├── services/            # Catalog, recommendation, interaction, and TMDB services
-│   │   └── tasks/               # Celery async tasks (embeddings, ALS, TMDB sync, cleanup)
-│   ├── tests/                   # 217 hermetic unit and regression tests
+│   │   ├── models/              # SQLAlchemy schema models (Content, Interaction, Recs)
+│   │   ├── repositories/        # Database access layer with explicit relationship loading
+│   │   ├── schemas/             # Pydantic request/response validation models
+│   │   ├── services/            # Catalog, recommendation, interaction, and TMDB/OMDb services
+│   │   └── tasks/               # Celery async tasks (embeddings, ALS, TMDB sync)
+│   ├── tests/                   # Hermetic unit and regression tests
 │   ├── Dockerfile               # Multi-stage production container definition
 │   ├── requirements.txt         # Production Python dependencies
-│   ├── requirements-dev.txt     # Test dependencies (pytest, pytest-asyncio)
-│   └── .env.example
+│   └── requirements-dev.txt     # Test dependencies
+├── docs/
+│   └── content-filtering-and-performance.md  # Deep dive into filtering & latency audit
 ├── frontend/
 │   ├── src/
-│   │   ├── components/          # Reusable UI cards, modals, navigation, shelves
+│   │   ├── components/          # UI cards, modals, navigation, shelves
 │   │   ├── features/            # Feature views (Home, Movie, Series, Search, Profile, Recs)
 │   │   ├── routes/              # TanStack router page definitions
-│   │   ├── services/            # API client services (catalog, auth, watchman, recs)
+│   │   ├── services/            # API client services
 │   │   └── types/               # TypeScript domain interfaces
 │   ├── Dockerfile               # Local Docker Compose container definition
-│   ├── package.json             # NPM dependencies and scripts
-│   └── .env.example
+│   └── package.json             # NPM dependencies and scripts
 ├── scripts/
-│   ├── backfill_content_embeddings.py    # Selective & on-demand embedding maintenance CLI
-│   ├── concurrency_test.py               # Performance and load benchmark utility
-│   ├── fix_sequences.py                  # PostgreSQL sequence synchronization
+│   ├── audit_latency.py         # Automated API latency and SQL query benchmark
+│   ├── backfill_content_embeddings.py    # Selective embedding maintenance CLI
 │   ├── ingest_tmdb_catalog.py            # Partitioned TMDB catalog ingestion CLI
-│   ├── local_test_smoke.sh               # Fast read-only local stack smoke check
-│   ├── reset_dev_database.py             # Safe dev reset utility (preserves catalog & schema)
-│   ├── verify_homepage_experience.py     # Homepage personalized shelves E2E verification
-│   ├── verify_ml_data_flow.py            # ML health, embedding coverage, and database report
-│   └── verify_search_filter_experience.py# Live search & filter verification
+│   └── verify_ml_data_flow.py            # Live ML health and database report
 ├── compose.yml                  # Local Docker Compose (API + Worker + Beat + Frontend)
 ├── render.yaml                  # Render Blueprint definition (FastAPI + Worker + Beat)
 ├── .env.example                 # Root environment template
@@ -125,164 +234,62 @@ Configuration is cleanly divided between **Backend Secrets** (server-only) and *
 
 ### Required Environment Variables
 
-| Variable | Scope | Purpose | Example |
-| :--- | :--- | :--- | :--- |
-| `APP_ENV` | Backend | Environment mode | `production` or `development` |
-| `DATABASE_URL` | Backend | Supabase PostgreSQL URI | `postgresql+psycopg://user:pass@host:6543/postgres?sslmode=require` |
-| `REDIS_URL` | Backend | Upstash Redis connection string | `rediss://default:pass@host.upstash.io:6379` |
-| `CELERY_BROKER_URL` | Backend | Celery broker URL | `rediss://default:pass@host.upstash.io:6379` |
-| `CELERY_RESULT_BACKEND` | Backend | Celery result backend | `rediss://default:pass@host.upstash.io:6379` |
-| `AUTH_PROVIDER` | Backend | Auth provider (`supabase` in prod) | `supabase` |
-| `SUPABASE_URL` | Backend/FE | Supabase project URL | `https://your-project.supabase.co` |
-| `SUPABASE_ANON_KEY` | Backend | Supabase anonymous key | `sb_anon_...` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Backend | Supabase administrative key | `sb_secret_...` |
-| `SUPABASE_JWT_SECRET` | Backend | Supabase JWT signing secret | `your-supabase-jwt-secret` |
-| `TMDB_API_KEY` | Backend | TMDB v3 API key | `32-char-api-key` |
-| `OMDB_API_KEY` | Backend | OMDb API key | `your-omdb-key` |
-| `HF_API_URL` | Backend | Hugging Face model endpoint | `https://router.huggingface.co/hf-inference/models` |
-| `HF_API_TOKEN` | Backend | Hugging Face token | `hf_...` |
-| `CORS_ORIGINS` | Backend | Allowed frontend domains | `https://your-app.vercel.app,http://localhost:3000` |
-| `FRONTEND_URL` | Backend | Canonical frontend URL | `https://your-app.vercel.app` |
-| `VITE_API_BASE_URL` | Frontend | Public API base endpoint | `https://your-api.onrender.com/api` |
-| `VITE_AUTH_PROVIDER` | Frontend | Auth provider | `supabase` |
-| `VITE_SUPABASE_URL` | Frontend | Public Supabase URL | `https://your-project.supabase.co` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Frontend | Public publishable key | `sb_publishable_...` |
-| `VITE_TMDB_IMAGE_BASE_URL`| Frontend | TMDB image CDN base | `https://image.tmdb.org/t/p` |
+| Variable | Scope | Purpose |
+| :--- | :--- | :--- |
+| `APP_ENV` | Backend | Environment mode (`production` or `development`) |
+| `DATABASE_URL` | Backend | Supabase PostgreSQL connection string with pgvector |
+| `REDIS_URL` | Backend | Upstash Redis connection string (`rediss://`) |
+| `CELERY_BROKER_URL` | Backend | Celery broker URL |
+| `CELERY_RESULT_BACKEND` | Backend | Celery result backend |
+| `SECRET_KEY` | Backend | Secret key for JWT signing (HS256) |
+| `TMDB_API_KEY` | Backend | TMDB v3 API key |
+| `OMDB_API_KEY` | Backend | OMDb API key for external ratings |
+| `HF_API_TOKEN` | Backend | Hugging Face Inference API token |
+| `CORS_ORIGINS` | Backend | Allowed frontend origins (comma-separated) |
+| `VITE_API_BASE_URL` | Frontend | Public backend API URL |
+| `VITE_TMDB_IMAGE_BASE_URL`| Frontend | TMDB image CDN base URL |
 
 ---
 
 ## Local Development with Docker Compose
 
-The entire stack runs via Docker Compose pointing to your cloud services (Supabase & Upstash):
+Start the complete stack connected to managed cloud services (Supabase & Upstash):
 
 ```bash
-# 1. Copy the consolidated environment template
+# 1. Copy the environment template
 cp .env.example .env
 
-# 2. Fill in your real API keys in .env
+# 2. Fill in your API keys in .env
 
 # 3. Build and launch all 4 services
 docker compose up --build -d
 
-# 4. Verify running services
+# 4. Verify running containers
 docker compose ps
 # -> watchman_frontend        (http://localhost:3000)
 # -> watchman_backend         (http://localhost:8000)
 # -> watchman_celery_worker   (background task runner)
 # -> watchman_celery_beat     (periodic task scheduler)
 
-# 5. Run health check
+# 5. Check API health
 curl http://localhost:8000/health
 ```
 
 ---
 
-## Testing
+## Testing & Benchmarks
 
-### Hermetic Backend Test Suite
-The backend contains 217 hermetic tests with mock network boundaries:
-
+### Automated Test Suite
 ```bash
-# Run tests inside the test container
-docker compose run --rm backend_tests python -m pytest -q
-# Result: 217 passed in ~39s
+# Run tests inside backend container
+docker compose run --rm backend python -m pytest -q
 ```
 
-### Frontend Build & Typecheck
-```bash
-cd frontend
-npm ci
-npm run lint
-npm run build
-```
-
----
-
-## Deployment Guide
-
-### Local Development (Docker Compose)
-Start the complete stack connected to managed cloud services (Supabase & Upstash):
+### Latency Audit Benchmark
+Measure end-to-end endpoint performance, database execution times, Redis timing, and SQL query counts:
 
 ```bash
-cp .env.example .env
-# Edit .env with your Supabase, Upstash, TMDB, OMDb, and Hugging Face credentials
-docker compose up -d
-```
-
-Services exposed locally:
-- **Frontend**: `http://localhost:3000`
-- **Backend API**: `http://localhost:8000` (docs: `/docs`, health: `/health`, readiness: `/api/ready`)
-- **Celery Worker**: background task runner
-- **Celery Beat**: periodic task scheduler
-
----
-
-### Production Deployment
-
-#### 1. Frontend: Vercel (Dashboard Configuration)
-The frontend is deployed to Vercel using standard Vercel Dashboard configuration. **No `vercel.json` is required**—when deployed with `VERCEL=1`, TanStack Start and Nitro automatically compile to the native **Vercel Build Output API v3** (`.vercel/output`).
-
-1. Import the repository in [Vercel](https://vercel.com).
-2. Set **Root Directory** to `frontend`.
-3. Framework Preset: **Other** or **Vite** (Build Command: `npm run build`, Output Directory: leave default/empty).
-4. Configure Environment Variables in the Vercel Project Settings:
-   - `VITE_API_BASE_URL`: `https://watchman-api.onrender.com/api` (or your custom API domain)
-   - `VITE_AUTH_PROVIDER`: `supabase`
-   - `VITE_SUPABASE_URL`: `https://<your-project>.supabase.co`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`: `<your-supabase-publishable-key>`
-   - `VITE_TMDB_IMAGE_BASE_URL`: `https://image.tmdb.org/t/p`
-
-Direct client-side navigations (`/movie/:id`, `/web-series/:id`, `/recommendation`, `/search`, `/profile`, `/saved`, `/history`) are automatically routed to the TanStack Start SSR serverless function with edge caching for static assets.
-
-#### 2. Backend, Worker & Beat: Render (Docker-Native Blueprint)
-The backend services are provisioned reproducibly using Render's Blueprint specification ([render.yaml](file:///c:/Users/13ver/Desktop/New%20folder/project/WatcheMan/render.yaml)), which uses **Docker as the single source of truth**:
-
-1. In the [Render Dashboard](https://dashboard.render.com), click **New +** $\rightarrow$ **Blueprint**.
-2. Select your repository and point to `render.yaml`.
-3. Render automatically provisions the three Docker-based services from `backend/Dockerfile`:
-   - **`watchman-api`** (Web Service):
-     - Docker Context: `./backend`, Dockerfile: `./backend/Dockerfile`
-     - Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-     - Pre-Deploy Migration: `alembic upgrade head`
-     - Health Check Path: `/health`
-   - **`watchman-worker`** (Background Worker):
-     - Docker Context: `./backend`, Dockerfile: `./backend/Dockerfile`
-     - Command: `celery -A app.core.celery.celery_app worker --loglevel=info`
-   - **`watchman-beat`** (Background Worker):
-     - Docker Context: `./backend`, Dockerfile: `./backend/Dockerfile`
-     - Command: `celery -A app.core.celery.celery_app beat --loglevel=info`
-4. Fill in the sensitive cloud credentials in the shared Render Environment Group (`watchman-shared-env`):
-   - `DATABASE_URL` (Supabase connection pooler URI)
-   - `REDIS_URL`, `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND` (Upstash `rediss://` URI)
-   - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`
-   - `TMDB_API_KEY`, `OMDB_API_KEY`, `HF_API_TOKEN`
-   - `CORS_ORIGINS` (your Vercel production domain, e.g. `https://<your-app>.vercel.app`)
-   - `FRONTEND_URL` (your canonical Vercel URL)
-
----
-
-## Operational Scripts
-
-All operational and maintenance scripts are located in `scripts/`:
-
-```bash
-# Ingest TMDB catalogue with partitioned discover queries
-python scripts/ingest_tmdb_catalog.py --movies --tv --max-pages-per-partition 10
-
-# Selective initial content embedding backfill (Top 500 Movies + Top 500 TV)
-python scripts/backfill_content_embeddings.py --popular --limit 1000
-
-# Embed unembedded titles referenced by real user interactions
-python scripts/backfill_content_embeddings.py --interacted
-
-# Synchronize PostgreSQL auto-increment sequences
-python scripts/fix_sequences.py
-
-# Verify live ML data flow, embedding coverage, and policy status
-python scripts/verify_ml_data_flow.py
-
-# Safe dev reset (preserves catalog contents and schema migrations)
-python scripts/reset_dev_database.py --runtime-only
+python scripts/audit_latency.py
 ```
 
 ---

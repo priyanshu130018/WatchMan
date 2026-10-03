@@ -113,13 +113,18 @@ class ALSCollaborativeCandidateGenerator:
         candidate_ids = [cid for cid, _ in picked]
         score_by_id = {cid: s for cid, s in picked}
 
-        content_query = db.query(Content).filter(Content.id.in_(candidate_ids))
         if content_type and content_type.lower() in ("movie", "tv"):
-            content_query = content_query.filter(Content.content_type == content_type.lower())
-        contents_by_id = {c.id: c for c in content_query.all()}
+            valid_ids = {
+                r[0]
+                for r in db.query(Content.id)
+                .filter(Content.id.in_(candidate_ids), Content.content_type == content_type.lower())
+                .all()
+            }
+        else:
+            valid_ids = set(candidate_ids)
 
         # Min-max normalize the raw dot-product scores to [0, 1] for blending.
-        raw = [score_by_id[cid] for cid in candidate_ids if cid in contents_by_id]
+        raw = [score_by_id[cid] for cid in candidate_ids if cid in valid_ids]
         if not raw:
             return []
         lo, hi = min(raw), max(raw)
@@ -127,13 +132,11 @@ class ALSCollaborativeCandidateGenerator:
 
         results: list[dict] = []
         for cid in candidate_ids:
-            c = contents_by_id.get(cid)
-            if c is None:
+            if cid not in valid_ids:
                 continue
             norm = (score_by_id[cid] - lo) / span
             results.append({
                 "content_id": cid,
-                "content": c,
                 "score": round(max(0.0, min(1.0, norm)), 4),
                 "source": "als_collaborative",
                 "explanation": "Learned from the behaviour of users with similar taste (ALS)",

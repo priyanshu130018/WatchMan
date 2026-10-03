@@ -55,18 +55,9 @@ class RecommendationGenerator:
     ) -> list[RankedRecommendation]:
         """
         Executes the AI recommendation pipeline for a user and transactionally updates persisted recommendations.
+        Uses the latest persisted user taste vector computed asynchronously by the Celery background worker.
         """
-        # 1. Update user taste embedding if user has interactions
-        try:
-            UserEmbeddingService.compute_and_save_user_embedding(db, user_id)
-        except Exception as exc:  # noqa: BLE001 - embedding refresh is best-effort
-            logger.warning(
-                "Could not refresh taste embedding for user_id=%s; proceeding with existing data: %s",
-                user_id,
-                exc,
-            )
-
-        # 2. Multi-channel candidate retrieval
+        # 1. Multi-channel candidate retrieval (uses persisted user_embeddings)
         candidates = CandidatePipeline.generate_all_candidates(
             db=db,
             user_id=user_id,
@@ -85,8 +76,11 @@ class RecommendationGenerator:
             apply_diversity=True,
         )
 
+        # Convert to dictionary representation while all Content entities & relationships are loaded in session
+        formatted_items = [r.to_dict() for r in ranked]
+
         # 4. Atomic snapshot replacement in recommendations table
         cls._persist_ranked(db, user_id, ranked)
 
-        return ranked
+        return formatted_items
 

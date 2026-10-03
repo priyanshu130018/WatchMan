@@ -18,24 +18,28 @@ class CollaborativeCandidateGenerator:
         matrix: dict[UUID, dict[int, float]] = defaultdict(dict)
 
         # Ratings
-        for r in db.query(Rating).all():
-            norm = (r.rating / 5.0) if r.rating <= 5.0 else (r.rating / 10.0)
-            matrix[r.user_id][r.content_id] = max(matrix[r.user_id].get(r.content_id, 0.0), norm)
+        for r_user_id, r_content_id, r_rating in db.query(Rating.user_id, Rating.content_id, Rating.rating).all():
+            norm = (r_rating / 5.0) if r_rating <= 5.0 else (r_rating / 10.0)
+            matrix[r_user_id][r_content_id] = max(matrix[r_user_id].get(r_content_id, 0.0), norm)
 
         # Saved content
-        for s in db.query(SavedContent).all():
-            matrix[s.user_id][s.content_id] = max(matrix[s.user_id].get(s.content_id, 0.0), 0.9)
+        for s_user_id, s_content_id in db.query(SavedContent.user_id, SavedContent.content_id).all():
+            matrix[s_user_id][s_content_id] = max(matrix[s_user_id].get(s_content_id, 0.0), 0.9)
 
         # Watch history
-        for h in db.query(WatchHistory).all():
-            prog = max(0.0, min(1.0, float(h.progress or 0.0)))
+        for h_user_id, h_content_id, h_progress in db.query(WatchHistory.user_id, WatchHistory.content_id, WatchHistory.progress).all():
+            prog = max(0.0, min(1.0, float(h_progress or 0.0)))
             strength = 0.3 + 0.7 * prog
-            matrix[h.user_id][h.content_id] = max(matrix[h.user_id].get(h.content_id, 0.0), strength)
+            matrix[h_user_id][h_content_id] = max(matrix[h_user_id].get(h_content_id, 0.0), strength)
 
         # Interaction events
-        for ev in db.query(InteractionEvent).all():
-            ev_weight = 0.6 if ev.event_type in ("save", "rate", "watch") else 0.3
-            matrix[ev.user_id][ev.content_id] = max(matrix[ev.user_id].get(ev.content_id, 0.0), ev_weight)
+        for ev_user_id, ev_content_id, ev_type in (
+            db.query(InteractionEvent.user_id, InteractionEvent.content_id, InteractionEvent.event_type)
+            .filter(InteractionEvent.content_id.isnot(None), InteractionEvent.user_id.isnot(None))
+            .all()
+        ):
+            ev_weight = 0.6 if ev_type in ("save", "rate", "watch") else 0.3
+            matrix[ev_user_id][ev_content_id] = max(matrix[ev_user_id].get(ev_content_id, 0.0), ev_weight)
 
         return matrix
 
@@ -100,20 +104,21 @@ class CollaborativeCandidateGenerator:
             if candidate_weights[cid] > 0
         }
 
-        # Query content objects
-        content_query = db.query(Content).filter(Content.id.in_(list(normalized_scores.keys())))
         if content_type and content_type.lower() in ("movie", "tv"):
-            content_query = content_query.filter(Content.content_type == content_type.lower())
-
-        contents = content_query.all()
-        contents_by_id = {c.id: c for c in contents}
+            valid_ids = {
+                r[0]
+                for r in db.query(Content.id)
+                .filter(Content.id.in_(list(normalized_scores.keys())), Content.content_type == content_type.lower())
+                .all()
+            }
+        else:
+            valid_ids = set(normalized_scores.keys())
 
         results = []
         for cid, score in normalized_scores.items():
-            if cid in contents_by_id:
+            if cid in valid_ids:
                 results.append({
                     "content_id": cid,
-                    "content": contents_by_id[cid],
                     "score": round(score, 4),
                     "source": "collaborative",
                     "explanation": "Popular with viewers who share your entertainment tastes",

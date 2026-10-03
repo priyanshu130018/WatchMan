@@ -112,7 +112,7 @@ export function RatingModal({
 
           {/* 10-Star Bar */}
           <div
-            className="my-2 flex items-center justify-center gap-1 sm:gap-2 py-2 flex-nowrap"
+            className="my-2 flex w-full max-w-full items-center justify-between sm:justify-center gap-0.5 sm:gap-1.5 py-2 px-1"
             role="radiogroup"
             aria-label="Rating out of 10"
           >
@@ -128,13 +128,12 @@ export function RatingModal({
                   onClick={() => setSelectedRating(starVal)}
                   onMouseEnter={() => setHoverRating(starVal)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="group rounded-md p-1 transition-all duration-150 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group shrink-0 rounded-md p-0.5 sm:p-1 transition-all duration-150 hover:scale-110 sm:hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={`Rate ${starVal} out of 10 — ${RATING_DESCRIPTIONS[starVal]}`}
                 >
                   <Star
-                    size={22}
                     className={cn(
-                      "transition-colors duration-150",
+                      "w-5 h-5 sm:w-6 sm:h-6 transition-colors duration-150 shrink-0",
                       isFilled
                         ? "text-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.5)]"
                         : "text-muted-foreground/35 group-hover:text-yellow-400/60",

@@ -7,6 +7,8 @@ from sqlalchemy import or_
 from app.core.config import settings
 from app.models.content import Content
 from app.models.embedding import ContentEmbedding
+import time
+from app.core.timing import get_current_timing_ctx
 from app.ml.embeddings.sentence_encoder import SentenceEncoder
 from app.ml.embeddings.text_builder import build_movie_embedding_text, compute_movie_text_hash
 from app.ml.embeddings.eligibility import ContentEmbeddingEligibilityService
@@ -279,6 +281,24 @@ class ContentEmbeddingService:
         Queries the database for Content items closest to the given vector.
         Uses pgvector native cosine distance if available, with python cosine fallback.
         """
+        t0 = time.perf_counter()
+        try:
+            return cls._do_search_by_vector(db, vector, limit, content_type, exclude_content_ids)
+        finally:
+            elapsed = (time.perf_counter() - t0) * 1000
+            ctx = get_current_timing_ctx()
+            if ctx:
+                ctx.vector_search_ms += elapsed
+
+    @classmethod
+    def _do_search_by_vector(
+        cls,
+        db: Session,
+        vector: list[float] | Sequence[float],
+        limit: int = 20,
+        content_type: str | None = None,
+        exclude_content_ids: set[int] | None = None,
+    ) -> list[dict]:
         if not vector or len(vector) != settings.VECTOR_DIMENSION:
             return []
 
@@ -288,8 +308,8 @@ class ContentEmbeddingService:
             try:
                 distance_col = ContentEmbedding.embedding.cosine_distance(vector).label("distance")
                 query = (
-                    db.query(Content, distance_col)
-                    .join(ContentEmbedding, Content.id == ContentEmbedding.content_id)
+                    db.query(ContentEmbedding.content_id, distance_col)
+                    .join(Content, Content.id == ContentEmbedding.content_id)
                     .filter(ContentEmbedding.embedding.isnot(None))
                 )
                 if exclude_ids:
@@ -300,10 +320,10 @@ class ContentEmbeddingService:
                 results = query.order_by(distance_col.asc()).limit(limit).all()
 
                 output = []
-                for item, dist in results:
+                for cid, dist in results:
                     similarity = max(0.0, min(1.0, 1.0 - float(dist)))
                     output.append({
-                        "content": item,
+                        "content_id": cid,
                         "similarity": round(similarity, 4),
                         "score": round(similarity, 4),
                     })
@@ -314,7 +334,7 @@ class ContentEmbeddingService:
 
         # In-memory cosine similarity fallback (for SQLite test environments or if pgvector unavailable)
         query = (
-            db.query(ContentEmbedding)
+            db.query(ContentEmbedding.content_id, ContentEmbedding.embedding)
             .join(Content, Content.id == ContentEmbedding.content_id)
             .filter(ContentEmbedding.embedding.isnot(None))
         )
@@ -333,10 +353,8 @@ class ContentEmbeddingService:
             return []
 
         scored = []
-        for emb_row in records:
-            emb = emb_row.embedding
-            item = emb_row.content
-            if emb is None or item is None:
+        for cid, emb in records:
+            if emb is None:
                 continue
             emb_arr = np.array(emb, dtype=np.float32)
             emb_norm = np.linalg.norm(emb_arr)
@@ -344,16 +362,16 @@ class ContentEmbeddingService:
                 continue
             cos_sim = float(np.dot(target_arr, emb_arr) / (target_norm * emb_norm))
             similarity = max(0.0, min(1.0, cos_sim))
-            scored.append((item, similarity))
+            scored.append((cid, similarity))
 
         scored.sort(key=lambda x: x[1], reverse=True)
         top_items = scored[:limit]
 
         return [
             {
-                "content": item,
+                "content_id": cid,
                 "similarity": round(sim, 4),
                 "score": round(sim, 4),
             }
-            for item, sim in top_items
+            for cid, sim in top_items
         ]

@@ -180,12 +180,12 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
 
             {/* Optional Star Rating Selector */}
             <div
-              className="flex items-center gap-2"
+              className="flex flex-wrap items-center gap-2"
               role="radiogroup"
               aria-label="Review score (optional)"
             >
-              <span className="text-xs text-muted-foreground">Score (optional):</span>
-              <div className="flex gap-1">
+              <span className="text-xs text-muted-foreground shrink-0">Score (optional):</span>
+              <div className="flex flex-wrap items-center gap-0.5 sm:gap-1 max-w-full">
                 {Array.from({ length: 10 }).map((_, idx) => {
                   const sVal = idx + 1;
                   const isFilled = (ratingInput || 0) >= sVal;
@@ -196,12 +196,12 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                       role="radio"
                       aria-checked={ratingInput === sVal}
                       onClick={() => setRatingInput(ratingInput === sVal ? undefined : sVal)}
-                      className="rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="shrink-0 rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       aria-label={`Score ${sVal} / 10`}
                     >
                       <Star
-                        size={16}
-                        className={isFilled ? "text-yellow-400" : "text-muted-foreground"}
+                        size={15}
+                        className={isFilled ? "text-yellow-400" : "text-muted-foreground/40"}
                         fill={isFilled ? "currentColor" : "none"}
                       />
                     </button>
@@ -209,7 +209,7 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                 })}
               </div>
               {ratingInput && (
-                <span className="ml-1 text-xs font-bold text-yellow-400">{ratingInput}/10</span>
+                <span className="ml-1 text-xs font-bold text-yellow-400 shrink-0">{ratingInput}/10</span>
               )}
             </div>
 
@@ -280,31 +280,31 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
             return (
               <div
                 key={rev.id}
-                className="relative rounded-2xl border border-border bg-card/40 p-5"
+                className="relative overflow-hidden rounded-2xl border border-border bg-card/40 p-5"
               >
-                <div className="mb-3 flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9">
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Avatar className="h-9 w-9 shrink-0">
                       <AvatarFallback className="text-xs">{initial}</AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{authorName}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-foreground">{authorName}</div>
                       <div className="text-xs text-muted-foreground">
                         {rev.created_at ? formatTimeAgo(rev.created_at) : "recently"}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {rev.rating !== null && rev.rating !== undefined && (
-                      <span className="flex items-center gap-1 rounded-full bg-yellow-400/10 px-2.5 py-1 text-xs font-bold text-yellow-400">
-                        <Star size={12} fill="currentColor" aria-hidden="true" />
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-yellow-400/10 px-2.5 py-1 text-xs font-bold text-yellow-400">
+                        <Star size={12} fill="currentColor" aria-hidden="true" className="shrink-0" />
                         {rev.rating}/10
                       </span>
                     )}
 
                     {isOwnReview && (
-                      <div className="ml-2 flex items-center gap-1">
+                      <div className="ml-1 flex items-center gap-1 shrink-0">
                         <button
                           type="button"
                           onClick={() => handleStartEdit(rev)}
@@ -331,9 +331,9 @@ export function ReviewsSection({ contentType, tmdbId, contentTitle }: ReviewsSec
                 </div>
 
                 {rev.title && (
-                  <h3 className="mb-1.5 text-base font-bold text-foreground">{rev.title}</h3>
+                  <h3 className="mb-1.5 text-base font-bold text-foreground break-words [overflow-wrap:anywhere]">{rev.title}</h3>
                 )}
-                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 break-words [overflow-wrap:anywhere]">
                   {rev.content}
                 </p>
               </div>

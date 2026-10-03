@@ -1,7 +1,10 @@
+import time
 from typing import Any
 from uuid import UUID
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
+from app.models.taxonomy import ContentGenre
 
+from app.core.timing import get_current_timing_ctx
 from app.models.content import Content
 from app.models.interaction import InteractionEvent, SavedContent, WatchHistory
 from app.models.recommendation import RecommendationCandidate
@@ -17,7 +20,7 @@ class CandidateItem:
     def __init__(
         self,
         content_id: int,
-        content: Content,
+        content: Content | None = None,
         content_score: float = 0.0,
         collaborative_score: float = 0.0,
         popularity_score: float = 0.0,
@@ -55,55 +58,33 @@ class CandidatePipeline:
     @classmethod
     def get_user_seen_content_ids(cls, db: Session, user_id: UUID) -> set[int]:
         """
-        Retrieves all content IDs that the user has already interacted with.
+        Retrieves all content IDs that the user has already interacted with in a single batched query.
         """
-        seen: set[int] = set()
-
-        for s in db.query(SavedContent.content_id).filter(SavedContent.user_id == user_id).all():
-            seen.add(s[0])
-
-        for r in db.query(Rating.content_id).filter(Rating.user_id == user_id).all():
-            seen.add(r[0])
-
-        for w in db.query(WatchHistory.content_id).filter(WatchHistory.user_id == user_id).all():
-            seen.add(w[0])
-
-        for ev in (
-            db.query(InteractionEvent.content_id)
-            .filter(
-                InteractionEvent.user_id == user_id,
-                InteractionEvent.event_type.in_(["save", "rate", "watch"]),
-            )
-            .all()
-        ):
-            seen.add(ev[0])
-
-        # Content explicitly skipped by user in WatchMan decisions
+        from sqlalchemy import select, or_, and_
         from app.models.watchman import WatchmanDecision
 
-        for d in (
-            db.query(WatchmanDecision.content_id)
-            .filter(
-                WatchmanDecision.user_id == user_id,
-                WatchmanDecision.decision == "skip",
-            )
-            .all()
-        ):
-            seen.add(d[0])
+        saved_q = select(SavedContent.content_id).where(SavedContent.user_id == user_id)
+        ratings_q = select(Rating.content_id).where(Rating.user_id == user_id)
+        watch_q = select(WatchHistory.content_id).where(WatchHistory.user_id == user_id)
+        ev_q = select(InteractionEvent.content_id).where(
+            InteractionEvent.user_id == user_id,
+            InteractionEvent.content_id.isnot(None),
+            or_(
+                InteractionEvent.event_type.in_(["save", "rate", "watch"]),
+                and_(
+                    InteractionEvent.event_type == "watchman_decision",
+                    InteractionEvent.event_value == 0.0,
+                ),
+            ),
+        )
+        wm_q = select(WatchmanDecision.content_id).where(
+            WatchmanDecision.user_id == user_id,
+            WatchmanDecision.decision == "skip",
+        )
 
-        for ev in (
-            db.query(InteractionEvent.content_id)
-            .filter(
-                InteractionEvent.user_id == user_id,
-                InteractionEvent.event_type == "watchman_decision",
-                InteractionEvent.event_value == 0.0,
-            )
-            .all()
-        ):
-            if ev[0] is not None:
-                seen.add(ev[0])
-
-        return seen
+        union_stmt = saved_q.union(ratings_q, watch_q, ev_q, wm_q)
+        rows = db.execute(union_stmt).scalars().all()
+        return {cid for cid in rows if cid is not None}
 
     @classmethod
     def generate_all_candidates(
@@ -116,13 +97,31 @@ class CandidatePipeline:
     ) -> list[CandidateItem]:
         """
         Retrieves, deduplicates, and merges candidates from all 4 generation channels.
-
-        ``persist_candidates`` defaults to False: the production path
-        (RecommendationGenerator) persists only the final ranked ``Recommendation``
-        rows, not the intermediate candidate pool. Set it True only for
-        offline debugging/inspection of the raw candidate set; the
-        ``cleanup_orphan_candidates`` Celery task prunes any rows written that way.
         """
+        t0 = time.perf_counter()
+        try:
+            return cls._do_generate_all_candidates(
+                db=db,
+                user_id=user_id,
+                limit_per_channel=limit_per_channel,
+                content_type=content_type,
+                persist_candidates=persist_candidates,
+            )
+        finally:
+            elapsed = (time.perf_counter() - t0) * 1000
+            ctx = get_current_timing_ctx()
+            if ctx:
+                ctx.candidate_retrieval_ms += elapsed
+
+    @classmethod
+    def _do_generate_all_candidates(
+        cls,
+        db: Session,
+        user_id: UUID,
+        limit_per_channel: int = 50,
+        content_type: str | None = None,
+        persist_candidates: bool = False,
+    ) -> list[CandidateItem]:
         seen_ids = cls.get_user_seen_content_ids(db, user_id)
 
         # 1. Content-based candidates
@@ -177,7 +176,7 @@ class CandidatePipeline:
         for c in content_candidates:
             cid = c["content_id"]
             if cid not in items_map:
-                items_map[cid] = CandidateItem(content_id=cid, content=c["content"])
+                items_map[cid] = CandidateItem(content_id=cid, content=c.get("content"))
             items_map[cid].content_score = max(items_map[cid].content_score, c["score"])
             items_map[cid].sources.append("content_based")
             items_map[cid].explanations.append(c["explanation"])
@@ -185,7 +184,7 @@ class CandidatePipeline:
         for c in collab_candidates:
             cid = c["content_id"]
             if cid not in items_map:
-                items_map[cid] = CandidateItem(content_id=cid, content=c["content"])
+                items_map[cid] = CandidateItem(content_id=cid, content=c.get("content"))
             items_map[cid].collaborative_score = max(items_map[cid].collaborative_score, c["score"])
             items_map[cid].sources.append("collaborative")
             items_map[cid].explanations.append(c["explanation"])
@@ -193,7 +192,7 @@ class CandidatePipeline:
         for c in pop_candidates:
             cid = c["content_id"]
             if cid not in items_map:
-                items_map[cid] = CandidateItem(content_id=cid, content=c["content"])
+                items_map[cid] = CandidateItem(content_id=cid, content=c.get("content"))
             items_map[cid].popularity_score = max(items_map[cid].popularity_score, c["score"])
             if "popularity" not in items_map[cid].sources:
                 items_map[cid].sources.append("popularity")
@@ -202,11 +201,29 @@ class CandidatePipeline:
         for c in fresh_candidates:
             cid = c["content_id"]
             if cid not in items_map:
-                items_map[cid] = CandidateItem(content_id=cid, content=c["content"])
+                items_map[cid] = CandidateItem(content_id=cid, content=c.get("content"))
             items_map[cid].freshness_score = max(items_map[cid].freshness_score, c["score"])
             if "freshness" not in items_map[cid].sources:
                 items_map[cid].sources.append("freshness")
                 items_map[cid].explanations.append(c["explanation"])
+
+        # Batch load Content entities and their genres in a single efficient query
+        all_cids = list(items_map.keys())
+        if all_cids:
+            contents = (
+                db.query(Content)
+                .filter(Content.id.in_(all_cids))
+                .options(selectinload(Content.genres).joinedload(ContentGenre.genre))
+                .populate_existing()
+                .all()
+            )
+            content_map = {c.id: c for c in contents}
+            for cid in list(items_map.keys()):
+                c = content_map.get(cid)
+                if c is not None:
+                    items_map[cid].content = c
+                else:
+                    del items_map[cid]
 
         candidate_list = list(items_map.values())
 

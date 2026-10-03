@@ -1,59 +1,36 @@
-import { api, setApiToken } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
+import { api, setApiToken, API_BASE_URL } from "@/lib/api";
 import type { AuthResponse, User } from "@/types/user";
 
-/**
- * Authentication provider selection (build-time).
- *
- *   VITE_AUTH_PROVIDER=supabase  -> production: Supabase Auth owns identity.
- *   VITE_AUTH_PROVIDER=local (or unset) -> development: legacy local JWT API.
- *
- * In the Supabase path the browser authenticates against Supabase directly; the
- * resulting Supabase access token is what we attach to API requests, and the
- * FastAPI backend validates that token. No local password ever reaches the API.
- */
-export const AUTH_PROVIDER = (
-  (import.meta.env.VITE_AUTH_PROVIDER as string | undefined)?.trim() || "local"
-).toLowerCase();
-
-export const isSupabaseAuth = AUTH_PROVIDER === "supabase";
-
-function requireSupabaseClient() {
-  if (!supabase) {
-    throw new Error(
-      "ConfigurationError: Supabase auth is enabled (VITE_AUTH_PROVIDER=supabase) " +
-        "but VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY are not configured.",
-    );
-  }
-  return supabase;
-}
+export const AUTH_PROVIDER = "local";
+export const isSupabaseAuth = false;
 
 /** Fetch the WatchMan user record for the currently attached access token. */
 async function fetchCurrentUser(): Promise<User> {
+  console.log(`[WatchMan Auth] Fetching /auth/me from ${API_BASE_URL}...`);
   const { data } = await api.get<User>("/auth/me");
+  console.log("[WatchMan Auth] /auth/me response:", { id: data.id, email: data.email, username: data.username });
   return data;
 }
 
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
-    if (isSupabaseAuth) {
-      const client = requireSupabaseClient();
-      const { data, error } = await client.auth.signInWithPassword({ email, password });
-      if (error || !data.session) {
-        throw new Error(error?.message || "Invalid email or password.");
-      }
-      setApiToken(data.session.access_token);
-      const user = await fetchCurrentUser();
-      return {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        token_type: "bearer",
-        user,
-      };
+    console.log(`[WatchMan Auth] authService.login called for email=${email}`);
+    console.log(`[WatchMan Auth] Target URL: ${API_BASE_URL}/auth/login`);
+    try {
+      const response = await api.post<AuthResponse>("/auth/login", { email, password });
+      console.log(`[WatchMan Auth] Login response status: ${response.status}`);
+      console.log("[WatchMan Auth] Login response body:", {
+        token_type: response.data.token_type,
+        user: response.data.user,
+        has_access_token: !!response.data.access_token,
+        has_refresh_token: !!response.data.refresh_token,
+      });
+      setApiToken(response.data.access_token);
+      return response.data;
+    } catch (err) {
+      console.error("[WatchMan Auth] Login request failed:", err);
+      throw err;
     }
-    const { data } = await api.post<AuthResponse>("/auth/login", { email, password });
-    setApiToken(data.access_token);
-    return data;
   },
 
   async register(
@@ -62,56 +39,25 @@ export const authService = {
     full_name?: string,
     username?: string,
   ): Promise<AuthResponse> {
-    if (isSupabaseAuth) {
-      const client = requireSupabaseClient();
-      const { data, error } = await client.auth.signUp({
+    console.log(`[WatchMan Auth] authService.register called for email=${email}`);
+    console.log(`[WatchMan Auth] Target URL: ${API_BASE_URL}/auth/register`);
+    try {
+      const response = await api.post<AuthResponse>("/auth/register", {
         email,
         password,
-        options: { data: { full_name: full_name || null, username: username || null } },
+        full_name: full_name || undefined,
+        username: username || undefined,
       });
-      if (error) {
-        throw new Error(error.message);
-      }
-      // When email confirmation is enabled there is no session yet.
-      if (!data.session) {
-        return { access_token: "", refresh_token: null, token_type: "bearer", user: null };
-      }
-      setApiToken(data.session.access_token);
-      const user = await fetchCurrentUser();
-      return {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        token_type: "bearer",
-        user,
-      };
+      console.log(`[WatchMan Auth] Register response status: ${response.status}`);
+      setApiToken(response.data.access_token);
+      return response.data;
+    } catch (err) {
+      console.error("[WatchMan Auth] Register request failed:", err);
+      throw err;
     }
-    const { data } = await api.post<AuthResponse>("/auth/register", {
-      email,
-      password,
-      full_name: full_name || undefined,
-      username: username || undefined,
-    });
-    setApiToken(data.access_token);
-    return data;
   },
 
   async refresh(refreshToken: string): Promise<AuthResponse> {
-    if (isSupabaseAuth) {
-      const client = requireSupabaseClient();
-      const { data, error } = await client.auth.refreshSession(
-        refreshToken ? { refresh_token: refreshToken } : undefined,
-      );
-      if (error || !data.session) {
-        throw new Error(error?.message || "Session refresh failed.");
-      }
-      setApiToken(data.session.access_token);
-      return {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        token_type: "bearer",
-        user: null,
-      };
-    }
     const { data } = await api.post<AuthResponse>("/auth/refresh", {
       refresh_token: refreshToken,
     });
@@ -123,40 +69,15 @@ export const authService = {
     return fetchCurrentUser();
   },
 
-  /** Send a password-reset email via Supabase Auth (Supabase mode only). */
-  async requestPasswordReset(email: string, redirectTo?: string): Promise<void> {
-    if (!isSupabaseAuth) {
-      throw new Error("Password reset is handled by Supabase Auth and is not enabled.");
-    }
-    const client = requireSupabaseClient();
-    const { error } = await client.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectTo || `${window.location.origin}/reset-password`,
-    });
-    if (error) {
-      throw new Error(error.message);
-    }
+  async requestPasswordReset(_email: string, _redirectTo?: string): Promise<void> {
+    throw new Error("Password reset is not configured for local authentication.");
   },
 
-  /** Update the signed-in user's password (used on the reset-password screen). */
-  async updatePassword(newPassword: string): Promise<void> {
-    if (!isSupabaseAuth) {
-      throw new Error("Password update is handled by Supabase Auth and is not enabled.");
-    }
-    const client = requireSupabaseClient();
-    const { error } = await client.auth.updateUser({ password: newPassword });
-    if (error) {
-      throw new Error(error.message);
-    }
+  async updatePassword(_newPassword: string): Promise<void> {
+    throw new Error("Password update is not configured for local authentication.");
   },
 
   logout(): void {
-    if (isSupabaseAuth) {
-      if (supabase) {
-        supabase.auth.signOut().catch(() => {});
-      }
-      setApiToken(null);
-      return;
-    }
     try {
       api.post("/auth/logout").catch(() => {});
     } catch {

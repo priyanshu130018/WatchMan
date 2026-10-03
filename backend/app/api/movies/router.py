@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import logging
+import time
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.constants import CONTENT_PAGE_SIZE, POPULAR_COLLECTION_MAX
 from app.core.security import get_current_user
+from app.core.timing import start_timing_ctx, get_current_timing_ctx
 from app.db.session import get_db
 from app.models.user import User
 from app.models.content import ContentType
@@ -52,6 +54,7 @@ def list_movies(
     titles by popularity (ordering fixed to ``popularity_desc``); filters still
     apply and narrow within that set.
     """
+    ctx = start_timing_ctx("/api/movies")
     effective_limit = page_size if page_size is not None else limit
     effective_genre = genre_id if genre_id is not None else genre
     genre_ids = [effective_genre] if effective_genre else None
@@ -71,7 +74,8 @@ def list_movies(
         limit=effective_limit,
         max_items=max_items,
     )
-    return ContentPaginationResponse[ContentSummaryDTO](
+    t_ser = time.perf_counter()
+    response = ContentPaginationResponse[ContentSummaryDTO](
         page=page,
         limit=effective_limit,
         page_size=effective_limit,
@@ -80,6 +84,9 @@ def list_movies(
         total_pages=total_pages,
         results=results,
     )
+    ctx.serialization_ms = (time.perf_counter() - t_ser) * 1000
+    ctx.log_movies()
+    return response
 
 
 @router.post("/sync")
@@ -154,18 +161,26 @@ async def search(query: str = Query(..., min_length=1), page: int = Query(defaul
 @router.get("/{movie_id}")
 async def details(movie_id: int, db: Session = Depends(get_db)):
     """Get movie details (with IMDb / external ratings) from local DB or TMDB."""
-    local = await catalog.get_details_with_ratings(db, ContentType.MOVIE.value, movie_id)
-    if local is not None:
-        return local
+    ctx = start_timing_ctx(f"/api/movies/{movie_id}")
+    try:
+        local = await catalog.get_details_with_ratings(db, ContentType.MOVIE.value, movie_id)
+        if local is not None:
+            return local
 
-    data = await tmdb.movie_details(movie_id)
-    # TMDB movie payloads expose imdb_id directly; enrich with OMDb ratings.
-    imdb_id = data.get("imdb_id") if isinstance(data, dict) else None
-    if imdb_id:
-        ratings = await catalog.omdb.ratings_by_imdb_id(imdb_id)
-        if ratings:
-            data = {**data, **ratings}
-    return data
+        t_tmdb = time.perf_counter()
+        data = await tmdb.movie_details(movie_id)
+        ctx.tmdb_ms += (time.perf_counter() - t_tmdb) * 1000
+        # TMDB movie payloads expose imdb_id directly; enrich with OMDb ratings.
+        imdb_id = data.get("imdb_id") if isinstance(data, dict) else None
+        if imdb_id:
+            t_omdb = time.perf_counter()
+            ratings = await catalog.omdb.ratings_by_imdb_id(imdb_id)
+            ctx.omdb_ms += (time.perf_counter() - t_omdb) * 1000
+            if ratings:
+                data = {**data, **ratings}
+        return data
+    finally:
+        ctx.log_movie_detail()
 
 
 @router.get("/{movie_id}/similar")

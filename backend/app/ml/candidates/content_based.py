@@ -24,10 +24,10 @@ class ContentBasedCandidateGenerator:
         Retrieves candidate content items using dense vector similarity.
         """
         exclude_ids = exclude_content_ids or set()
-        user_vector = UserEmbeddingService.get_or_compute_user_embedding(db, user_id)
+        user_vector = UserEmbeddingService.get_stored_user_embedding(db, user_id)
 
         if not user_vector:
-            # Cold start: No user embedding available
+            # Cold start or pending background calculation: No user embedding available
             return []
 
         results = ContentEmbeddingService.search_by_vector(
@@ -40,11 +40,10 @@ class ContentBasedCandidateGenerator:
 
         candidates = []
         for r in results:
-            content_item: Content = r["content"]
+            cid = r["content_id"]
             similarity = r["similarity"]
             candidates.append({
-                "content_id": content_item.id,
-                "content": content_item,
+                "content_id": cid,
                 "score": similarity,
                 "source": "content_based",
                 "explanation": "Matches your semantic taste profile and favorite genres/themes",

@@ -1,9 +1,11 @@
+import time
 from collections import defaultdict
 from typing import Any
 from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.core.config import settings
+from app.core.timing import get_current_timing_ctx
 from app.models.content import Content
 from app.models.user import UserPreference
 from app.ml.candidates.pipeline import CandidateItem
@@ -43,6 +45,8 @@ class RankedRecommendation:
             else (g.get("name") if isinstance(g, dict) else str(g))
             for g in (self.content.genres or [])
         ]
+        from app.services.watchman_service import WatchmanService
+        wm_score, wm_label = WatchmanService.compute_card_score(self.content)
         return {
             "id": self.content.id,
             "content_id": self.content.id,
@@ -70,6 +74,8 @@ class RankedRecommendation:
             "freshness_score": round(self.freshness_score, 4),
             "preference_score": round(self.preference_score, 4),
             "sources": self.sources,
+            "watchman_score": wm_score,
+            "watchman_label": wm_label,
         }
 
 
@@ -179,6 +185,34 @@ class HybridRanker:
         """
         Ranks candidates by combining normalized scores, user preferences, and diversity filtering.
         """
+        t0 = time.perf_counter()
+        try:
+            return cls._do_rank_candidates(
+                db=db,
+                user_id=user_id,
+                candidates=candidates,
+                limit=limit,
+                weights=weights,
+                apply_diversity=apply_diversity,
+                max_per_genre=max_per_genre,
+            )
+        finally:
+            elapsed = (time.perf_counter() - t0) * 1000
+            ctx = get_current_timing_ctx()
+            if ctx:
+                ctx.ranking_ms += elapsed
+
+    @classmethod
+    def _do_rank_candidates(
+        cls,
+        db: Session,
+        user_id: UUID,
+        candidates: list[CandidateItem],
+        limit: int = 20,
+        weights: dict[str, float] | None = None,
+        apply_diversity: bool = True,
+        max_per_genre: int = 4,
+    ) -> list[RankedRecommendation]:
         if not candidates:
             return []
 

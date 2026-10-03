@@ -1,8 +1,30 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event, Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
+import time
 
 from app.core.config import settings
+from app.core.timing import get_current_timing_ctx
+
+
+@event.listens_for(Engine, "before_cursor_execute")
+def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    conn.info["_query_start_time"] = time.perf_counter()
+
+
+@event.listens_for(Engine, "after_cursor_execute")
+def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    start = conn.info.get("_query_start_time")
+    if start:
+        elapsed_ms = (time.perf_counter() - start) * 1000
+        ctx = get_current_timing_ctx()
+        if ctx:
+            ctx.sql_query_count += 1
+            ctx.db_ms += elapsed_ms
+            ctx.sql_queries.append({
+                "statement": str(statement)[:200],
+                "duration_ms": round(elapsed_ms, 2),
+            })
 
 
 def _build_engine():
@@ -49,3 +71,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

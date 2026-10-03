@@ -46,7 +46,7 @@ class OMDBService:
         params = {"i": imdb_id, "apikey": self.api_key, "tomatoes": "true"}
 
         try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=3.0) as client:
                 response = await client.get(self.base_url, params=params)
             if response.status_code != 200:
                 logger.warning(
@@ -61,11 +61,11 @@ class OMDBService:
             return {}
 
         if not isinstance(data, dict) or data.get("Response") == "False":
+            await self.cache.set(cache_key, {}, ttl=3600)
             return {}
 
         normalized = self._normalize(data)
-        if normalized:
-            await self.cache.set(cache_key, normalized, ttl=86400)
+        await self.cache.set(cache_key, normalized, ttl=86400)
         return normalized
 
     @staticmethod

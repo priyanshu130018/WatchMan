@@ -59,22 +59,23 @@ class Content(Base):
     )
 
     # Relationships
-    genres = relationship("ContentGenre", cascade="all, delete-orphan", lazy="selectin")
-    languages = relationship("ContentLanguage", cascade="all, delete-orphan", lazy="selectin")
+    genres = relationship("ContentGenre", cascade="all, delete-orphan", lazy="select")
+    languages = relationship("ContentLanguage", cascade="all, delete-orphan", lazy="select")
     cast = relationship(
         "ContentCast",
         cascade="all, delete-orphan",
-        lazy="selectin",
+        lazy="select",
         order_by="ContentCast.cast_order",
     )
-    crew = relationship("ContentCrew", cascade="all, delete-orphan", lazy="selectin")
-    videos = relationship("ContentVideo", cascade="all, delete-orphan", lazy="selectin")
-    external_ids = relationship("ContentExternalId", cascade="all, delete-orphan", lazy="selectin")
+    crew = relationship("ContentCrew", cascade="all, delete-orphan", lazy="select")
+    videos = relationship("ContentVideo", cascade="all, delete-orphan", lazy="select")
+    external_ids = relationship("ContentExternalId", cascade="all, delete-orphan", lazy="select")
     embedding = relationship(
         "ContentEmbedding",
         cascade="all, delete-orphan",
         back_populates="content",
         uselist=False,
+        lazy="select",
     )
 
 
