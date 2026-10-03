@@ -100,6 +100,10 @@ async def get_current_user(
         )
 
     token = credentials.credentials
+    if (settings.AUTH_PROVIDER or "").strip().lower() == "supabase":
+        from app.core.supabase_auth import verify_supabase_token, resolve_user_from_claims
+        claims = verify_supabase_token(token)
+        return resolve_user_from_claims(db, claims)
 
     # Decode and validate WatchMan JWT token
     payload = decode_token(token)

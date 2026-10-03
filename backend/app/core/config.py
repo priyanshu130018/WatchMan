@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # Security / Authentication (Local JWT path)
-    SECRET_KEY: str = "watchman-local-dev-secret-key-minimum-32-chars"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -174,6 +174,13 @@ class Settings(BaseSettings):
             self._reject_localhost("REDIS_URL", self.REDIS_URL)
             self._reject_localhost("CELERY_BROKER_URL", self.CELERY_BROKER_URL)
             self._reject_localhost("CELERY_RESULT_BACKEND", self.CELERY_RESULT_BACKEND)
+
+            if self.AUTH_PROVIDER.strip().lower() != "supabase":
+                raise ValueError("In production, AUTH_PROVIDER must be 'supabase'.")
+            if not self.SUPABASE_JWT_SECRET or not self.SUPABASE_JWT_SECRET.strip():
+                raise ValueError(
+                    "In production with AUTH_PROVIDER=supabase, SUPABASE_JWT_SECRET is required."
+                )
 
         return self
 

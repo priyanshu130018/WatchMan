@@ -231,7 +231,7 @@ class ALSTrainingService:
                     if cid in item_index:
                         R_train[ui, item_index[cid]] = w
 
-            eval_factors = min(params["factors"], max(1, len(item_ids)))
+            eval_factors = min(params["factors"], max(1, min(len(user_ids), len(item_ids)) - 1))
             eval_model = ALSModel(
                 factors=eval_factors,
                 regularization=params["regularization"],
@@ -257,7 +257,7 @@ class ALSTrainingService:
             for cid, w in items.items():
                 R_full[ui, item_index[cid]] = w
 
-        factors = min(params["factors"], max(1, len(item_ids)))
+        factors = min(params["factors"], max(1, min(len(user_ids), len(item_ids)) - 1))
 
         model = ALSModel(
             factors=factors,

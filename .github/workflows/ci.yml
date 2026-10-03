@@ -27,6 +27,9 @@ jobs:
       ALGORITHM: "HS256"
       ACCESS_TOKEN_EXPIRE_MINUTES: "15"
       REFRESH_TOKEN_EXPIRE_DAYS: "7"
+      AUTH_PROVIDER: "local"
+      SUPABASE_JWT_SECRET: "ci_test_supabase_jwt_secret_32_chars_long"
+      SUPABASE_JWT_AUD: "authenticated"
       TMDB_API_KEY: "ci_test_tmdb_api_key_000000000000"
       TMDB_BASE_URL: "https://api.themoviedb.org/3"
       OMDB_API_KEY: "ci_test_omdb_api_key"
@@ -39,8 +42,13 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: "ci_service_role_key"
       CORS_ORIGINS: "http://localhost:3000,http://localhost:8000"
       ENABLE_PGVECTOR: "false"
-      EMBEDDING_MODEL: "all-MiniLM-L6-v2"
+      EMBEDDING_MODEL: "BAAI/bge-small-en-v1.5"
       VECTOR_DIMENSION: "384"
+      RECOMMENDATION_CONTENT_WEIGHT: "0.35"
+      RECOMMENDATION_COLLABORATIVE_WEIGHT: "0.25"
+      RECOMMENDATION_POPULARITY_WEIGHT: "0.15"
+      RECOMMENDATION_FRESHNESS_WEIGHT: "0.15"
+      RECOMMENDATION_PREFERENCE_WEIGHT: "0.10"
       ML_ADMIN_EMAILS: "admin@watchman.local"
       HF_API_URL: "https://api-inference.huggingface.co/pipeline/feature-extraction"
       HF_API_TOKEN: "ci_test_hf_token"
@@ -82,10 +90,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 24
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
@@ -107,6 +115,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Prepare Environment File
+        run: cp .env.example .env
 
       - name: Verify Docker Compose Build
         run: docker compose build

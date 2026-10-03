@@ -83,11 +83,8 @@ class RecommendationGenerator:
             user_id,
         )
 
-        # Convert to dictionary representation while all Content entities & relationships are loaded in session
-        formatted_items = [r.to_dict() for r in ranked]
-
         # 3. Atomic snapshot replacement in recommendations table
         cls._persist_ranked(db, user_id, ranked)
 
-        return formatted_items
+        return ranked
 

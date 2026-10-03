@@ -78,6 +78,24 @@ class RankedRecommendation:
             "watchman_label": wm_label,
         }
 
+    def __getitem__(self, key: str) -> Any:
+        return self.to_dict()[key]
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.to_dict().get(key, default)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.to_dict()
+
+    def keys(self):
+        return self.to_dict().keys()
+
+    def values(self):
+        return self.to_dict().values()
+
+    def items(self):
+        return self.to_dict().items()
+
 
 class HybridRanker:
     """

@@ -31,7 +31,7 @@ class RedisCache:
         except RuntimeError:
             current_loop = None
 
-        if self._client is None or (current_loop is not None and self._loop is not current_loop):
+        if self._client is None or (self._loop is not None and current_loop is not None and self._loop is not current_loop):
             self._loop = current_loop
             self._client = aioredis.from_url(
                 self.redis_url,
