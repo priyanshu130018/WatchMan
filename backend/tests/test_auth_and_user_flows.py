@@ -166,6 +166,92 @@ def test_login_invalid_credentials(client):
     assert r2.json()["error"]["message"] == "Invalid email or password."
 
 
+def test_login_email_case_and_whitespace_normalization(client):
+    """Email normalization ensures case and surrounding whitespace do not block login."""
+    client.post("/api/auth/register", json={
+        "email": "norm_user@example.com",
+        "password": "SecurePassword123!",
+    })
+
+    # Login with uppercase and surrounding spaces
+    resp = client.post("/api/auth/login", json={
+        "email": "  NORM_USER@EXAMPLE.COM  ",
+        "password": "SecurePassword123!",
+    })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["user"]["email"] == "norm_user@example.com"
+    assert "access_token" in data
+
+
+def test_login_inactive_user_rejected(client, db_session):
+    """Inactive accounts are forbidden from logging in."""
+    client.post("/api/auth/register", json={
+        "email": "inactive_login@example.com",
+        "password": "SecurePassword123!",
+    })
+    user = db_session.query(User).filter(User.email == "inactive_login@example.com").first()
+    assert user is not None
+    user.is_active = False
+    db_session.commit()
+
+    resp = client.post("/api/auth/login", json={
+        "email": "inactive_login@example.com",
+        "password": "SecurePassword123!",
+    })
+    assert resp.status_code == 403
+    assert "inactive" in resp.json()["error"]["message"].lower()
+
+
+def test_login_missing_or_empty_password_fails_validation(client):
+    """Malformed login payload with missing password fails validation."""
+    resp = client.post("/api/auth/login", json={"email": "someuser@example.com"})
+    assert resp.status_code == 422
+
+
+def test_login_preserves_recommendation_and_interaction_data(client, db_session, seed_content):
+    """Logging in authenticates user without mutating recommendation or interaction records."""
+    from app.models.recommendation import Recommendation
+    from app.models.review import Rating
+
+    # Create user
+    client.post("/api/auth/register", json={
+        "email": "data_preserve@example.com",
+        "password": "SecurePassword123!",
+    })
+    user = db_session.query(User).filter(User.email == "data_preserve@example.com").first()
+    assert user is not None
+
+    # Attach mock recommendation and rating on seeded content (id=101)
+    db_session.add(Recommendation(user_id=user.id, content_id=101, score=0.95, rank=1, model_version="1.0.0", explanation="Test rec"))
+    db_session.add(Rating(user_id=user.id, content_id=101, rating=5.0))
+    db_session.commit()
+
+    recs_count_before = db_session.query(Recommendation).filter(Recommendation.user_id == user.id).count()
+    ratings_count_before = db_session.query(Rating).filter(Rating.user_id == user.id).count()
+    assert recs_count_before == 1
+    assert ratings_count_before == 1
+
+    # Execute login
+    login_resp = client.post("/api/auth/login", json={
+        "email": "data_preserve@example.com",
+        "password": "SecurePassword123!",
+    })
+    assert login_resp.status_code == 200
+    token = login_resp.json()["access_token"]
+
+    # Verify protected endpoint access
+    me_resp = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_resp.status_code == 200
+    assert me_resp.json()["email"] == "data_preserve@example.com"
+
+    # Verify data remains untouched
+    recs_count_after = db_session.query(Recommendation).filter(Recommendation.user_id == user.id).count()
+    ratings_count_after = db_session.query(Rating).filter(Rating.user_id == user.id).count()
+    assert recs_count_after == recs_count_before
+    assert ratings_count_after == ratings_count_before
+
+
 # -----------------------------------------------------------------------------
 # 3. Token & /me Tests
 # -----------------------------------------------------------------------------

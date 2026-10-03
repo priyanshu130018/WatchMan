@@ -38,7 +38,7 @@ _TEST_ENV_DEFAULTS = {
     "SUPABASE_JWT_AUD": "authenticated",
     "CORS_ORIGINS": "http://localhost:3000,http://localhost:8000",
     "ENABLE_PGVECTOR": "false",
-    "EMBEDDING_MODEL": "all-MiniLM-L6-v2",
+    "EMBEDDING_MODEL": "BAAI/bge-small-en-v1.5",
     "VECTOR_DIMENSION": "384",
     "ML_ADMIN_EMAILS": "admin@watchman.local",
     "HF_API_URL": "https://api-inference.huggingface.co/pipeline/feature-extraction",

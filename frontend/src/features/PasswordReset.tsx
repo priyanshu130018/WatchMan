@@ -4,6 +4,7 @@ import { authService, isSupabaseAuth } from "@/services/auth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -216,9 +217,8 @@ export function ResetPassword() {
         <form onSubmit={submit} aria-label="Set new password form" className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="new-password">New password</Label>
-            <Input
+            <PasswordInput
               id="new-password"
-              type="password"
               placeholder="At least 8 characters"
               minLength={8}
               value={password}
@@ -230,9 +230,8 @@ export function ResetPassword() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="confirm-password">Confirm new password</Label>
-            <Input
+            <PasswordInput
               id="confirm-password"
-              type="password"
               placeholder="Re-enter your new password"
               minLength={8}
               value={confirm}

@@ -148,7 +148,7 @@ def seed_als_dataset_and_train():
                     email=email,
                     username=username,
                     full_name=p["full_name"],
-                    password_hash=hash_password("watchman_secure_dev_pass_123"),
+                    password_hash=hash_password("123456789"),
                     is_active=True,
                     created_at=datetime.utcnow(),
                     updated_at=datetime.utcnow(),

@@ -6,6 +6,7 @@ import { getApiErrorMessage } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -131,9 +132,8 @@ export function Auth({ mode }: { mode: "login" | "signup" }) {
 
             <div className="space-y-1.5">
               <Label htmlFor="password-input">Password</Label>
-              <Input
+              <PasswordInput
                 id="password-input"
-                type="password"
                 placeholder="At least 8 characters"
                 minLength={8}
                 value={password}

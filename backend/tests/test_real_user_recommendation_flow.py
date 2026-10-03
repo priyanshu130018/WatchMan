@@ -30,6 +30,7 @@ from app.ml.collaborative.training import ALSTrainingService
 from app.ml.recommendations.generator import RecommendationGenerator
 from app.services.recommendation.service import UnifiedRecommendationService
 from app.api.ratings.service import RatingService
+from app.core.config import settings
 from app.tasks.recommendation import process_user_interaction_ml
 
 
@@ -154,7 +155,8 @@ def test_b_user_interaction_triggers_content_and_user_embeddings(db_session, mon
     u_emb = db_session.query(UserEmbedding).filter(UserEmbedding.user_id == user.id).first()
     assert u_emb is not None
     assert len(u_emb.embedding) == 384
-    assert u_emb.model_name == "all-MiniLM-L6-v2"
+    assert u_emb.model_name == settings.EMBEDDING_MODEL
+    assert u_emb.model_name == "BAAI/bge-small-en-v1.5"
 
     # 5. Repeating the task updates existing rows idempotently
     repeat_res = process_user_interaction_ml(str(user.id), content.id, db=db_session)
