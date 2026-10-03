@@ -177,17 +177,17 @@ def test_configuration_error_does_not_expose_secret_values(valid_env_dict):
 
 
 # --------------------------------------------------------------------------- #
-# Production hardening: Supabase-only auth + no localhost/Docker infrastructure.
-# These guard the constraint that production must NEVER silently fall back to
-# local auth or local/Docker Postgres/Redis.
+# --------------------------------------------------------------------------- #
+# Production hardening: Local JWT (or optional Supabase) + hosted infrastructure.
+# Production must require strict secret configuration without localhost URLs.
 # --------------------------------------------------------------------------- #
 
 @pytest.fixture
 def prod_env_dict(valid_env_dict):
-    """A valid production environment: Supabase auth + hosted (non-local) infra."""
+    """A valid production environment: local JWT auth + hosted (non-local) infra."""
     valid_env_dict["APP_ENV"] = "production"
-    valid_env_dict["AUTH_PROVIDER"] = "supabase"
-    valid_env_dict["SUPABASE_JWT_SECRET"] = "prod_supabase_jwt_secret_minimum_thirty_two_chars"
+    valid_env_dict["AUTH_PROVIDER"] = "local"
+    valid_env_dict["SECRET_KEY"] = "prod_secret_key_minimum_thirty_two_characters_long"
     valid_env_dict["DATABASE_URL"] = (
         "postgresql+psycopg://postgres.ref:pw@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
     )
@@ -197,27 +197,60 @@ def prod_env_dict(valid_env_dict):
     return valid_env_dict
 
 
-def test_production_supabase_config_succeeds(prod_env_dict):
-    """A well-formed production config (Supabase auth + hosted infra) loads."""
+def test_production_local_jwt_succeeds(prod_env_dict):
+    """A well-formed production config with AUTH_PROVIDER=local loads successfully."""
     s = get_settings(_env_file=None, **prod_env_dict)
     assert s.APP_ENV == "production"
-    assert s.AUTH_PROVIDER == "supabase"
+    assert s.AUTH_PROVIDER == "local"
+    assert s.SECRET_KEY == "prod_secret_key_minimum_thirty_two_characters_long"
 
 
-def test_production_rejects_local_auth_provider(prod_env_dict):
-    """Production must refuse AUTH_PROVIDER=local (no local JWT/bcrypt in prod)."""
-    prod_env_dict["AUTH_PROVIDER"] = "local"
+def test_production_local_jwt_does_not_require_supabase_jwt_secret(prod_env_dict):
+    """Production with AUTH_PROVIDER=local does NOT require SUPABASE_JWT_SECRET."""
+    prod_env_dict.pop("SUPABASE_JWT_SECRET", None)
+    s = get_settings(_env_file=None, **prod_env_dict)
+    assert s.AUTH_PROVIDER == "local"
+    assert s.SUPABASE_JWT_SECRET is None
+
+
+def test_production_local_jwt_short_secret_fails(prod_env_dict):
+    """Production local JWT auth requires a SECRET_KEY with at least 32 characters."""
+    prod_env_dict["SECRET_KEY"] = "short_secret_123"
     with pytest.raises(ConfigurationError) as exc_info:
         get_settings(_env_file=None, **prod_env_dict)
-    assert "AUTH_PROVIDER must be 'supabase'" in str(exc_info.value)
+    assert "SECRET_KEY must be configured and at least 32 characters long" in str(exc_info.value)
 
 
-def test_production_requires_supabase_jwt_secret(prod_env_dict):
-    """Production Supabase auth requires a JWT secret to validate tokens."""
+def test_development_allows_local_auth_and_localhost(valid_env_dict):
+    """Development env supports AUTH_PROVIDER=local and localhost infrastructure."""
+    valid_env_dict["APP_ENV"] = "development"
+    valid_env_dict["AUTH_PROVIDER"] = "local"
+    valid_env_dict["REDIS_URL"] = "redis://localhost:6379/0"
+    s = get_settings(_env_file=None, **valid_env_dict)
+    assert s.APP_ENV == "development"
+    assert s.AUTH_PROVIDER == "local"
+
+
+def test_production_supabase_auth_requires_jwt_secret(prod_env_dict):
+    """When AUTH_PROVIDER=supabase is explicitly chosen, SUPABASE_JWT_SECRET is required in production."""
+    prod_env_dict["AUTH_PROVIDER"] = "supabase"
     prod_env_dict["SUPABASE_JWT_SECRET"] = ""
     with pytest.raises(ConfigurationError) as exc_info:
         get_settings(_env_file=None, **prod_env_dict)
     assert "SUPABASE_JWT_SECRET is required" in str(exc_info.value)
+
+    # With a valid secret, it succeeds
+    prod_env_dict["SUPABASE_JWT_SECRET"] = "valid_supabase_secret_value_32_chars_long"
+    s = get_settings(_env_file=None, **prod_env_dict)
+    assert s.AUTH_PROVIDER == "supabase"
+
+
+def test_unsupported_auth_provider_fails(valid_env_dict):
+    """Unsupported AUTH_PROVIDER values are rejected."""
+    valid_env_dict["AUTH_PROVIDER"] = "oauth2_custom"
+    with pytest.raises(ConfigurationError) as exc_info:
+        get_settings(_env_file=None, **valid_env_dict)
+    assert "Unsupported AUTH_PROVIDER" in str(exc_info.value)
 
 
 def test_production_rejects_localhost_database_url(prod_env_dict):
@@ -242,12 +275,3 @@ def test_production_rejects_localhost_redis(prod_env_dict):
     with pytest.raises(ConfigurationError) as exc_info:
         get_settings(_env_file=None, **prod_env_dict)
     assert "local/Docker infrastructure" in str(exc_info.value)
-
-
-def test_development_allows_local_auth_and_localhost(valid_env_dict):
-    """Non-production env keeps the local dev path (local auth + localhost infra)."""
-    valid_env_dict["APP_ENV"] = "development"
-    valid_env_dict["AUTH_PROVIDER"] = "local"
-    valid_env_dict["REDIS_URL"] = "redis://localhost:6379/0"
-    s = get_settings(_env_file=None, **valid_env_dict)
-    assert s.AUTH_PROVIDER == "local"

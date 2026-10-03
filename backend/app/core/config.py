@@ -37,20 +37,16 @@ class Settings(BaseSettings):
     POSTGRES_USER: str | None = None
     POSTGRES_PASSWORD: str | None = None
 
-    # Supabase
+    # Supabase (PostgreSQL & pgvector infrastructure)
     SUPABASE_URL: str
     SUPABASE_ANON_KEY: str
     SUPABASE_SERVICE_ROLE_KEY: str
 
     # Authentication provider selection.
-    #   "supabase" -> production: validate Supabase Auth access tokens only.
-    #   "local"    -> development: use this service's own HS256 JWT + bcrypt.
-    # Defaults to "local" so local dev keeps working; production is REQUIRED to
-    # set "supabase" (enforced in the validator below, which also forbids
-    # localhost infra in production).
+    #   "local"    -> WatchMan FastAPI stateless HS256 JWT + bcrypt (Standard in dev and prod).
+    #   "supabase" -> Optional: validate external Supabase Auth JWT tokens.
     AUTH_PROVIDER: str = "local"
-    # Shared Supabase JWT secret (symmetric HS256 tokens). Required when
-    # AUTH_PROVIDER=supabase and the project signs tokens with the shared secret.
+    # Supabase JWT secret used ONLY if AUTH_PROVIDER=supabase.
     SUPABASE_JWT_SECRET: str | None = None
     # Expected audience claim on Supabase access tokens.
     SUPABASE_JWT_AUD: str = "authenticated"
@@ -167,20 +163,31 @@ class Settings(BaseSettings):
                 "Wildcard '*' in CORS_ORIGINS is not permitted with authenticated credentials."
             )
 
+        # Validate AUTH_PROVIDER supported values
+        auth_provider = (self.AUTH_PROVIDER or "").strip().lower()
+        if auth_provider not in ("local", "supabase"):
+            raise ValueError(
+                f"Unsupported AUTH_PROVIDER '{self.AUTH_PROVIDER}'. Supported providers are 'local' and 'supabase'."
+            )
+
         # ---- Production hardening ------------------------------------------
-        # Enforce hosted infra in production.
+        # Enforce hosted infra and strict production secrets.
         if self.APP_ENV.strip().lower() in ("production", "prod"):
             self._reject_localhost("DATABASE_URL", self.DATABASE_URL)
             self._reject_localhost("REDIS_URL", self.REDIS_URL)
             self._reject_localhost("CELERY_BROKER_URL", self.CELERY_BROKER_URL)
             self._reject_localhost("CELERY_RESULT_BACKEND", self.CELERY_RESULT_BACKEND)
 
-            if self.AUTH_PROVIDER.strip().lower() != "supabase":
-                raise ValueError("In production, AUTH_PROVIDER must be 'supabase'.")
-            if not self.SUPABASE_JWT_SECRET or not self.SUPABASE_JWT_SECRET.strip():
-                raise ValueError(
-                    "In production with AUTH_PROVIDER=supabase, SUPABASE_JWT_SECRET is required."
-                )
+            if auth_provider == "local":
+                if not self.SECRET_KEY or len(self.SECRET_KEY.strip()) < 32:
+                    raise ValueError(
+                        "In production with AUTH_PROVIDER=local, SECRET_KEY must be configured and at least 32 characters long."
+                    )
+            elif auth_provider == "supabase":
+                if not self.SUPABASE_JWT_SECRET or not self.SUPABASE_JWT_SECRET.strip():
+                    raise ValueError(
+                        "In production with AUTH_PROVIDER=supabase, SUPABASE_JWT_SECRET is required."
+                    )
 
         return self
 
