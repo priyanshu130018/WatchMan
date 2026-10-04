@@ -339,7 +339,3 @@ python scripts/audit_latency.py
 ```
 
 ---
-
-## License
-
-MIT License
