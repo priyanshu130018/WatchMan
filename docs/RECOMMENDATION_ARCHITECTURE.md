@@ -150,6 +150,16 @@ Outputs:
 
 ---
 
+## Cold-Start Recommendations
+
+For new users with zero interaction history:
+1. **Onboarding Preferences Matching**: If the user selected favorite genres/languages during onboarding, `HybridRanker` applies preference weighting and penalizes any configured `disliked_genres`.
+2. **Multi-Channel Retrieval**: Candidate channels with no precomputed user state (`Content-Based`, `ALS Collaborative`) gracefully return empty candidate lists in $<1$ ms without blocking.
+3. **Popularity & Freshness Blending**: The `Popularity` and `Freshness` candidate generators provide catalog-wide candidates, which are ranked by the hybrid ranker.
+4. **Non-Empty Initial Recommendations**: If onboarding preferences are unavailable, the popularity and freshness mechanisms ensure the user receives immediate, high-quality discovery items rather than an empty recommendation state.
+
+---
+
 ## Configuration Reference
 
 Key settings in `.env`:

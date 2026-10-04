@@ -192,7 +192,7 @@ WatchMan handles new users and newly cataloged items without pipeline degradatio
 
 1. **New Users (Zero Interactions)**:
    - The ALS candidate generator detects missing factors in `als_user_factors` and returns `[]` in $<1$ ms without blocking.
-   - The recommendation pipeline gracefully blends **Content-Based candidates** (derived from the user's onboarding genre preferences) with **Popularity** and **Freshness** candidates.
+   - The recommendation pipeline uses **Popularity** and **Freshness** candidates, with `HybridRanker` applying preference matching if onboarding `UserPreference` is available. If onboarding preferences are unavailable, popularity and freshness provide valid initial recommendations rather than an empty list.
    - As the user begins interacting, the background worker flags their taste profile and incorporates them into the next training cycle.
 
 2. **New Content Items (Zero Interactions)**:

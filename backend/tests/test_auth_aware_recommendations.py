@@ -133,10 +133,10 @@ def test_unauthenticated_recommendations_endpoint_returns_401(client):
     assert res.status_code == 401
 
 
-def test_cold_start_user_receives_empty_list_and_cold_start_flag(client, db_session, seed_catalog):
+def test_cold_start_user_receives_initial_recs_and_cold_start_flag(client, db_session, seed_catalog):
     """
-    Cold-start user with no interactions must receive an empty list and is_cold_start=True.
-    No fake popular recommendations should be returned or persisted.
+    Cold-start user with no interactions receives initial recommendations
+    (via popularity/freshness mechanisms) with is_cold_start=True.
     """
     user, token = create_test_user(db_session, "brand_new_cold")
     headers = {"Authorization": f"Bearer {token}"}
@@ -144,24 +144,24 @@ def test_cold_start_user_receives_empty_list_and_cold_start_flag(client, db_sess
     res = client.get("/api/recommendations", headers=headers)
     assert res.status_code == 200
     data = res.json()
-    assert data["items"] == []
-    assert data["total"] == 0
+    assert len(data["items"]) > 0
+    assert data["total"] > 0
     assert data["is_cold_start"] is True
 
-    # Verify no fake recommendations were persisted into recommendations table
+    # Recommendations are persisted for the user
     persisted = db_session.query(Recommendation).filter(Recommendation.user_id == user.id).all()
-    assert len(persisted) == 0, "No recommendations should be persisted for a cold-start user"
+    assert len(persisted) > 0, "Initial cold-start recommendations should be persisted"
 
 
-def test_cold_start_user_personalized_route_returns_empty_results(client, db_session, seed_catalog):
-    """The /personalized route must not return a hardcoded/fixed movie for cold users."""
+def test_cold_start_user_personalized_route_returns_results(client, db_session, seed_catalog):
+    """The /personalized route returns initial recommendations for cold users."""
     user, token = create_test_user(db_session, "cold_pers")
     headers = {"Authorization": f"Bearer {token}"}
 
     res = client.get("/api/recommendations/personalized", headers=headers)
     assert res.status_code == 200
     data = res.json()
-    assert data["results"] == []
+    assert len(data["results"]) > 0
 
 
 def test_page_view_events_alone_do_not_defeat_cold_start(client, db_session, seed_catalog):
@@ -187,7 +187,7 @@ def test_page_view_events_alone_do_not_defeat_cold_start(client, db_session, see
     res = client.get("/api/recommendations", headers=headers)
     assert res.status_code == 200
     data = res.json()
-    assert data["items"] == []
+    assert len(data["items"]) > 0
     assert data["is_cold_start"] is True
 
 
@@ -228,8 +228,8 @@ def test_active_user_with_interaction_receives_real_recommendations(client, db_s
     assert seed_catalog[0].id not in persisted_ids
 
 
-def test_stale_recommendations_pruned_if_user_loses_activity(client, db_session, seed_catalog):
-    """If a user has no remaining activity, any stale recommendation rows are pruned."""
+def test_stale_recommendations_replaced_if_user_loses_activity(client, db_session, seed_catalog):
+    """If a user has no remaining activity, stale recommendation rows are replaced by fresh cold-start recommendations."""
     user, token = create_test_user(db_session, "stale_cleanup")
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -245,13 +245,16 @@ def test_stale_recommendations_pruned_if_user_loses_activity(client, db_session,
     )
     db_session.commit()
 
-    # Calling /api/recommendations should detect zero activity and prune it
-    res = client.get("/api/recommendations", headers=headers)
+    # Calling /api/recommendations with force_refresh replaces stale rec with initial cold-start recs
+    res = client.get("/api/recommendations?force_refresh=true", headers=headers)
     assert res.status_code == 200
     data = res.json()
-    assert data["items"] == []
+    assert len(data["items"]) > 0
     assert data["is_cold_start"] is True
 
-    # Verify pruned from database
-    rem = db_session.query(Recommendation).filter(Recommendation.user_id == user.id).count()
-    assert rem == 0
+    # Verify old stale fake rec is gone
+    old_stale = db_session.query(Recommendation).filter(
+        Recommendation.user_id == user.id,
+        Recommendation.explanation == "Old stale fake rec",
+    ).all()
+    assert len(old_stale) == 0

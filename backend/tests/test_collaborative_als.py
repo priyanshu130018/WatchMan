@@ -138,8 +138,14 @@ def test_build_interactions_weights(db_session, seeded_interactions):
     matrix, user_ids, item_ids = ALSTrainingService.build_interactions(db_session)
     assert len(user_ids) == 4
     assert len(item_ids) == 6
-    # rating 5.0 -> normalized 1.0, but Saved (0.9) also present; max wins -> 1.0
-    assert matrix[users[0].id][contents[0].id] == pytest.approx(1.0)
+    # rating 5.0 -> normalized 0.5 on 10-point scale; Saved (0.9) is also present; max wins -> 0.9
+    assert matrix[users[0].id][contents[0].id] == pytest.approx(0.9)
+    # update rating to 10.0 -> normalized 1.0
+    r = db_session.query(Rating).filter(Rating.user_id == users[0].id, Rating.content_id == contents[1].id).first()
+    r.rating = 10.0
+    db_session.commit()
+    matrix_updated, _, _ = ALSTrainingService.build_interactions(db_session)
+    assert matrix_updated[users[0].id][contents[1].id] == pytest.approx(1.0)
     # watch progress 0.5 -> 0.3 + 0.7*0.5 = 0.65
     assert matrix[users[0].id][contents[3].id] == pytest.approx(0.65)
 

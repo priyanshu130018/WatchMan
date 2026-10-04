@@ -107,13 +107,36 @@ class HybridRanker:
     DEFAULT_WEIGHTS = settings.recommendation_weights
 
     @classmethod
+    @classmethod
+    def _parse_genres(cls, genres_list: list[Any] | None, id_to_name: dict[int, str], tmdb_to_name: dict[int, str]) -> set[str]:
+        if not genres_list:
+            return set()
+        parsed = set()
+        for g in genres_list:
+            if isinstance(g, int):
+                if g in tmdb_to_name:
+                    parsed.add(tmdb_to_name[g])
+                elif g in id_to_name:
+                    parsed.add(id_to_name[g])
+            elif isinstance(g, str):
+                if g.isdigit():
+                    gid = int(g)
+                    if gid in tmdb_to_name:
+                        parsed.add(tmdb_to_name[gid])
+                    elif gid in id_to_name:
+                        parsed.add(id_to_name[gid])
+                else:
+                    parsed.add(g.strip().lower())
+        return parsed
+
+    @classmethod
     def get_user_profile_preferences(cls, db: Session, user_id: UUID) -> tuple[set[str], set[str]]:
         """
         Retrieves user's explicit genre and language preferences.
         Supports both genre name strings and TMDB/database integer IDs.
         """
         pref = db.query(UserPreference).filter(UserPreference.user_id == user_id).first()
-        if not pref or not pref.favorite_genres:
+        if not pref:
             return set(), set()
 
         from app.models.taxonomy import Genre
@@ -121,22 +144,7 @@ class HybridRanker:
         id_to_name = {g.id: g.name.strip().lower() for g in all_genres if g.name}
         tmdb_to_name = {g.tmdb_id: g.name.strip().lower() for g in all_genres if g.tmdb_id and g.name}
 
-        pref_genres = set()
-        for g in pref.favorite_genres:
-            if isinstance(g, int):
-                if g in tmdb_to_name:
-                    pref_genres.add(tmdb_to_name[g])
-                elif g in id_to_name:
-                    pref_genres.add(id_to_name[g])
-            elif isinstance(g, str):
-                if g.isdigit():
-                    gid = int(g)
-                    if gid in tmdb_to_name:
-                        pref_genres.add(tmdb_to_name[gid])
-                    elif gid in id_to_name:
-                        pref_genres.add(id_to_name[gid])
-                else:
-                    pref_genres.add(g.strip().lower())
+        pref_genres = cls._parse_genres(pref.favorite_genres, id_to_name, tmdb_to_name)
 
         pref_langs = set()
         if hasattr(pref, "favorite_languages") and pref.favorite_languages:
@@ -148,13 +156,31 @@ class HybridRanker:
         return pref_genres, pref_langs
 
     @classmethod
+    def get_user_disliked_genres(cls, db: Session, user_id: UUID) -> set[str]:
+        """
+        Retrieves user's explicit disliked genre preferences.
+        Supports both genre name strings and TMDB/database integer IDs.
+        """
+        pref = db.query(UserPreference).filter(UserPreference.user_id == user_id).first()
+        if not pref or not pref.disliked_genres:
+            return set()
+
+        from app.models.taxonomy import Genre
+        all_genres = db.query(Genre).all()
+        id_to_name = {g.id: g.name.strip().lower() for g in all_genres if g.name}
+        tmdb_to_name = {g.tmdb_id: g.name.strip().lower() for g in all_genres if g.tmdb_id and g.name}
+
+        return cls._parse_genres(pref.disliked_genres, id_to_name, tmdb_to_name)
+
+    @classmethod
     def _compute_preference_score(
         cls,
         content: Content,
         pref_genres: set[str],
         pref_langs: set[str],
+        disliked_genres: set[str] | None = None,
     ) -> float:
-        if not pref_genres and not pref_langs:
+        if not pref_genres and not pref_langs and not disliked_genres:
             return 0.0
 
         item_genres = set()
@@ -177,11 +203,22 @@ class HybridRanker:
                 lang_match = 1.0
 
         if pref_genres and pref_langs:
-            return 0.7 * genre_match + 0.3 * lang_match
+            base_pref = 0.7 * genre_match + 0.3 * lang_match
         elif pref_genres:
-            return genre_match
+            base_pref = genre_match
+        elif pref_langs:
+            base_pref = lang_match
         else:
-            return lang_match
+            base_pref = 0.0
+
+        # Disliked genre penalty: applies a clear negative penalty if an item matches user's disliked genres
+        disliked_penalty = 0.0
+        if disliked_genres and item_genres:
+            disliked_common = disliked_genres.intersection(item_genres)
+            if disliked_common:
+                disliked_penalty = len(disliked_common) / min(len(disliked_genres), len(item_genres))
+
+        return base_pref - disliked_penalty
 
     @classmethod
     def _build_explanation(
@@ -267,6 +304,7 @@ class HybridRanker:
             w.update(weights)
 
         pref_genres, pref_langs = cls.get_user_profile_preferences(db, user_id)
+        disliked_genres = cls.get_user_disliked_genres(db, user_id)
 
         # Check user WatchMan decisions
         from app.models.watchman import WatchmanDecision
@@ -285,7 +323,7 @@ class HybridRanker:
                 continue
 
             c = item.content
-            pref_score = cls._compute_preference_score(c, pref_genres, pref_langs)
+            pref_score = cls._compute_preference_score(c, pref_genres, pref_langs, disliked_genres)
 
             composite_score = (
                 w["content"] * item.content_score

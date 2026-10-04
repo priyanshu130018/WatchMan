@@ -182,67 +182,32 @@ export function RecommendationPage() {
         <ContentGridSkeleton count={16} />
       ) : isError ? (
         <ErrorState error={error} onRetry={refetch} />
-      ) : isColdStart ? (
+      ) : items.length > 0 ? (
         <>
-          {/* Cold-start: the engine has no personalized signal yet. We explain honestly
-              how the user builds it up — never showing fake personalization or hardcoded items. */}
-          <div className="mb-8 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-6">
-            <div className="flex items-start gap-3">
-              <Sparkles size={22} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  Recommendations will appear as you explore WatchMan
-                </h2>
-                <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-                  Your personalized feed gets smarter as the engine learns your taste. It improves
-                  each time you:
-                </p>
-                <ul className="mt-3 grid gap-1.5 text-sm text-muted-foreground sm:grid-cols-2">
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-                    View a movie or web series
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-                    Like titles you enjoy
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-                    Save titles to your list
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-                    Rate and review what you&apos;ve seen
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-                    Build up your watch history
-                  </li>
-                </ul>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button asChild variant="brand" size="sm">
-                    <Link to="/trending">Explore trending</Link>
-                  </Button>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/profile">Set preferred genres</Link>
-                  </Button>
+          {isColdStart && (
+            <div className="mb-8 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-6">
+              <div className="flex items-start gap-3">
+                <Sparkles size={22} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Recommendations will adapt as you explore WatchMan
+                  </h2>
+                  <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
+                    Here are top titles to get you started. Your personalized feed will refine
+                    automatically as you watch, save, like, or rate titles.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button asChild variant="brand" size="sm">
+                      <Link to="/trending">Explore trending</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                      <Link to="/profile">Set preferred genres</Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <EmptyState
-            title="No personalized recommendations yet"
-            description="Start watching, saving, or rating titles and your personalized hybrid feed will automatically generate."
-            action={
-              <Button asChild variant="brand" size="sm">
-                <Link to="/trending">Explore trending titles</Link>
-              </Button>
-            }
-          />
-        </>
-      ) : items.length > 0 ? (
-        <>
+          )}
           <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {items.map((item) => (
               <li

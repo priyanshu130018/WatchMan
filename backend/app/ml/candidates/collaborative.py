@@ -17,9 +17,12 @@ class CollaborativeCandidateGenerator:
     def _build_interaction_matrix(cls, db: Session) -> dict[UUID, dict[int, float]]:
         matrix: dict[UUID, dict[int, float]] = defaultdict(dict)
 
-        # Ratings
+        # Ratings (consistently normalized on 10-point scale: rating / 10.0)
+        disliked_ratings: set[tuple[UUID, int]] = set()
         for r_user_id, r_content_id, r_rating in db.query(Rating.user_id, Rating.content_id, Rating.rating).all():
-            norm = (r_rating / 5.0) if r_rating <= 5.0 else (r_rating / 10.0)
+            norm = max(0.0, min(1.0, float(r_rating) / 10.0))
+            if norm <= 0.5:
+                disliked_ratings.add((r_user_id, r_content_id))
             matrix[r_user_id][r_content_id] = max(matrix[r_user_id].get(r_content_id, 0.0), norm)
 
         # Saved content
@@ -33,13 +36,26 @@ class CollaborativeCandidateGenerator:
             matrix[h_user_id][h_content_id] = max(matrix[h_user_id].get(h_content_id, 0.0), strength)
 
         # Interaction events
-        for ev_user_id, ev_content_id, ev_type in (
-            db.query(InteractionEvent.user_id, InteractionEvent.content_id, InteractionEvent.event_type)
+        for ev_user_id, ev_content_id, ev_type, ev_val in (
+            db.query(InteractionEvent.user_id, InteractionEvent.content_id, InteractionEvent.event_type, InteractionEvent.event_value)
             .filter(InteractionEvent.content_id.isnot(None), InteractionEvent.user_id.isnot(None))
             .all()
         ):
-            ev_weight = 0.6 if ev_type in ("save", "rate", "watch") else 0.3
-            matrix[ev_user_id][ev_content_id] = max(matrix[ev_user_id].get(ev_content_id, 0.0), ev_weight)
+            if (ev_user_id, ev_content_id) in disliked_ratings:
+                continue
+            if ev_type == "save":
+                matrix[ev_user_id][ev_content_id] = max(matrix[ev_user_id].get(ev_content_id, 0.0), 0.6)
+            elif ev_type == "rate":
+                if ev_val is not None:
+                    norm = max(0.0, min(1.0, float(ev_val) / 10.0))
+                    matrix[ev_user_id][ev_content_id] = max(matrix[ev_user_id].get(ev_content_id, 0.0), norm)
+            elif ev_type == "watch":
+                if ev_val is not None:
+                    prog = max(0.0, min(1.0, float(ev_val)))
+                    if prog >= 0.4:
+                        matrix[ev_user_id][ev_content_id] = max(matrix[ev_user_id].get(ev_content_id, 0.0), 0.3 + 0.7 * prog)
+            else:
+                matrix[ev_user_id][ev_content_id] = max(matrix[ev_user_id].get(ev_content_id, 0.0), 0.3)
 
         return matrix
 

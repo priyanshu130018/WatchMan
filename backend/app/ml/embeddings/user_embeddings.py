@@ -33,23 +33,27 @@ class UserEmbeddingService:
         for item in saved_items:
             weights[item.content_id] = max(weights[item.content_id], 1.0)
 
-        # 2. Ratings (>= 3.0 on 5-scale or >= 6.0 on 10-scale)
+        # 2. Ratings (consistently normalized on 10-point scale: rating / 10.0)
+        # Ratings >= 6.0 (>= 0.6) are positive signals. Lower ratings do not contribute positive taste weights.
         ratings = db.query(Rating).filter(Rating.user_id == user_id).all()
         for r in ratings:
             raw_val = float(r.rating)
-            normalized_val = raw_val / 5.0 if raw_val <= 5.0 else raw_val / 10.0
+            normalized_val = max(0.0, min(1.0, raw_val / 10.0))
             if normalized_val >= 0.6:  # positive rating
                 weights[r.content_id] = max(weights[r.content_id], normalized_val)
 
-        # 3. Watch History (progress >= 0.4)
+        # 3. Watch History (based on actual progress / completion)
         history_items = db.query(WatchHistory).filter(WatchHistory.user_id == user_id).all()
         for h in history_items:
             prog = max(0.0, min(1.0, float(h.progress or 0.0)))
-            if prog >= 0.4 or h.completed:
+            if h.completed:
+                weights[h.content_id] = max(weights[h.content_id], 1.0)
+            elif prog >= 0.4:
                 strength = 0.5 + 0.5 * prog
                 weights[h.content_id] = max(weights[h.content_id], strength)
 
-        # 4. Interaction Events (e.g. 'save', 'share', 'view')
+        # 4. Interaction Events (e.g. 'save', 'share')
+        # Respect canonical signals and prevent generic events from contaminating taste with 0.5 weights.
         events = (
             db.query(InteractionEvent)
             .filter(
@@ -59,17 +63,38 @@ class UserEmbeddingService:
             .all()
         )
         for ev in events:
-            weights[ev.content_id] = max(weights[ev.content_id], 0.5)
+            if not ev.content_id:
+                continue
+
+            if ev.event_type == "save":
+                weights[ev.content_id] = max(weights[ev.content_id], 1.0)
+            elif ev.event_type == "share":
+                weights[ev.content_id] = max(weights[ev.content_id], 0.5)
+            elif ev.event_type == "rate":
+                # Only use if event provides an explicit positive rating value (>= 6.0 on 10-scale)
+                if ev.event_value is not None:
+                    norm_val = max(0.0, min(1.0, float(ev.event_value) / 10.0))
+                    if norm_val >= 0.6:
+                        weights[ev.content_id] = max(weights[ev.content_id], norm_val)
+            elif ev.event_type == "watch":
+                # Only use if event provides an explicit watch progress (>= 0.4)
+                if ev.event_value is not None:
+                    prog_val = max(0.0, min(1.0, float(ev.event_value)))
+                    if prog_val >= 0.4:
+                        strength = 0.5 + 0.5 * prog_val
+                        weights[ev.content_id] = max(weights[ev.content_id], strength)
 
         # 5. WatchMan Decisions
         from app.models.watchman import WatchmanDecision
         decisions = db.query(WatchmanDecision).filter(WatchmanDecision.user_id == user_id).all()
+        skip_cids: set[int] = set()
         for dec in decisions:
             if dec.decision == "must_watch":
                 weights[dec.content_id] = max(weights[dec.content_id], 1.0)
             elif dec.decision == "time_pass":
                 weights[dec.content_id] = max(weights[dec.content_id], 0.35)
             elif dec.decision == "skip":
+                skip_cids.add(dec.content_id)
                 weights.pop(dec.content_id, None)
 
         # Interaction events from watchman decisions
@@ -89,7 +114,12 @@ class UserEmbeddingService:
             if dec == "must_watch" or val == 1.0:
                 weights[ev.content_id] = max(weights[ev.content_id], 1.0)
             elif dec == "skip" or val == 0.0:
+                skip_cids.add(ev.content_id)
                 weights.pop(ev.content_id, None)
+
+        # Enforce hard exclusion for skipped items
+        for cid in skip_cids:
+            weights.pop(cid, None)
 
         return dict(weights)
 

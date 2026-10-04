@@ -43,6 +43,8 @@ class RecommendationGenerator:
             db.commit()
         except Exception:
             db.rollback()
+            logger.exception("Failed to persist recommendations for user %s", user_id)
+            raise
 
     @classmethod
     def generate_and_persist_for_user(

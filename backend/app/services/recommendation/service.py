@@ -95,23 +95,7 @@ class UnifiedRecommendationService:
             is_root_ctx = True
 
         try:
-            # Cold start verification: if user has no genuine activity, return clean cold start
-            if not self.user_has_activity(db, user_id):
-                try:
-                    db.query(Recommendation).filter(Recommendation.user_id == user_id).delete()
-                    db.commit()
-                except Exception:
-                    db.rollback()
-                telemetry.record_recommendation_run(duration_ms=0.0, success=True, is_cold_start=True)
-                return {
-                    "items": [],
-                    "total": 0,
-                    "page": page,
-                    "page_size": limit,
-                    "total_pages": 1,
-                    "is_cold_start": True,
-                }
-
+            is_cold_user = not self.user_has_activity(db, user_id)
             cache_key = f"recommendations:user:{user_id}:type:{content_type or 'all'}:v:1.0.0"
 
             # 1. Check Redis cache unless force_refresh
@@ -130,7 +114,7 @@ class UnifiedRecommendationService:
                         "page": page,
                         "page_size": limit,
                         "total_pages": max(1, ceil(total / limit)),
-                        "is_cold_start": False,
+                        "is_cold_start": is_cold_user,
                     }
                     ctx.serialization_ms += (time.perf_counter() - t_ser) * 1000
                     return res
@@ -162,12 +146,13 @@ class UnifiedRecommendationService:
                     )
             else:
                 # 3. Generate on-the-fly via RecommendationGenerator
-                all_ranked_items = RecommendationGenerator.generate_and_persist_for_user(
+                generated = RecommendationGenerator.generate_and_persist_for_user(
                     db=db,
                     user_id=user_id,
                     limit=max(limit * 2, 50),
                     content_type=content_type,
                 )
+                all_ranked_items = [r.to_dict() if hasattr(r, "to_dict") else r for r in generated]
 
             # 4. Cold-start fallback if still empty (catalog items matching preferences or highest popularity)
             if not all_ranked_items:
@@ -192,7 +177,7 @@ class UnifiedRecommendationService:
                 await cache.set(cache_key, all_ranked_items, ttl=self.CACHE_TTL)
 
             # Record recommendation pipeline execution metrics
-            is_cold_start = any("cold_start" in (item.get("sources") or []) for item in all_ranked_items)
+            is_cold_start = is_cold_user or any("cold_start" in (item.get("sources") or []) for item in all_ranked_items)
             telemetry.record_recommendation_run(duration_ms=0.0, success=True, is_cold_start=is_cold_start)
 
             # Paginate results

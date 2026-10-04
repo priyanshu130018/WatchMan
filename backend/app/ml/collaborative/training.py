@@ -38,10 +38,10 @@ class ALSTrainingService:
         Build an implicit-feedback interaction map: user_id -> {content_id: weight}.
 
         Weights follow WatchMan's unified interaction semantics:
-        - Rating: normalized 0..1 (rating / 5.0 or rating / 10.0)
+        - Rating: normalized 0..1 (rating / 10.0)
         - Saved content: 0.9
         - Watch history: 0.3 + 0.7 * progress (0.4..1.0)
-        - Interaction events: 0.6 for save/rate/watch, 0.3 for view/other
+        - Interaction events: 0.6 for save, canonical value for rate/watch, 0.3 for view/other
         - WatchMan decisions: 1.0 for must_watch, 0.35 for time_pass, 0.0 / excluded for skip
         """
         matrix: dict[UUID, dict[int, float]] = defaultdict(dict)
@@ -51,10 +51,13 @@ class ALSTrainingService:
                 return
             matrix[uid][cid] = max(matrix[uid].get(cid, 0.0), float(w))
 
-        # 1. User Ratings
+        # 1. User Ratings (normalized on 10-point scale: rating / 10.0)
+        disliked_ratings: set[tuple[UUID, int]] = set()
         for r in db.query(Rating).all():
-            norm = (r.rating / 5.0) if r.rating <= 5.0 else (r.rating / 10.0)
-            _bump(r.user_id, r.content_id, max(0.0, min(1.0, norm)))
+            norm = max(0.0, min(1.0, float(r.rating) / 10.0))
+            if norm <= 0.5:
+                disliked_ratings.add((r.user_id, r.content_id))
+            _bump(r.user_id, r.content_id, norm)
 
         # 2. Saved / Watchlist Items
         for s in db.query(SavedContent).all():
@@ -67,16 +70,26 @@ class ALSTrainingService:
 
         # 4. Telemetry / Behavioral Events
         for ev in db.query(InteractionEvent).all():
-            if not ev.content_id:
+            if not ev.content_id or (ev.user_id, ev.content_id) in disliked_ratings:
                 continue
-            if ev.event_type in ("save", "rate", "watch"):
+            if ev.event_type == "save":
                 _bump(ev.user_id, ev.content_id, 0.6)
+            elif ev.event_type == "rate":
+                if ev.event_value is not None:
+                    _bump(ev.user_id, ev.content_id, max(0.0, min(1.0, float(ev.event_value) / 10.0)))
+            elif ev.event_type == "watch":
+                if ev.event_value is not None:
+                    prog = max(0.0, min(1.0, float(ev.event_value)))
+                    if prog >= 0.4:
+                        _bump(ev.user_id, ev.content_id, 0.3 + 0.7 * prog)
             elif ev.event_type == "watchman_decision":
                 dec = (ev.event_data or {}).get("decision") if ev.event_data else None
                 if dec == "must_watch" or ev.event_value == 1.0:
                     _bump(ev.user_id, ev.content_id, 1.0)
                 elif dec == "time_pass" or ev.event_value == 0.5:
                     _bump(ev.user_id, ev.content_id, 0.35)
+                elif dec == "skip" or ev.event_value == 0.0:
+                    matrix[ev.user_id].pop(ev.content_id, None)
             else:
                 _bump(ev.user_id, ev.content_id, 0.3)
 
@@ -86,6 +99,8 @@ class ALSTrainingService:
                 _bump(dec.user_id, dec.content_id, 1.0)
             elif dec.decision == "time_pass":
                 _bump(dec.user_id, dec.content_id, 0.35)
+            elif dec.decision == "skip":
+                matrix[dec.user_id].pop(dec.content_id, None)
 
         user_ids = sorted(matrix.keys(), key=str)
         item_ids = sorted({cid for items in matrix.values() for cid in items})
